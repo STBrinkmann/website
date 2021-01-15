@@ -23,7 +23,7 @@ date_format: Jan 2006
 #   Begin multi-line descriptions with YAML's `|2-` multi-line prefix.
 experience:
   - title: Student assistant
-    company: Digital Health Geographies
+    company: Digital Health Geography
     company_url: 'https://www.geography.nat.fau.eu/research/cultural-geography/wg-digital-health/'
     location: FAU Erlangen-Nürnberg
     date_start: '2020-04-01'
