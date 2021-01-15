@@ -46,7 +46,7 @@ DATE: dd.mm.yyyy
 Next a Wordcloud with the word frequency of the whole corpus has been created:
 <img src="https://raw.githubusercontent.com/STBrinkmann/Text_Mining_Belval/master/Plots/wordcloud.svg?sanitize=true">
 We can already see that the new campus is of high importance. But also, the look into the future ("2022", "future"),
-but also the acknowledgement of its history ("furnace", "steel", "industrial"...) are often thematised.
+and the acknowledgement of its history ("furnace", "steel", "industrial"...) are often thematised.
 
 ### Term Frequency-Inverse Document Frequency
 At this point the corpus does not contain many articles for 2014 and 2015. 

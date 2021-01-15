@@ -36,5 +36,5 @@ experience:
     location: FAU Erlangen-Nürnberg
     date_start: '2019-04-01'
     date_end: '2019-09-30'
-    description: Development of scripts for the processing of optical satellite images and TanDEM-X data in R and Shell.
+    description: Development of scripts for the processing of optical satellite images and TanDEM-X data in R and Shell, in the context of glaciology.
 ---
