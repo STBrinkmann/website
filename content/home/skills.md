@@ -25,7 +25,7 @@ feature:
   icon_pack: fas
   name: ESRI ArcGIS & QGIS
 - description: 80%
-  icon: font-case
+  icon: file-alt
   icon_pack: fas
   name: LaTeX
 - description: 20%
