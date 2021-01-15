@@ -22,6 +22,7 @@ projects: []
 runtime: shiny
 output: html_document
 ---
+Klicke [hier](https://datageobrinkmann.be/bewegungsradius/) für die mobilfreundliche Version :iphone:<br />
 <iframe height="850px" width="100%" frameborder="no" src="https://datageobrinkmann.be/bewegungsradius/"> </iframe>
 <br />
 
