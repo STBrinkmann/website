@@ -24,18 +24,18 @@ feature:
   icon: globe-americas
   icon_pack: fas
   name: ESRI ArcGIS & QGIS
-- description: 80%
-  icon: file-alt
-  icon_pack: fas
-  name: LaTeX
 - description: 20%
   icon: python
   icon_pack: fab
   name: Python
-- description: 10%
+- description: 20%
   icon: laptop-code
   icon_pack: fas
   name: SQL, HTML & C#
+- description: 80%
+  icon: file-alt
+  icon_pack: fas
+  name: LaTeX
 
 # Uncomment to use emoji icons.
 #- icon = ":smile:"
