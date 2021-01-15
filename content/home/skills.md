@@ -24,10 +24,10 @@ feature:
   icon: globe-americas
   icon_pack: fas
   name: ESRI ArcGIS & QGIS
-- description: 90%
-  icon: file-word
+- description: 80%
+  icon: font-case
   icon_pack: fas
-  name: MS Office
+  name: LaTeX
 - description: 20%
   icon: python
   icon_pack: fab
