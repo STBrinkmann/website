@@ -4,16 +4,16 @@ education:
   courses:
   - course: B.Sc. in Physical Geography
     institution: FAU Erlangen-Nürnberg
-    year: 2018
+    year: 2018 - today
   - course: B.Sc. in Applied mathematics and physics
     institution: TH Ohm Nürnberg
-    year: 2017
+    year: 2016 - 2017
   - course: Fachgebundene Hochschulreife im sozialen Zweig
     institution: Lothar von Faber FOS Nürnberg
-    year: 2014
+    year: 2011 - 2014
   - course: Mittlerer Schulabschluss
     institution: Hauptschule Scharrerschule Nürnberg
-    year: 2011
+    year: 2009 - 2011
 email: "sebastian.brinkmann@fau.de"
 highlight_name: false
 interests:
