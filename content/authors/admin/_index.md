@@ -43,4 +43,4 @@ title: Sebastian Brinkmann
 ---
 
 I am a Physical Geographer at [FAU Nürnberg-Erlangen](https://www.geographie.nat.fau.de/). In our [research group](https://www.geography.nat.fau.eu/research/cultural-geography/wg-digital-health/) I work as an Data Analyst and focus on machine learning, and the intersection of natural environment and human behaviour by developing novel algorithms.\
-In my spare time, I enjoy working on private coding projects and travel the world. 
+In my spare time, I enjoy working on private coding projects and traveling the world with my backpack. 
