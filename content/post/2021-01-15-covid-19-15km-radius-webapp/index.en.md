@@ -23,7 +23,7 @@ runtime: shiny
 output: html_document
 ---
 Klicke [hier](https://datageobrinkmann.be/bewegungsradius/) für die mobilfreundliche Version :iphone:<br />
-<iframe height="850px" width="100%" frameborder="no" src="https://datageobrinkmann.be/bewegungsradius/"> </iframe>
+<iframe frameborder="0" scrolling="no" seamless="seamless" style="display:block; width:95%; height:85vh;" src="https://datageobrinkmann.be/bewegungsradius/"></iframe>
 <br />
 
 # COVID-19 Bewegungsradius
