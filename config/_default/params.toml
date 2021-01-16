@@ -88,7 +88,7 @@ show_related = {docs = true, page = false, post = true, project = true, publicat
 ############################
 
 # Enter contact details (optional). To hide a field, clear it to "".
-email = "sebastian.brinkmann@fau.de"
+#email = "sebastian.brinkmann@fau.de"
 #phone = "888 888 88 88"
 
 # Address
@@ -261,7 +261,7 @@ plugins_js  = []
   #   3: OpenStreetMap (Mapbox)
   engine = 2
   api_key = ""
-  zoom = 15
+  zoom = 5
 
 ############################
 ## Marketing
