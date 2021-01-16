@@ -28,7 +28,7 @@ experience:
     location: FAU Erlangen-Nürnberg
     date_start: '2020-04-01'
     date_end: ''
-    description: Collecting and processing of census and OSM data. Developing algorithms, as well as statistical modeling in the projects COVID-19 and PURE SPACE. Writing publications as a co-author
+    description: Collecting and processing of census and OSM data. Developing algorithms, as well as statistical modeling in the projects COVID-19 and PURE SPACE. Writing publications as a co-author.
         
   - title: Student assistant
     company: Remote Sensing & GIS
