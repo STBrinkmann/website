@@ -19,7 +19,7 @@ highlight_name: false
 interests:
 - Spatial Analysis
 - Urban Forestry
-- Epidemiologyl
+- Epidemiology
 - Remote Sensing
 organizations:
 - name: FAU Erlangen-Nürnberg
