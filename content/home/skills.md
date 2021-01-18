@@ -16,26 +16,34 @@ subtitle:
 # - Add/remove as many `feature` blocks below as you like.
 # - For available icons, see: https://wowchemy.com/docs/page-builder/#icons
 feature:
-- description: 90%
+- description: Advanced
   icon: r-project
   icon_pack: fab
   name: R
-- description: 80%
+- description: Advanced
   icon: globe-americas
   icon_pack: fas
-  name: ESRI ArcGIS & QGIS
-- description: 20%
-  icon: python
-  icon_pack: fab
-  name: Python
-- description: 20%
-  icon: laptop-code
-  icon_pack: fas
-  name: SQL, HTML & C#
-- description: 80%
+  name: QGIS & ESRI ArcGIS
+- description: Advanced
   icon: file-alt
   icon_pack: fas
   name: LaTeX
+- description: Intermediate
+  icon: database
+  icon_pack: fas
+  name: SQL
+- description: Intermediate
+  icon: laptop-code
+  icon_pack: fas
+  name: HTML
+- description: Beginner
+  icon: python
+  icon_pack: fab
+  name: Python
+- description: Beginner
+  icon: laptop-code
+  icon_pack: fas
+  name: C#
 
 # Uncomment to use emoji icons.
 #- icon = ":smile:"
