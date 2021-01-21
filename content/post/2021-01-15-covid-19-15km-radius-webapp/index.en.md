@@ -27,6 +27,7 @@ Klicke [hier](https://datageobrinkmann.be/bewegungsradius/) für die mobilfreund
 <br />
 
 # COVID-19 Bewegungsradius
+### Stand: 15.1.2020
 Die 15-Kilomenter Regel, nachdem sich Bewohner mit einer 7-Tage Inzidenz
 von über 200 nur noch 15 km um ihren Wohnort bewegen dürfen, sorgt für
 Verwirrung. Diese App soll dabei helfen, den individuellen

@@ -35,7 +35,7 @@ feature:
 - description: Intermediate
   icon: laptop-code
   icon_pack: fas
-  name: HTML
+  name: HTML & CSS
 - description: Beginner
   icon: python
   icon_pack: fab

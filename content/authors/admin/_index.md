@@ -1,5 +1,5 @@
 ---
-bio: My research interests include spatial analysis, urban forestry, epidemiology and remote sensing
+bio: My research interests include spatial analysis, remote sensing, data science, urban forestry and epidemiology.
 education:
   courses:
   - course: B.Sc. in Physical Geography
@@ -18,13 +18,14 @@ email: "sebastian.brinkmann@fau.de"
 highlight_name: false
 interests:
 - Spatial Analysis
+- Remote Sensing
+- Data Science
 - Urban Forestry
 - Epidemiology
-- Remote Sensing
 organizations:
 - name: FAU Erlangen-Nürnberg
   url: https://www.geographie.nat.fau.de/
-role: B.Sc. Student in Physical Geography
+role: BSc Student in Physical Geography
 social:
 - icon: envelope
   icon_pack: fas
