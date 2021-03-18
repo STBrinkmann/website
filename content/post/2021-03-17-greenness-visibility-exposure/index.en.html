@@ -9,6 +9,7 @@ tags:
   - GIS
   - Greenspace
   - Health Geography
+  - LiDAR
 subtitle: ''
 summary: ''
 authors: []
@@ -27,18 +28,20 @@ bibliography: references.bib
 ---
 
 <script src="{{< blogdown/postref >}}index.en_files/header-attrs/header-attrs.js"></script>
+<link href="{{< blogdown/postref >}}index.en_files/anchor-sections/anchor-sections.css" rel="stylesheet" />
+<script src="{{< blogdown/postref >}}index.en_files/anchor-sections/anchor-sections.js"></script>
 <script src="{{< blogdown/postref >}}index.en_files/kePrint/kePrint.js"></script>
 <link href="{{< blogdown/postref >}}index.en_files/lightable/lightable.css" rel="stylesheet" />
 
 
-<p>Exposure to residential greenness or green spaces such as parks or gardens are beneficial for multiple measures of health <span class="citation">(<a href="#ref-markevych2017" role="doc-biblioref">Markevych et al. 2017</a>; <a href="#ref-labib2020" role="doc-biblioref">Labib, Lindley, and Huck 2020</a>)</span>. Both of these terms will be used as synonyms henceforth. Greenspace exposure can be categorised into three types: (a) availability, refering to the physical amount of greenspace, (b) accessibility, meaning the spatial proximity to greenspace, and (c) visibility, refering to the visual perception of greenness <span class="citation">(<a href="#ref-labib2020" role="doc-biblioref">Labib, Lindley, and Huck 2020</a>)</span>.</p>
-<p>In <a href="https://www.geography.nat.fau.eu/research/cultural-geography/wg-digital-health/#collapse_5">our</a> recent pblication (in submission) we measured greenness taking a top-down, bird’s eye view approach using remote sensing derived <a href="https://eos.com/ndvi/">NDVI</a>, to aproximate the availability of greenness. Furthermore, we used a distance weighted road network to calculate potential neighbourhood exposure models around participants place of residency, therefore also accounting for accessibility.</p>
-<p>The next step will be, to combine greenness visibilty with our potential neighbourhood exposure models.</p>
-<p>In this post, I will therefore demonstrate how to download and prepare all necessary files and methods needed for a visibility analysis for Vancouver, Canada. In the first part I demonstrate the data acquisition, in the second part I will explain the main functions used for the visibility analysis. My implementation of these methods is very light weighted and fast, while still maintaing high resolution.</p>
+<p>Exposure to residential greenness or green spaces such as parks or gardens are beneficial for multiple measures of health <span class="citation">(<a href="#ref-markevych2017" role="doc-biblioref">Markevych et al. 2017</a>; <a href="#ref-labib2020" role="doc-biblioref">Labib, Lindley, and Huck 2020</a>)</span>. Greenness and greenspace will be used as synonyms henceforth. Greenspace exposure can be categorized into three types: (a) availability, referring to the physical amount of greenspace, (b) accessibility, meaning the spatial proximity to greenspace, and (c) visibility, referring to the visual perception of greenness <span class="citation">(<a href="#ref-labib2020" role="doc-biblioref">Labib, Lindley, and Huck 2020</a>)</span>.</p>
+<p>In <a href="https://www.geography.nat.fau.eu/research/cultural-geography/wg-digital-health/#collapse_5">our</a> recent publication (in submission) we measured greenness taking a top-down, bird’s eye view approach using remote sensing derived <a href="https://eos.com/ndvi/">NDVI</a>, to approximate the availability of greenness. Furthermore, we used a distance weighted road network to calculate potential neighborhood exposure models around participants place of residency, therefore also accounting for accessibility.</p>
+<p>The next step will be, to combine greenness visibility with our potential neighborhood exposure models.</p>
+<p>In this post, I will therefore demonstrate how to download and prepare all necessary files and methods needed for a visibility analysis. In the first part I demonstrate data acquisition and processing, in the second part I will explain the main functions used for the visibility analysis. My implementation of these methods is very light weighted and fast, while still maintaining high resolution.</p>
 <div id="libraries" class="section level2">
 <h2>Libraries</h2>
 <p>First load all packages. If one of these packages has not been installed, use the <code>install.packages()</code> function.</p>
-<p><a href="https://CRAN.R-project.org/package=terra">terra</a> is a relativly new R package that replaces the well known <a href="https://CRAN.R-project.org/package=raster">raster</a>. I have found <code>terra</code> to work much faster for most tasks. However, in the visibility-functions, using <code>raster</code> proved to work much faster.</p>
+<p><a href="https://CRAN.R-project.org/package=terra">terra</a> is a relatively new R package that replaces the well known <a href="https://CRAN.R-project.org/package=raster">raster</a>. I have found <code>terra</code> to work much faster for most tasks. However, in the visibility-functions, using <code>raster</code> proved to work much faster.</p>
 <pre class="r"><code>library(dplyr)
 library(sf)
 library(ggplot2)
@@ -50,8 +53,8 @@ library(data.table)</code></pre>
 </div>
 <div id="data" class="section level2">
 <h2>Data</h2>
-<p>The data is beeing stored in a different directory than this R project. Therefore I first need to assign my working directory.</p>
-<pre class="r"><code>workdir &lt;- &quot;H://Vancouver/&quot;</code></pre>
+<p>The data is being stored in a different directory than this R project. Therefore I first need to assign my working directory.</p>
+<pre class="r"><code>workdir &lt;- &quot;/media/sebastian/Red/Vancouver&quot;</code></pre>
 <div id="dtm" class="section level3">
 <h3>DTM</h3>
 <p>First, we need to download the digital terrain model (DTM) generated from LiDAR data collected in 2013 for the City of Vancouver from the <a href="https://opendata.vancouver.ca/pages/home/">City of Vancouver Open Data Portal</a>.</p>
@@ -64,7 +67,7 @@ unzip(zipfile = file.path(workdir, &quot;dtm.zip&quot;), exdir = &quot;Data&quot
 
 # Delete .zip 
 unlink(file.path(workdir, &quot;dtm.zip&quot;), recursive = TRUE)</code></pre>
-<pre class="r"><code>DTM &lt;- terra::rast(file.path(workdir, &quot;/DEM/DEM_2013.tif&quot;))
+<pre class="r"><code>DTM &lt;- terra::rast(file.path(workdir, &quot;DEM/DEM_2013.tif&quot;))
 
 plot(DTM)</code></pre>
 <p><img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
@@ -244,7 +247,7 @@ elev_matrix %&gt;%
 <p>Surprisingly, the code works faster using the <code>raster</code> package compared to the <code>terra</code> package. Therefore, we will convert the DSM and DTM to raster objects later.</p>
 <div id="rasterprofile" class="section level3">
 <h3>Rasterprofile</h3>
-<p>To calculate the visibility of a point B from the point A, we first need to access all raster cells from point A to B. The <code>rasterprofile</code> function returns a <code>data.table</code> with all cells from A to B, containing X- and Y-coordinates, the height and cell-number for every cell. Using the <code>data.table</code> structure as the core fr the following functions, significantly reduced computation time.</p>
+<p>To calculate the visibility of a point B from point A, we first need to access all raster cells from point A to B. The <code>rasterprofile</code> function returns a <code>data.table</code> with all cells from A to B, containing X- and Y-coordinates, the height and the cell-number for every cell. Using the <code>data.table</code> structure as the core for the following functions, significantly reduces computation time.</p>
 <pre class="r"><code>rasterprofile &lt;- function(r, x0, y0, x1, y1, reso){
   # Sample a raster along a straight line between two points
   # Try to match the sampling size to the raster resolution
@@ -267,7 +270,7 @@ elev_matrix %&gt;%
 </div>
 <div id="line-of-sight" class="section level3">
 <h3>Line of Sight</h3>
-<p>The observer at point A can only see point B, if no object in between point A and B blocks the view to point B. The <code>lineOfSight</code> function evaluates visibility along all cells from A to B, by calculating tangent <em>⍺</em> from <em>𝚫height (</em>opposite side) and <em>distance traveled</em> (adjacent side) and comparing it for every step. The function returns a <code>data.frame</code> containing the cell number and corresponding visibility of all points from A to B. Visible cells have a value of 1 and non visible cells -1.</p>
+<p>The observer at point A can only see point B, if no object in between point A and B blocks the view to point B. The <code>lineOfSight</code> function evaluates visibility along all cells from A to B, by calculating tangent <em>⍺</em> from <em>𝚫height</em> (opposite side) and <em>distance traveled</em> (adjacent side) and comparing it for every step. To see a point, its tangent <em>⍺</em> must be greater than the biggest tangent <em>⍺</em> so far. The function returns a <code>data.table</code> containing the cell number and corresponding visibility of all points from A to B. Visible cells have a value of 1 and non visible cells -1.</p>
 <pre class="r"><code>lineOfSight &lt;- function(xy1, x0, y0, 
                         height0, resolution, dsm_data, 
                         plot = FALSE) {
@@ -275,35 +278,35 @@ elev_matrix %&gt;%
   x1 &lt;- unlist(xy1[1], use.names = FALSE)
   y1 &lt;- unlist(xy1[2], use.names = FALSE)
   
-  # How far we have travelled along the ray
+  # How far we have traveled along the ray
   distance_travelled = 0
   
   # Get the pixels in the line
   pixels &lt;- rasterprofile(r = dsm_data, x0 = x0, y0 = y0, x1 = x1, y1 = y1, 
                           reso = resolution)
   
-  # Set starting point to +1 and initilize max_dydx
-  max_dydx &lt;- -Inf
+  # The starting point is visible. Initialize max_tangent
+  max_tangent &lt;- -Inf
   visible_pixels &lt;- pixels[[4]][1]
   
   for(i in 2:nrow(pixels)) {
     x_i &lt;- pixels[[1]][i]
     y_i &lt;- pixels[[2]][i]
     
-    # Distance travelled so far
+    # Distance traveled so far
     distance_traveled = sqrt((y0 - y_i)^2 + (x0 - x_i)^2)
     
     # Calculate tangent from delta height (opposite side) and distance traveled (adjacent side)
-    cur_dydx = (pixels[[3]][i] - height0) / (distance_traveled * resolution)
+    cur_tangent = (pixels[[3]][i] - height0) / (distance_traveled * resolution)
     
-    if (cur_dydx &gt; max_dydx) {
-      max_dydx &lt;- cur_dydx
+    if (cur_tangent &gt; max_tangent) {
+      max_tangent &lt;- cur_tangent
       visible_pixels &lt;- c(visible_pixels, pixels[[4]][i])
     }
   }
   
   # Get non visible cell numbers
-  non_visible_pixels &lt;- pixels[[4]][!pixels[[4]] %in% visible_pixels]
+  non_visible_pixels &lt;- pixels[!cell %in% visible_pixels, cell]
   
   # Combine to output data.table
   output &lt;- data.table::data.table(
@@ -330,7 +333,7 @@ elev_matrix %&gt;%
 </div>
 <div id="viewshed" class="section level3">
 <h3>Viewshed</h3>
-<p>Finally, the visibility of all points withing a certain buffer around point A can be calculated, using the <code>lineOfSight</code> function. The <code>viewshed</code> function returns a circular raster (start point + max_distance-buffer) where values of 1 indicate visible points and -1 non-visible points. I am calculating the line of sight to the points with the greatest distance from A and store the information about all points in-between. This way I can minimize the amount of time, that the <code>lineOfSight</code> needs to be called and significantly reduce runtime.</p>
+<p>Finally, the visibility of all points withing a certain buffer around point A can be calculated, using the <code>lineOfSight</code> function. The <code>viewshed</code> function returns a circular raster (start point + max_distance-buffer) where values of 1 indicate visible points and -1 non-visible points. I am always calculating the line of sight to the points with the greatest distance from A and store the information about all points in-between. This way I can minimize the amount of time, that the <code>lineOfSight</code> needs to be called and significantly reduce computation time.</p>
 <pre class="r"><code>viewshed &lt;- function(sf_start, max_distance, dsm_data, dtm_data, resolution, 
                      observer_height, cores = 1, chunk_size = 150,
                      plot = FALSE, progressBar = TRUE) {
@@ -339,11 +342,11 @@ elev_matrix %&gt;%
   this_aoi &lt;- sf_start %&gt;% 
     sf::st_buffer(max_distance)
   
-  # Obserever height
+  # Observer height
   height0 &lt;- raster::extract(dtm_data, sf::st_coordinates(sf_start)) + observer_height
   
   # If the resolution parameter differs from the input-DSM resolution,
-  # resample the DSM and DEM to the lower resolution.
+  # resample the DSM to the lower resolution.
   if ((res(dsm_data)[1] != resolution) &amp; (resolution &gt;= 1)) {
     dsm_data &lt;- raster::crop(dsm_data, this_aoi) %&gt;% 
       raster::aggregate(fact = resolution/raster::res(.)) %&gt;% 
@@ -381,15 +384,14 @@ elev_matrix %&gt;%
       dplyr::as_tibble() %&gt;% 
       # Calculate distance to start point and sort
       dplyr::mutate(distance = sqrt((y0 - y)^2 + (x0 - x)^2)) %&gt;%
-      arrange(desc(distance)) %&gt;%
       # Select top_n (chunk_size) cells
-      .[1:chunk_size, ] %&gt;% 
+      top_n(chunk_size, wt = distance) %&gt;% 
       na.omit() %&gt;% 
       dplyr::select(-distance) %&gt;%
       # Convert to list for lapply
       split(seq(nrow(.)))
     
-    # Apply lineOfSight function on every point in sf_stop_i
+    # Apply lineOfSight function on every point in xy_stop
     if (cores &gt; 1) {
       if (Sys.info()[[&quot;sysname&quot;]] == &quot;Windows&quot;) {
         cl &lt;- parallel::makeCluster(cores)
@@ -442,7 +444,7 @@ elev_matrix %&gt;%
   }
   return(output)
 }</code></pre>
-<p>The animation below illustrates, the functionality of the <code>viewshed</code> function. Starting with a raster of unknow visibilty (yellow), we iterativly call the <code>lineOfSight</code> function and set the status of each raster cell to visible (green) or no-visible (white).</p>
+<p>The animation below illustrates, the functionality of the <code>viewshed</code> function. Starting with a raster of unknown visibility (yellow), we iterative call the <code>lineOfSight</code> function and set the status of each raster cell to visible (green) or no-visible (white).</p>
 <p><img src="LoS.gif" /><!-- --></p>
 </div>
 <div id="examples" class="section level3">
@@ -456,26 +458,20 @@ sf_start &lt;- sfheaders::sf_point(c(487616.2, 5455970)) %&gt;%
 <div id="resolution-0.5m" class="section level4">
 <h4>1. Resolution = 0.5m</h4>
 <p>Output-Raster-Cells: 1 440 000<br />
-Runtime: ~13 seconds<br />
-Total visibility: 9.4%<br />
-Visible area: 33 670 m²</p>
+Runtime: ~12 seconds<br />
+Total visibility: 11.9%</p>
 <pre class="r"><code>viewshed_1 &lt;- viewshed(sf_start = sf_start, max_distance = 300,
                        dsm_data = filled_dsm, dtm_data = DTM, 
                        resolution = 0.5, observer_height = 1.8, 
                        cores = 20, chunk_size = 2000,
                        plot = TRUE, progressBar = FALSE)</code></pre>
-<pre><code>## Warning: The `i` argument of ``[.tbl_df`()` must lie in [0, rows] if positive, as of tibble 3.0.0.
-## Use `NA_integer_` as row index to obtain a row full of `NA` values.
-## This warning is displayed once every 8 hours.
-## Call `lifecycle::last_warnings()` to see where this warning was generated.</code></pre>
 <p><img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-19-1.png" width="1536" /></p>
 </div>
 <div id="resolution-1m" class="section level4">
 <h4>2. Resolution = 1m</h4>
 <p>Output-Raster-Cells: 360 000<br />
 Runtime: ~6 seconds<br />
-Total visibility: 9.7%<br />
-Visible area: 34 984 m²</p>
+Total visibility: 12.4%</p>
 <pre class="r"><code>viewshed_2 &lt;- viewshed(sf_start = sf_start, max_distance = 300,
                        dsm_data = filled_dsm, dtm_data = DTM, 
                        resolution = 1, observer_height = 1.8, 
@@ -487,8 +483,7 @@ Visible area: 34 984 m²</p>
 <h4>3. Resolution = 2m</h4>
 <p>Output-Raster-Cells: 90 000<br />
 Runtime: ~3 seconds<br />
-Total visibility: 10.2%<br />
-Visible area: 36 680 m²</p>
+Total visibility: 12.8%</p>
 <pre class="r"><code>viewshed_3 &lt;- viewshed(sf_start = sf_start, max_distance = 300,
                        dsm_data = filled_dsm, dtm_data = DTM, 
                        resolution = 2, observer_height = 1.8, 
@@ -500,8 +495,7 @@ Visible area: 36 680 m²</p>
 <h4>4. Resolution = 5m</h4>
 <p>Output-Raster-Cells: 14 400<br />
 Runtime: ~2 seconds<br />
-Total visibility: 11.3%<br />
-Visible area: 40 800 m²</p>
+Total visibility: 14.6%</p>
 <pre class="r"><code>viewshed_4 &lt;- viewshed(sf_start = sf_start, max_distance = 300,
                        dsm_data = filled_dsm, dtm_data = DTM, 
                        resolution = 5, observer_height = 1.8, 
@@ -515,7 +509,7 @@ Visible area: 40 800 m²</p>
 <h2>Network Visible Greenspace</h2>
 <div id="greenspace-mask" class="section level3">
 <h3>Greenspace Mask</h3>
-<p>After calculating visibility, we can now determine level of greenness for the visible cells. We will be using the <a href="http://www.metrovancouver.org/data/Data/LandCoverClassification-2m/LCC2014_2m_LiDAR_gdb.zip">Vancouver Land Cover Classification 2014 - 2m LiDAR (Raster)</a>. This data can be opened using ArcGIS and exported as TIFF for further analysis. From the documentaion we can read the class values as follows:</p>
+<p>After calculating visibility, we can now determine level of greenness for the visible cells. We will be using the <a href="http://www.metrovancouver.org/data/Data/LandCoverClassification-2m/LCC2014_2m_LiDAR_gdb.zip">Vancouver Land Cover Classification 2014 - 2m LiDAR (Raster)</a>. This data can be opened using ArcGIS and exported as TIFF for further analysis. From the documentation we can read the class values as follows:</p>
 <table style="width:90%; font-family: &quot;Arial Narrow&quot;, &quot;Source Sans Pro&quot;, sans-serif; width: auto !important; margin-left: auto; margin-right: auto;" class=" lightable-classic lightable-striped">
 <thead>
 <tr>
@@ -777,7 +771,7 @@ greenspace %&gt;%
 points(st_coordinates(sf_start)[1], st_coordinates(sf_start)[2], 
        col = &quot;blue&quot;, cex = 3, pch = 20)</code></pre>
 <p><img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-24-1.png" width="1536" /></p>
-<p>The <code>visibleGreen</code> function returns the proportion of visible greenspace of total visibility.</p>
+<p>The <code>visibleGreen</code> function returns the proportion of visible greenspace to total visibility.</p>
 <pre class="r"><code>visibleGreen &lt;- function(viewshed, greenspace) {
   # Get XY coordinates that are visible
   xy &lt;- viewshed %&gt;% 
@@ -860,12 +854,12 @@ for (i in 1:nrow(all_points)) {
 <p>As the last step, we need to summarize all measurements from the previous steps. I simply take the mean of all values, but one could also apply a linear or logistic weights function, such that the influence of a variable decreases with increasing distance, as demonstrated in our recent publication.</p>
 <pre class="r"><code>round(mean(output$visibleGreen), 2)</code></pre>
 <pre><code>## [1] 0.47</code></pre>
-<p>A mean value of 0.47 indicates, that almost 50% of the visible area along the network is vegetated. However, we can see a high diversity in the example above, in that the northern half has higher visibly greenness. Therefore, future research may also incorporate actual activity space meassurements instead of potential activity space, to further analyse where participants spend time and thus improve the understanding of greenspace related health effects.</p>
+<p>A mean value of 0.47 indicates, that almost 50% of the visible area along the network is vegetated. However, we can see a high diversity in the example above, in that the northern half has higher visible greenness. Therefore, future research may also incorporate actual activity space measurements instead of potential activity space, to further analyze where participants spend time and thus improve the understanding of greenspace related health effects.</p>
 </div>
 </div>
 <div id="conclusion" class="section level2">
 <h2>Conclusion</h2>
-<p>Data acquisition and processing with <code>lidR</code>and <code>terra</code> is simple and fast using R as the only tool. The implementation of a parallel viewshed algorithm has proven to be very light-weighted and fast. Using a lower resolution significantly reduces model runtime. However, even at highest resolution, the runtime is acceptable. The effect of multiprocessing is significant only with high resolution or very large values of <code>max_distance</code>. Using this algorithm in a large scale study at high resolution appears to be practical. Compared to the model 1, model 4 has an increase of 20% in visible area. In my opinion the trade-off between loss of accuracy for an increase in speed still is acceptable. I would suggest comparing a few points with 1m, 2m and 5m resolution.</p>
+<p>Data acquisition and processing with <code>lidR</code>and <code>terra</code> is simple and fast using R as the only tool. The implementation of a parallel viewshed algorithm has proven to be very light-weighted and fast. Using a lower resolution significantly reduces model runtime. However, even at highest resolution, the runtime is acceptable. The effect of multiprocessing is significant only with high resolution or very large values of <code>max_distance</code>. Using this algorithm in a large scale study at high resolution appears to be practical. Compared to model 1, model 4 has an increase in visible area from 11.9% to 14.6%. The results of the other models are closer to model 1. In my opinion the trade-off between loss of accuracy for an increase in speed still is acceptable. But reducing the resolution to 5m or even more might only be worth it for large values of max_distance, since the computation time hardly differs from 2m resolution. I would suggest comparing a few points with 0.5m, 1m, 2m and 5m resolution.</p>
 <p>A simple implementation of the viewshed analysis into a route network analysis is one practical example, for researching greenspace exposure.</p>
 </div>
 <div id="references" class="section level2 unnumbered">
