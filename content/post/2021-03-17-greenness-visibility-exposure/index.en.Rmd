@@ -13,7 +13,6 @@ tags:
 subtitle: ''
 summary: ''
 authors: []
-lastmod: '2021-03-17T18:54:34+01:00'
 featured: no
 image:
   caption: ''
@@ -22,14 +21,11 @@ image:
 projects: []
 output:
   html_document:
-    toc: true
     theme: united
 bibliography: references.bib
 ---
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-blogdown::build_site()
 ```
 
 Exposure to residential greenness or green spaces such as parks or gardens are beneficial for multiple measures of health [@markevych2017; @labib2020]. Greenness and greenspace will be used as synonyms henceforth. Greenspace exposure can be categorized into three types: (a) availability, referring to the physical amount of greenspace, (b) accessibility, meaning the spatial proximity to greenspace, and (c) visibility, referring to the visual perception of greenness [@labib2020].
@@ -44,7 +40,7 @@ In this post, I will therefore demonstrate how to download and prepare all neces
 
 First load all packages. If one of these packages has not been installed, use the `install.packages()` function.
 
-[terra](https://CRAN.R-project.org/package=terra) is a relatively new R package that replaces the well known [raster](https://CRAN.R-project.org/package=raster). I have found `terra` to work much faster for most tasks. However, in the visibility-functions, using `raster` proved to work much faster.
+[terra](https://CRAN.R-project.org/package=terra) is a relatively new R package that replaces the well known [raster](https://CRAN.R-project.org/package=raster). I have found `terra` to work much faster for most tasks.
 
 ```{r message=FALSE, warning=FALSE}
 library(dplyr)
@@ -299,11 +295,9 @@ Greenspace is associated with several health benefits along multiple pathways [@
 
 The line of sight is being calculated from the observer to every point in the area of interest, to distinguish between visible and invisible points. To determine green and no-green points, a greenspace mask will me intersected.
 
-Surprisingly, the code works faster using the `raster` package compared to the `terra` package. Therefore, we will convert the DSM and DTM to raster objects later.
-
 ### Rasterprofile
 
-To calculate the visibility of a point B from point A, we first need to access all raster cells from point A to B. The `rasterprofile` function returns a `data.table` with all cells from A to B, containing X- and Y-coordinates, the height and the cell-number for every cell. Using the `data.table` structure as the core for the following functions, significantly reduces computation time.
+To calculate the visibility of a point B from point A, we first need to access all raster cells from point A to B. The `rasterprofile` function returns a `matrix` with all cells from A to B, containing X- and Y-coordinates, the height and the cell-number for every cell. Surprisingly the `raster::extract` is faster than `terra::extract`.
 
 ```{r}
 rasterprofile <- function(r, x0, y0, x1, y1, reso){
@@ -311,19 +305,17 @@ rasterprofile <- function(r, x0, y0, x1, y1, reso){
   # Try to match the sampling size to the raster resolution
   dx = sqrt((x0 - x1)^2 + (y0 - y1)^2)
   nsteps = 1 + round(dx / reso)
-  xc = x0 + (0:nsteps) * (x1 - x0) / nsteps
-  yc = y0 + (0:nsteps) * (y1 - y0) / nsteps
+  pointsZ <- cbind(x0 + (0:nsteps) * (x1 - x0) / nsteps, 
+                   y0 + (0:nsteps) * (y1 - y0) / nsteps)
   
-  rasterVals <- raster::extract(x = r, y = cbind(xc, yc)) %>% 
-    unlist(use.names=FALSE)
+  rasterVals <- raster::extract(x = r, y = pointsZ, cellnumber = TRUE)
   
-  pointsZ <- cbind("x" = xc, "y" = yc, "z" = rasterVals, 
-                   "cell" = raster::cellFromXY(r, cbind(xc, yc)))
+  pointsZ <- cbind(pointsZ, rasterVals[,2], rasterVals[,1])
   
   if (anyNA(pointsZ)) {
     pointsZ <- pointsZ[stats::complete.cases(pointsZ),,drop = FALSE]
   }
-  return(data.table::as.data.table(pointsZ))
+  return(pointsZ)
 }
 ```
 
@@ -333,63 +325,39 @@ The observer at point A can only see point B, if no object in between point A an
 
 ```{r}
 lineOfSight <- function(xy1, x0, y0, 
-                        height0, resolution, dsm_data, 
-                        plot = FALSE) {
-  
-  x1 <- unlist(xy1[1], use.names = FALSE)
-  y1 <- unlist(xy1[2], use.names = FALSE)
-  
-  # How far we have traveled along the ray
-  distance_travelled = 0
+                        height0, resolution, dsm_data) {
+  # Get start XY from input
+  x1 <- xy1[1]
+  y1 <- xy1[2]
   
   # Get the pixels in the line
   pixels <- rasterprofile(r = dsm_data, x0 = x0, y0 = y0, x1 = x1, y1 = y1, 
                           reso = resolution)
   
-  # The starting point is visible. Initialize max_tangent
-  max_tangent <- -Inf
-  visible_pixels <- pixels[[4]][1]
+  # Distance traveled so far
+  distance_traveled = sqrt((y0 - pixels[,2])^2 + (x0 - pixels[,1])^2)
+    
+  # Calculate tangent from delta height (opposite side) and distance traveled (adjacent side)
+  pixels <- cbind(pixels, (pixels[,3] - height0) / (distance_traveled * resolution))
   
-  for(i in 2:nrow(pixels)) {
-    x_i <- pixels[[1]][i]
-    y_i <- pixels[[2]][i]
-    
-    # Distance traveled so far
-    distance_traveled = sqrt((y0 - y_i)^2 + (x0 - x_i)^2)
-    
-    # Calculate tangent from delta height (opposite side) and distance traveled (adjacent side)
-    cur_tangent = (pixels[[3]][i] - height0) / (distance_traveled * resolution)
-    
-    if (cur_tangent > max_tangent) {
-      max_tangent <- cur_tangent
-      visible_pixels <- c(visible_pixels, pixels[[4]][i])
+  # Is visible? Current tangent must be greater than max. tangent
+  is_visible <- function(x) {
+    if (x[5] > max_tangent) {
+        max_tangent <<- x[5]
+        x[4]
     }
   }
+  max_tangent <- -Inf
+  visible_pixels <- apply(pixels, 1, is_visible) %>% 
+    unlist() %>% 
+    c(pixels[1,4], .) # the starting point is always visible
   
-  # Get non visible cell numbers
-  non_visible_pixels <- pixels[!cell %in% visible_pixels, cell]
+  # Assign 1 for visible and -1 for no-visible cells
+  pixels[pixels[,4] %in% visible_pixels, 5] <- 1
+  pixels[pixels[,5] != 1, 5] <- -1
   
-  # Combine to output data.table
-  output <- data.table::data.table(
-      cell = c(visible_pixels, non_visible_pixels),
-      value = c(
-          rep(1, length(visible_pixels)),
-          rep(-1, length(non_visible_pixels))
-        )
-    )
-  
-  if(plot) {
-    plot(dsm_data)
-    
-    points(raster::xyFromCell(dsm_data, output[value == -1, cell])[, 1], 
-           raster::xyFromCell(dsm_data, output[value == -1, cell])[, 2],
-           col = "red", pch = 20, cex = 1.4)
-    points(raster::xyFromCell(dsm_data, output[value == 1, cell])[, 1], 
-           raster::xyFromCell(dsm_data, output[value == 1, cell])[, 2],
-           col = "blue", pch = 20, cex = 1.8)
-  }
-  
-  return(output)
+  # Return cellnumber and visibility-value
+  data.table::as.data.table(pixels[, 4:5])
 }
 ```
 
@@ -406,29 +374,34 @@ viewshed <- function(sf_start, max_distance, dsm_data, dtm_data, resolution,
   this_aoi <- sf_start %>% 
     sf::st_buffer(max_distance)
   
-  # Observer height
-  height0 <- raster::extract(dtm_data, sf::st_coordinates(sf_start)) + observer_height
-  
-  # If the resolution parameter differs from the input-DSM resolution,
-  # resample the DSM to the lower resolution.
-  if ((res(dsm_data)[1] != resolution) & (resolution >= 1)) {
-    dsm_data <- raster::crop(dsm_data, this_aoi) %>% 
-      raster::aggregate(fact = resolution/raster::res(.)) %>% 
-      raster::mask(this_aoi)
-    
-    output <- raster::setValues(dsm_data, 0) %>%
-      raster::mask(dsm_data)
-  } else {
-    dsm_data <- raster::crop(dsm_data, this_aoi) %>% 
-      raster::mask(this_aoi)
-    
-    output <- raster::setValues(dsm_data, 0) %>% 
-      raster::mask(dsm_data)
-  }
-  
   # Coordinates of start point
   x0 <- sf::st_coordinates(sf_start)[1]
   y0 <- sf::st_coordinates(sf_start)[2]
+  
+  # Observer height
+  height0 <- as.numeric(terra::extract(dtm_data, cbind(x0, y0))) + observer_height
+  
+  # If the resolution parameter differs from the input-DSM resolution,
+  # resample the DSM to the lower resolution.
+  # Also, convert dsm_data_masked to "Raster" object, for faster internal calculation.
+  if ((res(dsm_data)[1] != resolution) & (resolution >= 1)) {
+    dsm_data_masked <- terra::crop(dsm_data, this_aoi) %>% 
+      terra::aggregate(fact = resolution/terra::res(.)) %>% 
+      terra::mask(terra::vect(this_aoi))
+    
+    output <- terra::setValues(dsm_data_masked, 0) %>%
+      terra::mask(terra::vect(this_aoi))
+    
+    dsm_data_masked <- as(dsm_data_masked, "Raster")
+  } else {
+    dsm_data_masked <- terra::crop(dsm_data, this_aoi) %>% 
+      terra::mask(terra::vect(this_aoi))
+    
+    output <- terra::setValues(dsm_data_masked, 0) %>% 
+      terra::mask(terra::vect(this_aoi))
+    
+    dsm_data_masked <- as(dsm_data_masked, "Raster")
+  }
   
   repeating = TRUE
   if (progressBar) {
@@ -441,17 +414,14 @@ viewshed <- function(sf_start, max_distance, dsm_data, dtm_data, resolution,
     #  plot(output, legend = F)
     #  points(x0, y0, col = "blue", pch = 20, cex = 1.8)
     #}
-    
     # Select all cells of the output raster, that have not yet been analyzed.
-    # Convert to XY
-    xy_stop <- raster::xyFromCell(output, which(raster::values(output) == 0)) %>% 
-      dplyr::as_tibble() %>% 
-      # Calculate distance to start point and sort
-      dplyr::mutate(distance = sqrt((y0 - y)^2 + (x0 - x)^2)) %>%
-      # Select top_n (chunk_size) cells
-      top_n(chunk_size, wt = distance) %>% 
+    xy_stop <- terra::xyFromCell(output, which(terra::values(output) == 0)) %>% 
+      # Calculate distance to start point
+      cbind(., sqrt((y0 - .[,2])^2 + (x0 - .[,1])^2)) %>% 
+      # Sort by distance
+      .[order(-.[,3]), 1:2] %>% 
+      .[1:ifelse(nrow(.) < chunk_size, nrow(.), chunk_size), ] %>%
       na.omit() %>% 
-      dplyr::select(-distance) %>%
       # Convert to list for lapply
       split(seq(nrow(.)))
     
@@ -464,45 +434,44 @@ viewshed <- function(sf_start, max_distance, dsm_data, dtm_data, resolution,
         this_LoS <- parallel::parLapply(cl, xy_stop, fun = lineOfSight, 
                                        x0 = x0, y0 = y0,
                                        height0 = height0, resolution = resolution, 
-                                       dsm_data = dsm_data, plot = FALSE)
+                                       dsm_data = dsm_data_masked)
         parallel::stopCluster(cl)
       }
       else {
         this_LoS <- parallel::mclapply(xy_stop, lineOfSight, 
                                        x0 = x0, y0 = y0,
                                        height0 = height0, resolution = resolution, 
-                                       dsm_data = dsm_data, plot = FALSE, 
+                                       dsm_data = dsm_data_masked, 
                                        mc.cores = cores, mc.preschedule = TRUE)
       }
     } else {
       this_LoS <- lapply(xy_stop, FUN = lineOfSight, 
                          x0 = x0, y0 = y0,
                          height0 = height0, resolution = resolution, 
-                         dsm_data = dsm_data, plot = FALSE)
+                         dsm_data = dsm_data_masked)
     }
     
-    # Bind and remove duplicate entries
+    # Bind list
     this_LoS <- this_LoS %>% 
-      do.call(rbind, .) %>% 
-      unique()
+      data.table::rbindlist()
     
     # Copy result of lapply to the output raster 
-    output[this_LoS$cell] <- this_LoS$value
-    
-    # Exit if all points in the output raster have been analyzed 
-    if (!any(raster::values(output) == 0, na.rm = T)) {
-      repeating <- FALSE
-    }
+    output[this_LoS[[1]]] <- this_LoS[[2]]
     
     if (progressBar) {
-      setTxtProgressBar(pb, length(which(raster::values(output) %in% c(-1,1))))
+      setTxtProgressBar(pb, length(which(terra::values(output) %in% c(-1,1))))
+    }
+    
+    # Exit if all points in the output raster have been analyzed 
+    if (!any(terra::values(output) == 0, na.rm = T)) {
+      repeating <- FALSE
     }
   }
   
   # Compare DSM with Visibilty
   if (plot) {
     par(mfrow=c(1,2))
-    plot(dsm_data); points(x0, y0, col = "red", pch = 20, cex = 2)
+    plot(dsm_data_masked); points(x0, y0, col = "red", pch = 20, cex = 2)
     plot(output, legend = F); points(x0, y0, col = "red", pch = 20, cex = 2)
     par(mfrow=c(1,1))
   }
@@ -521,8 +490,8 @@ The animation below illustrates, the functionality of the `viewshed` function. S
 As already mentioned, we first need to convert the DSM and DTM to a raster. We also need to create a start point for our example.
 
 ```{r}
-DTM <- as(DTM, "Raster")
-filled_dsm <- as(filled_dsm, "Raster")
+# Disable progress bar for terra::aggregate
+terraOptions(progress = 0)
 
 sf_start <- sfheaders::sf_point(c(487616.2, 5455970)) %>% 
     st_sf(crs = st_crs(26910))
@@ -531,56 +500,56 @@ sf_start <- sfheaders::sf_point(c(487616.2, 5455970)) %>%
 #### 1. Resolution = 0.5m
 
 Output-Raster-Cells: 1 440 000\
-Runtime: \~12 seconds\
+Runtime: 3.3 seconds (cores=1: \~7 seconds)\
 Total visibility: 11.9%
 
 ```{r fig.height=9, fig.width=16}
 viewshed_1 <- viewshed(sf_start = sf_start, max_distance = 300,
                        dsm_data = filled_dsm, dtm_data = DTM, 
                        resolution = 0.5, observer_height = 1.8, 
-                       cores = 20, chunk_size = 2000,
+                       cores = 10, chunk_size = 2000,
                        plot = TRUE, progressBar = FALSE)
 ```
 
 #### 2. Resolution = 1m
 
 Output-Raster-Cells: 360 000\
-Runtime: \~6 seconds\
+Runtime: 1.2 seconds (cores=1: \~2 seconds)\
 Total visibility: 12.4%
 
 ```{r fig.height=9, fig.width=16}
 viewshed_2 <- viewshed(sf_start = sf_start, max_distance = 300,
                        dsm_data = filled_dsm, dtm_data = DTM, 
                        resolution = 1, observer_height = 1.8, 
-                       cores = 20, chunk_size = 2000,
+                       cores = 10, chunk_size = 2000,
                        plot = TRUE, progressBar = FALSE)
 ```
 
 #### 3. Resolution = 2m
 
 Output-Raster-Cells: 90 000\
-Runtime: \~3 seconds\
+Runtime: 0.5 seconds (cores=1: \~0.8 seconds)\
 Total visibility: 12.8%
 
 ```{r fig.height=9, fig.width=16}
 viewshed_3 <- viewshed(sf_start = sf_start, max_distance = 300,
                        dsm_data = filled_dsm, dtm_data = DTM, 
                        resolution = 2, observer_height = 1.8, 
-                       cores = 20, chunk_size = 2000,
+                       cores = 10, chunk_size = 2000,
                        plot = TRUE, progressBar = FALSE)
 ```
 
 #### 4. Resolution = 5m
 
 Output-Raster-Cells: 14 400\
-Runtime: \~2 seconds\
+Runtime: \~0.35 seconds (cores=1: \~0.25 seconds)\
 Total visibility: 14.6%
 
 ```{r fig.height=9, fig.width=16}
 viewshed_4 <- viewshed(sf_start = sf_start, max_distance = 300,
                        dsm_data = filled_dsm, dtm_data = DTM, 
                        resolution = 5, observer_height = 1.8, 
-                       cores = 20, chunk_size = 1000,
+                       cores = 5, chunk_size = 500,
                        plot = TRUE, progressBar = FALSE)
 ```
 
@@ -655,7 +624,7 @@ points(st_coordinates(sf_start)[1], st_coordinates(sf_start)[2],
        col = "blue", cex = 3, pch = 20)
 ```
 
-The `visibleGreen` function returns the proportion of visible greenspace to total visibility.
+The `visibleGreen` function returns the proportion of visible greenspace to total visibility. The values range between 0 and 1, where 0 = no green cells are visible, and 1 = all of the visible cells are green. Applying the `visibleGreen` function on the `viewshed_1` object calculated above returns 0.91, meaning that 91% of the visible area is vegetated. 
 
 ```{r}
 visibleGreen <- function(viewshed, greenspace) {
@@ -719,7 +688,7 @@ To evaluate network visibility, we will write a new function `networkVisibleGree
 networkVisibleGreenspace <- function(x, isodistance, greenspace,
                                      dsm_data, dtm_data, 
                                      resolution, max_distance, observer_height, 
-                                     cores, chunk_size, plot = TRUE) {
+                                     cores, chunk_size, plot = FALSE) {
   
   # 1. Calculate viewshed
   this_viewshed <- viewshed(sf_start = x, max_distance = max_distance,
@@ -734,13 +703,14 @@ networkVisibleGreenspace <- function(x, isodistance, greenspace,
                                     greenspace = greenspace)
   
   # 3. Get time value of x from isodistance
-  return(dplyr::tibble(time = as.integer(isodistance[x, ]$time), 
+  return(dplyr::tibble(time = isodistance[sf::st_nearest_feature(x, isodistance),]$time, 
                        visibleGreen = this_visibleGreen,
                        X = as.numeric(st_coordinates(x)[1]),
                        Y = as.numeric(st_coordinates(x)[2])))
 }
 ```
 
+We can use the `st_line_sample` function to sample points along the isodistance object. Furthermore, in the viewshed examples above we have seen, that for `resolution = 2` the computation time hardly differs if we set `cores = 1`. Therefore I use `cores = 1` in the `networkVisibleGreenspace` and call it from the `mclapply` with parallel processing.
 ```{r eval=FALSE}
 # Sample points on the isodistance for every 25m 
 all_points <- aoi.isodistances %>% 
@@ -750,26 +720,16 @@ all_points <- aoi.isodistances %>%
   st_cast("POINT") %>% 
   st_as_sf()
 
-# Create output tibble
-output <- tibble(time = integer(), 
-                 visibleGreen = double(),
-                 X = numeric(),
-                 Y = numeric())
-
-pb = txtProgressBar(min = 0, max = nrow(all_points), initial = 0, style = 3)
-for (i in 1:nrow(all_points)) {
-  if (i %% 20 == 0) dev.off()
-  
-  # Evaluate network visibility
-  network_visibility <- networkVisibleGreenspace(all_points[i,], 
-                                                 isodistance = aoi.isodistances, greenspace = greenspace,
-                                                 dsm_data = filled_dsm, dtm_data = DTM, 
-                                                 resolution = 2, max_distance = 300,
-                                                 observer_height = 1.7, cores = 20, chunk_size = 2000, 
-                                                 plot = FALSE)
-  output <- add_row(output, network_visibility)
-  setTxtProgressBar(pb, i)
-}
+# Calculate network visibilty 
+output <- all_points %>% 
+  split(seq(nrow(.))) %>% 
+  parallel::mclapply(networkVisibleGreenspace,
+                     isodistance = aoi.isodistances, greenspace = greenspace,
+                     dsm_data = filled_dsm, dtm_data = DTM, resolution = 2, 
+                     max_distance = 300, observer_height = 1.8, cores = 1, 
+                     chunk_size = 150, plot = FALSE, 
+                     mc.cores = 22, mc.preschedule = TRUE) %>% 
+  do.call(rbind, .)
 ```
 
 ```{r echo=FALSE, fig.height=7, fig.width=10, message=FALSE, warning=FALSE, dev='svg'}
@@ -797,11 +757,11 @@ As the last step, we need to summarize all measurements from the previous steps.
 round(mean(output$visibleGreen), 2)
 ```
 
-A mean value of 0.47 indicates, that almost 50% of the visible area along the network is vegetated. However, we can see a high diversity in the example above, in that the northern half has higher visible greenness. Therefore, future research may also incorporate actual activity space measurements instead of potential activity space, to further analyze where participants spend time and thus improve the understanding of greenspace related health effects.
+A mean value of 0.51 indicates, that 51% of the visible area along the network is vegetated. However, we can see a high diversity in the example above, in that the northern half has higher visible greenness. Therefore, future research may also incorporate actual activity space measurements instead of potential activity space, to further analyze where participants spend time and thus improve the understanding of greenspace related health effects.
 
 ## Conclusion
 
-Data acquisition and processing with `lidR`and `terra` is simple and fast using R as the only tool. The implementation of a parallel viewshed algorithm has proven to be very light-weighted and fast. Using a lower resolution significantly reduces model runtime. However, even at highest resolution, the runtime is acceptable. The effect of multiprocessing is significant only with high resolution or very large values of `max_distance`. Using this algorithm in a large scale study at high resolution appears to be practical. Compared to model 1, model 4 has an increase in visible area from 11.9% to 14.6%. The results of the other models are closer to model 1. In my opinion the trade-off between loss of accuracy for an increase in speed still is acceptable. But reducing the resolution to 5m or even more might only be worth it for large values of max_distance, since the computation time hardly differs from 2m resolution. I would suggest comparing a few points with 0.5m, 1m, 2m and 5m resolution.
+Data acquisition and processing with `lidR` and `terra` is simple and fast using R as the only tool. The implementation of a parallel viewshed algorithm has proven to be very light-weighted and fast. Using a lower resolution significantly reduces model runtime. However, even at highest resolution, the runtime is acceptable. The effect of multiprocessing is significant only with high resolution or very large values of `max_distance`. Using this algorithm in a large scale study at high resolution appears to be practical. Compared to model 1, model 4 has an increase in visible area from 11.9% to 14.6%. The results of the other models are closer to model 1. In my opinion the trade-off between loss of accuracy for an increase in speed still is acceptable. But reducing the resolution to 5m or even more might only be worth it for large values of max_distance, since the computation time hardly differs from 2m resolution. I would suggest comparing a few points with 0.5m, 1m, 2m and 5m resolution.
 
 A simple implementation of the viewshed analysis into a route network analysis is one practical example, for researching greenspace exposure.
 
