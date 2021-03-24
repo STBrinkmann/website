@@ -1,8 +1,8 @@
 ---
-title: 'Visible Greenness Visibility Exposure'
+title: 'Visible Greenness Exposure'
 author: Sebastian Brinkmann
 date: '2021-03-15'
-slug: greenness-visibility-exposure
+slug: visible-greenness-exposure
 categories: []
 tags:
   - R
@@ -83,7 +83,7 @@ lidar_tiles %&gt;%
   geom_sf() + 
   theme_map()</code></pre>
 <p><img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
-<p>Each tile of this shapefile contains the tile name and a link, to download the LiDAR data. The total file size of all 168 LiDAR scenes is ~90GB. We will safe them in a temporary file and calculate a DSM from the data later. I would highly recommend using parallel computation for this and to do something else while the data is being downloaded.</p>
+<p>Each tile of this shapefile contains the tile name and a link, to download the LiDAR data. The total file size of all 168 LiDAR scenes is ~90GB. We will store them in a temporary file and calculate a DSM from the data later. I would highly recommend using parallel computation for this and to do something else while the data is being downloaded.</p>
 <pre class="r"><code>lidar_download &lt;- function(x, tmp_dir) {
   # Download GeoTIFF as .zip
   download.file(x$lidar_url, destfile = paste0(file.path(tmp_dir, x$name), &quot;.zip&quot;))
@@ -241,7 +241,7 @@ elev_matrix %&gt;%
 <p>Greenspace is associated with several health benefits along multiple pathways <span class="citation">(<a href="#section-ref-markevych2017" role="doc-biblioref">Markevych et al. 2017</a>; <a href="#section-ref-dzhambov2020" role="doc-biblioref">Dzhambov et al. 2020</a>; <a href="#section-ref-labib2020" role="doc-biblioref">Labib, Lindley, and Huck 2020</a>)</span>. In a recent study (in submission), we analyze health benefits based on the availability and accessibility of greenspace, using a top-down, bird’s eye view, approach. Visibility describes a third type of exposure assessment and refers to the amount of greenspace that can be seen from a given point <span class="citation">(<a href="#section-ref-labib2020" role="doc-biblioref">Labib, Lindley, and Huck 2020</a>)</span>. Recent studies have adopted viewshed-based visibility analysis <span class="citation">(<a href="#section-ref-chamberlain2013" role="doc-biblioref">Chamberlain and Meitner 2013</a>; <a href="#section-ref-tabrizian2020" role="doc-biblioref">Tabrizian et al. 2020</a>; <a href="#section-ref-labib2021" role="doc-biblioref">Labib, Huck, and Lindley 2021</a>)</span>, however there still is a limited use of visibility exposure assessment in current studies <span class="citation">(<a href="#section-ref-labib2020" role="doc-biblioref">Labib, Lindley, and Huck 2020</a>)</span>. The following code is primarily based on the methods described by <span class="citation"><a href="#section-ref-labib2021" role="doc-biblioref">Labib, Huck, and Lindley</a> (<a href="#section-ref-labib2021" role="doc-biblioref">2021</a>)</span> and their Python code of the <a href="https://github.com/jonnyhuck/green-visibility-index/blob/master/gvi.py">Green Visibility Index</a>, and the overall process is illustrated in the figure below.</p>
 <p><a href="https://doi.org/10.1016/j.scitotenv.2020.143050"><img src="gvi.jpg" style="width:7.13in" /></a></p>
 <p><sub><em>Conceptual design of greenspace visibility modelling <span class="citation">(<a href="#section-ref-labib2021" role="doc-biblioref">Labib, Huck, and Lindley 2021</a>)</span>.</em></sub></p>
-<p>The line of sight is being calculated from the observer to every point in the area of interest, to distinguish between visible and invisible points. To determine green and no-green points, a greenspace mask will me intersected.</p>
+<p>The line of sight is being calculated from the observer to every point in the area of interest, to distinguish between visible and invisible points. To determine green and no-green points, a greenspace mask will be intersected.</p>
 <div id="section-rasterprofile" class="section level3">
 <h3>Rasterprofile</h3>
 <p>To calculate the visibility of a point B from point A, we first need to access all raster cells from point A to B. The <code>rasterprofile</code> function returns a <code>matrix</code> with all cells from A to B, containing X- and Y-coordinates, the height and the cell-number for every cell. Surprisingly the <code>raster::extract</code> is faster than <code>terra::extract</code> when using a matrix.</p>
@@ -803,7 +803,7 @@ output &lt;- all_points %&gt;%
 </div>
 <div id="section-conclusion" class="section level2">
 <h2>Conclusion</h2>
-<p>Data acquisition and processing with <code>lidR</code>and <code>terra</code> is simple and fast using R as the only tool. The implementation of a parallel viewshed algorithm has proven to be very light-weighted and fast. Using a lower resolution significantly reduces model runtime. However, even at highest resolution, the runtime is acceptable. The effect of multiprocessing is significant only with high resolution or very large values of <code>max_distance</code>. Using this algorithm in a large scale study at high resolution appears to be practical. Compared to model 1, model 4 has an increase in visible area from 11.9% to 14.6%. The results of the other models are closer to model 1. In my opinion the trade-off between loss of accuracy for an increase in speed is acceptable down to 2m. But reducing the resolution to 5m or even more might only be worth it, if a lot of observations need to be calculated or/and for large values of <em>max_distance</em>, since the computation time hardly differs from 2m resolution. I would suggest comparing a few points with 0.5m, 1m, 2m and 5m resolution.<br />
+<p>Data acquisition and processing with <code>lidR</code> and <code>terra</code> is simple and fast using R as the only tool. The implementation of a parallel viewshed algorithm has proven to be very light-weighted and fast. Using a lower resolution significantly reduces model runtime. However, even at highest resolution, the runtime is acceptable. The effect of multiprocessing is significant only with high resolution or very large values of <code>max_distance</code>. Using this algorithm in a large scale study at high resolution appears to be practical. Compared to model 1, model 4 has an increase in visible area from 11.9% to 14.6%. The results of the other models are closer to model 1. In my opinion the trade-off between loss of accuracy for an increase in speed is acceptable down to 2m. But reducing the resolution to 5m or even more might only be worth it, if a lot of observations need to be calculated or/and for large values of <em>max_distance</em>, since the computation time hardly differs from 2m resolution. I would suggest comparing a few points with 0.5m, 1m, 2m and 5m resolution.<br />
 One mayor limitation of this method is, that it fails to calculate eye-level visibility, if the observer is located underneath a tree.<br />
 A simple implementation of the viewshed analysis into a route network analysis served as a practical example for researching greenspace exposure.</p>
 </div>

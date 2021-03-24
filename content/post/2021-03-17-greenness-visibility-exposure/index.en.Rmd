@@ -1,8 +1,8 @@
 ---
-title: 'Visible Greenness Visibility Exposure'
+title: 'Visible Greenness Exposure'
 author: Sebastian Brinkmann
 date: '2021-03-15'
-slug: greenness-visibility-exposure
+slug: visible-greenness-exposure
 categories: []
 tags:
   - R
@@ -24,7 +24,6 @@ runtime: shiny
 output: html_document
 bibliography: references.bib
 ---
-
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -101,7 +100,7 @@ lidar_tiles %>%
   theme_map()
 ```
 
-Each tile of this shapefile contains the tile name and a link, to download the LiDAR data. The total file size of all 168 LiDAR scenes is \~90GB. We will safe them in a temporary file and calculate a DSM from the data later. I would highly recommend using parallel computation for this and to do something else while the data is being downloaded.
+Each tile of this shapefile contains the tile name and a link, to download the LiDAR data. The total file size of all 168 LiDAR scenes is \~90GB. We will store them in a temporary file and calculate a DSM from the data later. I would highly recommend using parallel computation for this and to do something else while the data is being downloaded.
 
 ```{r eval=FALSE}
 lidar_download <- function(x, tmp_dir) {
@@ -295,7 +294,7 @@ Greenspace is associated with several health benefits along multiple pathways [@
 
 ~*Conceptual design of greenspace visibility modelling [@labib2021].*~
 
-The line of sight is being calculated from the observer to every point in the area of interest, to distinguish between visible and invisible points. To determine green and no-green points, a greenspace mask will me intersected.
+The line of sight is being calculated from the observer to every point in the area of interest, to distinguish between visible and invisible points. To determine green and no-green points, a greenspace mask will be intersected.
 
 ### Rasterprofile
 
@@ -750,8 +749,8 @@ However, we can see a high diversity of GVI values in the example above, in that
 
 ## Conclusion
 
-Data acquisition and processing with `lidR`and `terra` is simple and fast using R as the only tool. The implementation of a parallel viewshed algorithm has proven to be very light-weighted and fast. Using a lower resolution significantly reduces model runtime. However, even at highest resolution, the runtime is acceptable. The effect of multiprocessing is significant only with high resolution or very large values of `max_distance`. Using this algorithm in a large scale study at high resolution appears to be practical. Compared to model 1, model 4 has an increase in visible area from 11.9% to 14.6%. The results of the other models are closer to model 1. In my opinion the trade-off between loss of accuracy for an increase in speed is acceptable down to 2m. But reducing the resolution to 5m or even more might only be worth it, if a lot of observations need to be calculated or/and for large values of *max_distance*, since the computation time hardly differs from 2m resolution. I would suggest comparing a few points with 0.5m, 1m, 2m and 5m resolution. \
-One mayor limitation of this method is, that it fails to calculate eye-level visibility, if the observer is located underneath a tree. \
+Data acquisition and processing with `lidR` and `terra` is simple and fast using R as the only tool. The implementation of a parallel viewshed algorithm has proven to be very light-weighted and fast. Using a lower resolution significantly reduces model runtime. However, even at highest resolution, the runtime is acceptable. The effect of multiprocessing is significant only with high resolution or very large values of `max_distance`. Using this algorithm in a large scale study at high resolution appears to be practical. Compared to model 1, model 4 has an increase in visible area from 11.9% to 14.6%. The results of the other models are closer to model 1. In my opinion the trade-off between loss of accuracy for an increase in speed is acceptable down to 2m. But reducing the resolution to 5m or even more might only be worth it, if a lot of observations need to be calculated or/and for large values of *max_distance*, since the computation time hardly differs from 2m resolution. I would suggest comparing a few points with 0.5m, 1m, 2m and 5m resolution.\
+One mayor limitation of this method is, that it fails to calculate eye-level visibility, if the observer is located underneath a tree.\
 A simple implementation of the viewshed analysis into a route network analysis served as a practical example for researching greenspace exposure.
 
 ## References
