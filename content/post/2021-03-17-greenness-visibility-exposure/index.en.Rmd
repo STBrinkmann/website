@@ -215,7 +215,7 @@ elev_matrix %>%
   plot_map()
 ```
 
-There are some missing values in the raster and at the right edge of the map we can see a "wall". This is due to the fact, that power lines are being measured by LiDAR, too. Therefore we need to post-process the DSM to smooth the raster and fill empty pixels. We will apply a moving window approach. However, the DSM is too large, to apply `focal` on the whole raster at once. Therefore we will use the `lidar_tiles` shapefile from above, to apply smoothing and NA-value filling on subsets of the raster.
+There are some missing values in the raster and at the right edge of the map we can see a "wall". This is due to the fact, that power lines are being measured by LiDAR, too. Therefore we need to post-process the DSM to smooth the raster and fill empty pixels. We will apply a moving window approach. However, the DSM is too large, to apply `focal` on the whole raster at once. Therefore we will use the `lidar_tiles` shapefile from above, to apply smoothing and NA-value filling on subsets of the raster. To avoid edge effects, we first crop the DSM to a buffered LiDAR tile, apply the `focal` and finally crop the processed DSM to the unbuffered LiDAR tile.
 
 ```{r eval=FALSE}
 # Check if processing directory exists.
@@ -229,9 +229,15 @@ if(!dir.exists(proc_dir)) {
 
 pb = txtProgressBar(min = 0, max = nrow(lidar_tiles), initial = 0, style = 3)
 for (i in 1:nrow(lidar_tiles)) {
-  terra::crop(dsm, lidar_tiles[i,]) %>% 
-    terra::focal(3, fun = median, na.only = T) %>% # fill NA values
-    terra::focal(9, fun = median, na.rm = TRUE) %>% # smoothing
+  dsm %>% 
+    # Crop to buffered tile
+    terra::crop(sf::st_buffer(lidar_tiles[i,], 10)) %>% 
+    # Fill NA values
+    terra::focal(3, fun = median, na.only = T) %>%
+    # Smoothing
+    terra::focal(9, fun = median, na.rm = TRUE) %>%
+    # Crop to unbuffered tile
+    terra::crop(lidar_tiles[i,]) %>% 
     terra::writeRaster(filename = file.path(proc_dir, 
                                             paste0("dsm_tile_", i, ".tif")),
                        format="GTIFF")
@@ -322,7 +328,37 @@ rasterprofile <- function(r, x0, y0, x1, y1, resolution){
 
 ### Line of Sight
 
-The observer at point A can only see point B, if no object in between point A and B blocks the view to point B. The `lineOfSight` function evaluates visibility along all cells from A to B, by calculating tangent *⍺* from *𝚫height* (opposite side) and *distance traveled* (adjacent side) and comparing it for every step. To see a point, its tangent *⍺* must be greater than the biggest tangent *⍺* so far. The function returns a `data.table` containing the cell number and corresponding visibility of all points from A to B. Visible cells have a value of 1 and non visible cells -1.
+The observer at point A can only see point B, if no object in between point A and B blocks the view to point B. The `lineOfSight` function evaluates visibility along all cells from A to B, by calculating tangent *⍺* from *𝚫height* (opposite side) and *distance traveled* (adjacent side) and comparing it for every step. To see a point, its tangent *⍺* must be greater than the biggest tangent *⍺* so far.
+
+In R we would write a for loop and compare the tangent of the current point to the maximum tangent so far. Therefore this step can't be vectorised, because the subsequent iterations depend on previous ones. Native R code is quiet "slow" for these kind of tasks. Therefore I have implemented this step in C++ using the [Rcpp](http://www.rcpp.org/) package.
+
+```{Rcpp}
+#include <Rcpp.h>
+using namespace Rcpp;
+
+// [[Rcpp::export]]
+NumericVector isVisibleC(NumericVector x) {
+  int n = x.size();
+  NumericVector out(n);
+  out[0] = 1;
+  
+  double max_tangent = -9999;
+  
+  for(int i = 1; i < n; ++i) {
+    double this_tangent = x[i];
+    
+    if (this_tangent > max_tangent) {
+      max_tangent = this_tangent;
+      out[i] = 1;
+    } else {
+      out[i] = -1;
+    }
+  }
+  return out;
+}
+```
+
+The `lineOfSight` function returns a `data.table` containing the cell number and corresponding visibility of all points from A to B. Visible cells have a value of 1 and non visible cells -1.
 
 ```{r}
 lineOfSight <- function(xy1, x0, y0, height0, resolution, dsm_data) {
@@ -333,36 +369,24 @@ lineOfSight <- function(xy1, x0, y0, height0, resolution, dsm_data) {
   # Get the pixels in the line
   pixels <- rasterprofile(r = dsm_data, x0 = x0, y0 = y0, x1 = x1, y1 = y1, 
                           resolution = resolution)
+  
   # Distance traveled so far
   distance_traveled = sqrt((y0 - pixels[,2])^2 + (x0 - pixels[,1])^2)
     
   # Calculate tangent from delta height (opposite side) and distance traveled (adjacent side)
-  pixels <- cbind(pixels, (pixels[,3] - height0) / (distance_traveled * resolution))
+  tangents <- (pixels[,3] - height0) / (distance_traveled * resolution)
   
   # Is visible? Current tangent must be greater than max. tangent
-  is_visible <- function(x) {
-    if (x[5] > max_tangent) {
-        max_tangent <<- x[5]
-        x[4]
-    }
-  }
-  max_tangent <- -Inf
-  visible_pixels <- apply(pixels, 1, is_visible) %>% 
-    unlist() %>% 
-    c(pixels[1,4], .) # the starting point is always visible
-  
-  # Assign 1 for visible and -1 for no-visible cells
-  pixels[pixels[,4] %in% visible_pixels, 5] <- 1
-  pixels[pixels[,5] != 1, 5] <- -1
+  visibility <- isVisibleC(tangents)
   
   # Return cellnumber and visibility-value
-  data.table::as.data.table(matrix(pixels[, 4:5], ncol = 2))
+  data.table::as.data.table(cbind(pixels[,4], visibility))
 }
 ```
 
 ### Viewshed
 
-Finally, the visibility of all points withing a certain buffer around point A can be calculated, using the `lineOfSight` function. The `viewshed` function returns a circular raster (start point + max_distance-buffer) where values of 1 indicate visible points and -1 non-visible points.
+Finally, the visibility of all points withing a certain buffer around point A can be calculated, using the `lineOfSight` function. The `viewshed` function returns a circular raster (start point + max_distance-buffer) where values of 1 indicate visible points and -1 non-visible points. To calculate visibility for all points in the raster, we only need to calculate the line of sight from the center to all boundary points of the circle and store the information of each point in between.
 
 ```{r}
 viewshed <- function(sf_start, max_distance, dsm_data, dtm_data, resolution, 
@@ -474,7 +498,7 @@ sf_start <- sfheaders::sf_point(c(487616.2, 5455970)) %>%
 #### 1. Resolution = 0.5m
 
 Output-Raster-Cells: 1 440 000\
-Runtime: 1.5 seconds (cores=1: 4.8 seconds)\
+Runtime: 0.85 seconds (cores=1: 1.80 seconds)\
 Total visibility: 11.9%
 
 ```{r fig.height=9, fig.width=16}
@@ -487,7 +511,7 @@ viewshed_1 <- viewshed(sf_start = sf_start, max_distance = 300,
 #### 2. Resolution = 1m
 
 Output-Raster-Cells: 360 000\
-Runtime: 0.9 seconds (cores=1: 1.6 seconds)\
+Runtime: 0.45 seconds (cores=1: 0.75 seconds)\
 Total visibility: 12.4%
 
 ```{r fig.height=9, fig.width=16}
@@ -500,7 +524,7 @@ viewshed_2 <- viewshed(sf_start = sf_start, max_distance = 300,
 #### 3. Resolution = 2m
 
 Output-Raster-Cells: 90 000\
-Runtime: 0.5 seconds (cores=1: \~0.6 seconds)\
+Runtime: 0.35 seconds (cores=1: 0.40 seconds)\
 Total visibility: 12.8%
 
 ```{r fig.height=9, fig.width=16}
@@ -513,7 +537,7 @@ viewshed_3 <- viewshed(sf_start = sf_start, max_distance = 300,
 #### 4. Resolution = 5m
 
 Output-Raster-Cells: 14 400\
-Runtime: \~0.35 seconds (cores=1: \~0.25 seconds)\
+Runtime: 0.22 seconds (cores=1: 0.18 seconds)\
 Total visibility: 14.6%
 
 ```{r fig.height=9, fig.width=16}

@@ -175,7 +175,7 @@ elev_matrix %&gt;%
   add_shadow(ambmat, max_darken = 0.1) %&gt;%
   plot_map()</code></pre>
 <p><img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
-<p>There are some missing values in the raster and at the right edge of the map we can see a “wall.” This is due to the fact, that power lines are being measured by LiDAR, too. Therefore we need to post-process the DSM to smooth the raster and fill empty pixels. We will apply a moving window approach. However, the DSM is too large, to apply <code>focal</code> on the whole raster at once. Therefore we will use the <code>lidar_tiles</code> shapefile from above, to apply smoothing and NA-value filling on subsets of the raster.</p>
+<p>There are some missing values in the raster and at the right edge of the map we can see a “wall.” This is due to the fact, that power lines are being measured by LiDAR, too. Therefore we need to post-process the DSM to smooth the raster and fill empty pixels. We will apply a moving window approach. However, the DSM is too large, to apply <code>focal</code> on the whole raster at once. Therefore we will use the <code>lidar_tiles</code> shapefile from above, to apply smoothing and NA-value filling on subsets of the raster. To avoid edge effects, we first crop the DSM to a buffered LiDAR tile, apply the <code>focal</code> and finally crop the processed DSM to the unbuffered LiDAR tile.</p>
 <pre class="r"><code># Check if processing directory exists.
 delete_folder &lt;- FALSE
 proc_dir &lt;- file.path(workdir, &quot;DSM/Proc&quot;)
@@ -187,9 +187,15 @@ if(!dir.exists(proc_dir)) {
 
 pb = txtProgressBar(min = 0, max = nrow(lidar_tiles), initial = 0, style = 3)
 for (i in 1:nrow(lidar_tiles)) {
-  terra::crop(dsm, lidar_tiles[i,]) %&gt;% 
-    terra::focal(3, fun = median, na.only = T) %&gt;% # fill NA values
-    terra::focal(9, fun = median, na.rm = TRUE) %&gt;% # smoothing
+  dsm %&gt;% 
+    # Crop to buffered tile
+    terra::crop(sf::st_buffer(lidar_tiles[i,], 10)) %&gt;% 
+    # Fill NA values
+    terra::focal(3, fun = median, na.only = T) %&gt;%
+    # Smoothing
+    terra::focal(9, fun = median, na.rm = TRUE) %&gt;%
+    # Crop to unbuffered tile
+    terra::crop(lidar_tiles[i,]) %&gt;% 
     terra::writeRaster(filename = file.path(proc_dir, 
                                             paste0(&quot;dsm_tile_&quot;, i, &quot;.tif&quot;)),
                        format=&quot;GTIFF&quot;)
@@ -265,7 +271,32 @@ elev_matrix %&gt;%
 </div>
 <div id="section-line-of-sight" class="section level3">
 <h3>Line of Sight</h3>
-<p>The observer at point A can only see point B, if no object in between point A and B blocks the view to point B. The <code>lineOfSight</code> function evaluates visibility along all cells from A to B, by calculating tangent <em>⍺</em> from <em>𝚫height</em> (opposite side) and <em>distance traveled</em> (adjacent side) and comparing it for every step. To see a point, its tangent <em>⍺</em> must be greater than the biggest tangent <em>⍺</em> so far. The function returns a <code>data.table</code> containing the cell number and corresponding visibility of all points from A to B. Visible cells have a value of 1 and non visible cells -1.</p>
+<p>The observer at point A can only see point B, if no object in between point A and B blocks the view to point B. The <code>lineOfSight</code> function evaluates visibility along all cells from A to B, by calculating tangent <em>⍺</em> from <em>𝚫height</em> (opposite side) and <em>distance traveled</em> (adjacent side) and comparing it for every step. To see a point, its tangent <em>⍺</em> must be greater than the biggest tangent <em>⍺</em> so far.</p>
+<p>In R we would write a for loop and compare the tangent of the current point to the maximum tangent so far. Therefore this step can’t be vectorised, because the subsequent iterations depend on previous ones. Native R code is quiet “slow” for these kind of tasks. Therefore I have implemented this step in C++ using the <a href="http://www.rcpp.org/">Rcpp</a> package.</p>
+<pre class="cpp"><code>#include &lt;Rcpp.h&gt;
+using namespace Rcpp;
+
+// [[Rcpp::export]]
+NumericVector isVisibleC(NumericVector x) {
+  int n = x.size();
+  NumericVector out(n);
+  out[0] = 1;
+  
+  double max_tangent = -9999;
+  
+  for(int i = 1; i &lt; n; ++i) {
+    double this_tangent = x[i];
+    
+    if (this_tangent &gt; max_tangent) {
+      max_tangent = this_tangent;
+      out[i] = 1;
+    } else {
+      out[i] = -1;
+    }
+  }
+  return out;
+}</code></pre>
+<p>The <code>lineOfSight</code> function returns a <code>data.table</code> containing the cell number and corresponding visibility of all points from A to B. Visible cells have a value of 1 and non visible cells -1.</p>
 <pre class="r"><code>lineOfSight &lt;- function(xy1, x0, y0, height0, resolution, dsm_data) {
   # Get start XY from input
   x1 &lt;- xy1[1]
@@ -274,35 +305,23 @@ elev_matrix %&gt;%
   # Get the pixels in the line
   pixels &lt;- rasterprofile(r = dsm_data, x0 = x0, y0 = y0, x1 = x1, y1 = y1, 
                           resolution = resolution)
+  
   # Distance traveled so far
   distance_traveled = sqrt((y0 - pixels[,2])^2 + (x0 - pixels[,1])^2)
     
   # Calculate tangent from delta height (opposite side) and distance traveled (adjacent side)
-  pixels &lt;- cbind(pixels, (pixels[,3] - height0) / (distance_traveled * resolution))
+  tangents &lt;- (pixels[,3] - height0) / (distance_traveled * resolution)
   
   # Is visible? Current tangent must be greater than max. tangent
-  is_visible &lt;- function(x) {
-    if (x[5] &gt; max_tangent) {
-        max_tangent &lt;&lt;- x[5]
-        x[4]
-    }
-  }
-  max_tangent &lt;- -Inf
-  visible_pixels &lt;- apply(pixels, 1, is_visible) %&gt;% 
-    unlist() %&gt;% 
-    c(pixels[1,4], .) # the starting point is always visible
-  
-  # Assign 1 for visible and -1 for no-visible cells
-  pixels[pixels[,4] %in% visible_pixels, 5] &lt;- 1
-  pixels[pixels[,5] != 1, 5] &lt;- -1
+  visibility &lt;- isVisibleC(tangents)
   
   # Return cellnumber and visibility-value
-  data.table::as.data.table(matrix(pixels[, 4:5], ncol = 2))
+  data.table::as.data.table(cbind(pixels[,4], visibility))
 }</code></pre>
 </div>
 <div id="section-viewshed" class="section level3">
 <h3>Viewshed</h3>
-<p>Finally, the visibility of all points withing a certain buffer around point A can be calculated, using the <code>lineOfSight</code> function. The <code>viewshed</code> function returns a circular raster (start point + max_distance-buffer) where values of 1 indicate visible points and -1 non-visible points.</p>
+<p>Finally, the visibility of all points withing a certain buffer around point A can be calculated, using the <code>lineOfSight</code> function. The <code>viewshed</code> function returns a circular raster (start point + max_distance-buffer) where values of 1 indicate visible points and -1 non-visible points. To calculate visibility for all points in the raster, we only need to calculate the line of sight from the center to all boundary points of the circle and store the information of each point in between.</p>
 <pre class="r"><code>viewshed &lt;- function(sf_start, max_distance, dsm_data, dtm_data, resolution, 
                      observer_height, cores = 1, plot = FALSE) {
   
@@ -403,46 +422,46 @@ sf_start &lt;- sfheaders::sf_point(c(487616.2, 5455970)) %&gt;%
 <div id="section-resolution-0.5m" class="section level4">
 <h4>1. Resolution = 0.5m</h4>
 <p>Output-Raster-Cells: 1 440 000<br />
-Runtime: 1.5 seconds (cores=1: 4.8 seconds)<br />
+Runtime: 0.85 seconds (cores=1: 1.80 seconds)<br />
 Total visibility: 11.9%</p>
 <pre class="r"><code>viewshed_1 &lt;- viewshed(sf_start = sf_start, max_distance = 300,
                        dsm_data = filled_dsm, dtm_data = DTM, 
                        resolution = 0.5, observer_height = 1.8, 
                        cores = 10, plot = TRUE)</code></pre>
-<p><img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-19-1.png" width="1536" /></p>
+<p><img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-20-1.png" width="1536" /></p>
 </div>
 <div id="section-resolution-1m" class="section level4">
 <h4>2. Resolution = 1m</h4>
 <p>Output-Raster-Cells: 360 000<br />
-Runtime: 0.9 seconds (cores=1: 1.6 seconds)<br />
+Runtime: 0.45 seconds (cores=1: 0.75 seconds)<br />
 Total visibility: 12.4%</p>
 <pre class="r"><code>viewshed_2 &lt;- viewshed(sf_start = sf_start, max_distance = 300,
                        dsm_data = filled_dsm, dtm_data = DTM, 
                        resolution = 1, observer_height = 1.8, 
                        cores = 10, plot = TRUE)</code></pre>
-<p><img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-20-1.png" width="1536" /></p>
+<p><img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-21-1.png" width="1536" /></p>
 </div>
 <div id="section-resolution-2m" class="section level4">
 <h4>3. Resolution = 2m</h4>
 <p>Output-Raster-Cells: 90 000<br />
-Runtime: 0.5 seconds (cores=1: ~0.6 seconds)<br />
+Runtime: 0.35 seconds (cores=1: 0.40 seconds)<br />
 Total visibility: 12.8%</p>
 <pre class="r"><code>viewshed_3 &lt;- viewshed(sf_start = sf_start, max_distance = 300,
                        dsm_data = filled_dsm, dtm_data = DTM, 
                        resolution = 2, observer_height = 1.8, 
                        cores = 5, plot = TRUE)</code></pre>
-<p><img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-21-1.png" width="1536" /></p>
+<p><img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-22-1.png" width="1536" /></p>
 </div>
 <div id="section-resolution-5m" class="section level4">
 <h4>4. Resolution = 5m</h4>
 <p>Output-Raster-Cells: 14 400<br />
-Runtime: ~0.35 seconds (cores=1: ~0.25 seconds)<br />
+Runtime: 0.22 seconds (cores=1: 0.18 seconds)<br />
 Total visibility: 14.6%</p>
 <pre class="r"><code>viewshed_4 &lt;- viewshed(sf_start = sf_start, max_distance = 300,
                        dsm_data = filled_dsm, dtm_data = DTM, 
                        resolution = 5, observer_height = 1.8, 
                        cores = 2, plot = TRUE)</code></pre>
-<p><img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-22-1.png" width="1536" /></p>
+<p><img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-23-1.png" width="1536" /></p>
 </div>
 </div>
 </div>
@@ -712,7 +731,7 @@ greenspace %&gt;%
 
 points(st_coordinates(sf_start)[1], st_coordinates(sf_start)[2], 
        col = &quot;blue&quot;, cex = 3, pch = 20)</code></pre>
-<p><img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-24-1.png" width="1536" /></p>
+<p><img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-25-1.png" width="1536" /></p>
 </div>
 <div id="section-green-visibility-index" class="section level3">
 <h3>Green Visibility Index</h3>
@@ -743,7 +762,7 @@ aoi.isodistances &lt;- DRIGLUCoSE::isodistances(x = sf_start %&gt;% mutate(tag =
                                              speed = 75, 
                                              isochrones_seq = seq(1, 10, 1))</code></pre>
 <p>In the figure below the isodistances are being illustrated. The red point represents the starting point. We will calculate visible greenspace proportion every 10m.</p>
-<p><img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-27-1.svg" width="960" /></p>
+<p><img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-28-1.svg" width="960" /></p>
 <p>To evaluate network visibility, we will write a new function <code>networkVisibleGreenspace</code> to combine all previous steps to a single point along the network.</p>
 <pre class="r"><code>networkVisibleGreenspace &lt;- function(x, isodistance, greenspace,
                                      dsm_data, dtm_data, 
@@ -788,13 +807,13 @@ output &lt;- all_points %&gt;%
 <div id="section-results" class="section level3">
 <h3>Results</h3>
 <p>The results of the <code>networkVisibilityGreenspace</code> is illustrated in the figure below.</p>
-<p><img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-30-1.svg" width="960" /></p>
+<p><img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-31-1.svg" width="960" /></p>
 <p>To evaluate the mean GVI for the observer in the center, we need to summarize all measurements from the previous steps. I simply take the mean of all values, but one could also apply a linear or logistic weights function, such that the influence of a variable decreases with increasing distance, as demonstrated in our recent publication.</p>
 <pre class="r"><code>round(mean(output$GVI), 2)</code></pre>
 <pre><code>## [1] 0.5</code></pre>
 <p>A mean value of 0.5 indicates, that 50% of the visible area along the network is vegetated.</p>
 <p>One big limitation of the viewshed algorithm is, that it fails to calculate eye-level visibility if the observer is underneath a tree. This is because we use a LiDAR derived DSM and calculate visibility based on the height of pixels along the lines of sight.</p>
-<p><img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-32-1.svg" width="480" /></p>
+<p><img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-33-1.svg" width="480" /></p>
 <p>The histogram above shows, that there are a lot of points with GVI = 1. I have plotted the DSM and the GVI points along the route network in QGIS.<img src="GVI_bad.png" style="width:7.13in" /></p>
 <p>The dark-green points are located underneath trees. Therefore, the viewshed algorithm can’t “see” beyond those trees and returns only one single visible cell, which is green. The proportion of green pixels to all visible pixels is therefore 1.</p>
 <p>As already mentioned, applying a distance function might simulate the potential activity space better, since a person will most likely use the road/path in front of his/her place of residence more often than the road 10 minutes away. I will talk about this issue in a different post and provide a solution using the <a href="https://cran.r-project.org/web/packages/mosaic/index.html">mosaic</a> R package.</p>
