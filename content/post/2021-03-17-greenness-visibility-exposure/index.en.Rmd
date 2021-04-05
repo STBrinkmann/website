@@ -35,7 +35,7 @@ In [our](https://www.geography.nat.fau.eu/research/cultural-geography/wg-digital
 
 The next step will be, to combine greenness visibility with our potential neighborhood exposure models.
 
-In this post, I will therefore demonstrate how to download and prepare all necessary files and methods needed for a visibility analysis. In the first part I demonstrate data acquisition and processing, in the second part I will explain the main functions used for the visibility analysis. My implementation of these methods is very light weighted and fast, while still maintaining high resolution.
+In this post, I will therefore demonstrate how to download and prepare all necessary files and methods needed for a visibility analysis. In the first part I demonstrate data acquisition and processing, in the second part I will explain the main functions used for the visibility analysis. My implementation of these methods is very light weighted and fast, while still maintaining high resolution. The functions presented in this post for computing a viewshed based Green Visibility Index (GVI), have also been included in the [GVI](https://github.com/STBrinkmann/GVI) R package.
 
 ## Libraries
 
@@ -298,9 +298,10 @@ Greenspace is associated with several health benefits along multiple pathways [@
 
 [![](gvi.jpg){width="7.13in"}](https://doi.org/10.1016/j.scitotenv.2020.143050)
 
-~*Conceptual design of greenspace visibility modelling [@labib2021].*~
+~*Conceptual design of greenspace visibility modelling [@labib2021].*~
 
 The line of sight is being calculated from the observer to every point in the area of interest, to distinguish between visible and invisible points. To determine green and no-green points, a greenspace mask will be intersected.
+To make the code presented in this post easier to understand, it has not been fully optimized. I have created the R package [GVI](https://github.com/STBrinkmann/GVI), where I implemented the same functions with optimized data structures and heavy use of C++ code.
 
 ### Rasterprofile
 
