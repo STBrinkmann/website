@@ -43,7 +43,7 @@ feature:
 - description: Beginner
   icon: laptop-code
   icon_pack: fas
-  name: C#
+  name: C# & C++
 
 # Uncomment to use emoji icons.
 #- icon = ":smile:"
