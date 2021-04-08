@@ -4,7 +4,7 @@ education:
   courses:
   - course: B.Sc. in Physical Geography
     institution: FAU Erlangen-Nürnberg
-    year: 2018 - today
+    year: 2017 - today
   - course: B.Sc. in Applied mathematics and physics (incomplete)
     institution: TH Ohm Nürnberg
     year: 2016 - 2017
