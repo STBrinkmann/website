@@ -10,7 +10,7 @@ tags:
   - COVID-19
   - R
 subtitle: ''
-summary: ''
+summary: 'In our recent publication from 2020 we analyzed COVID-19 incidence rates using a multimethod approach. In this post I will present BART - a Bayesian machine learing algorithm - to model COVID-19 incidence rates.'
 authors: []
 lastmod: '2021-04-20T15:54:53+02:00'
 featured: no
@@ -6743,18 +6743,18 @@ summary(bm_All)</code></pre>
 <pre><code>## bartMachine v1.2.5.1 for regression
 ## 
 ## training data n = 401 and p = 366 
-## built in 5.3 secs on 20 cores, 100 trees, 300 burn-in and 2000 post. samples
+## built in 5 secs on 20 cores, 100 trees, 300 burn-in and 2000 post. samples
 ## 
 ## sigsq est for y beforehand: 0.024 
-## avg sigsq estimate after burn-in: 0.09633 
+## avg sigsq estimate after burn-in: 0.08869 
 ## 
 ## in-sample statistics:
-##  L1 = 60.56 
-##  L2 = 15.72 
-##  rmse = 0.2 
-##  Pseudo-Rsq = 0.9187
-## p-val for shapiro-wilk test of normality of residuals: 0.00011 
-## p-val for zero-mean noise: 0.95745</code></pre>
+##  L1 = 56.81 
+##  L2 = 13.66 
+##  rmse = 0.18 
+##  Pseudo-Rsq = 0.9294
+## p-val for shapiro-wilk test of normality of residuals: 6e-05 
+## p-val for zero-mean noise: 0.9176</code></pre>
 <p>The Pseudo-R² of 0.92 and RMSE of 0.20 look quiet promising, but let’s check for error assumptions.</p>
 <pre class="r"><code>check_bart_error_assumptions(bm_All)</code></pre>
 <p><img src="errorAssumption.png" /></p>
@@ -6843,18 +6843,18 @@ summary(bm_final)</code></pre>
 <pre><code>## bartMachine v1.2.5.1 for regression
 ## 
 ## training data n = 401 and p = 31 
-## built in 3.8 secs on 20 cores, 225 trees, 250 burn-in and 1000 post. samples
+## built in 3.7 secs on 20 cores, 225 trees, 250 burn-in and 1000 post. samples
 ## 
 ## sigsq est for y beforehand: 0.185 
-## avg sigsq estimate after burn-in: 0.12668 
+## avg sigsq estimate after burn-in: 0.13135 
 ## 
 ## in-sample statistics:
-##  L1 = 89.66 
-##  L2 = 33.71 
+##  L1 = 90.76 
+##  L2 = 34.67 
 ##  rmse = 0.29 
-##  Pseudo-Rsq = 0.8258
-## p-val for shapiro-wilk test of normality of residuals: 0.00156 
-## p-val for zero-mean noise: 0.9318</code></pre>
+##  Pseudo-Rsq = 0.8208
+## p-val for shapiro-wilk test of normality of residuals: 0.00143 
+## p-val for zero-mean noise: 0.95766</code></pre>
 <p>Compared to the first BART model, the second one saw a reduction in Pseudo-R² from 0.92 to 0.83, equating to a 10% reduction in explained variability. The RMSE increased from 0.20 to 0.29, indicating that the final model predicted age-adjusted incidence rates of COVID-19 for German counties with an accuracy of +/− 1.3 cases per 100,000. Again we need to check error assumptions and fitted vs. actual values.</p>
 <pre class="r"><code>check_bart_error_assumptions(bm_final)</code></pre>
 <p><img src="errorAssumption2.png" /> The new model is expected to perform worse compared to the first model, but the Q-Q and Fitted vs. Residuals plots both look good. Again, the BART model struggles with extreme (high) values.</p>
