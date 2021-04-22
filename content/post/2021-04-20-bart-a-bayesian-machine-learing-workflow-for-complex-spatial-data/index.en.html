@@ -36,7 +36,7 @@ text-align: justify}
 </style>
 <p>In our <a href="https://geobrinkmann.com/publication/scarpone2020/">recent publication from 2020</a> we analyzed COVID-19 incidence and socioeconomic, infrastructural, and built environment characteristics using a multimethod approach. There are 401 counties in Germany; as shown in the figure below, these vary in size, such that the counties in Southern Germany are generally smaller with higher population densities. Natural log-transformed age-adjusted incidence rates of COVID-19 as of April 1st are shown, indicating spatial variation between the northeast and south-southwest of the study area. <img src="Incidence_rates_map.svg" style="width:60.0%" /></p>
 <p>After conducting a throughout spatial exploratory analysis, we used a Bayesian Additive Regression Trees (BART; <span class="citation"><a href="#ref-Chipman2010" role="doc-biblioref">Chipman, George, and McCulloch</a> (<a href="#ref-Chipman2010" role="doc-biblioref">2010</a>)</span>) model, to identify important socioeconomic and built environment covariates with COVID-19 incidence rate. BART is a ensemble-of-trees method, such as random forests <span class="citation">(<a href="#ref-breiman2001" role="doc-biblioref">Breiman 2001</a>)</span> and stochastic gradient boosting <span class="citation">(<a href="#ref-friedman2002" role="doc-biblioref">Friedman 2002</a>)</span>.<br />
-Tree-based regression models have an advantage, as they can flexibly fit interactions and non-linearities. A sum-of-trees model - such as BART or random forest - has an even greater ability than a single-tree model. However, BART differs from these two examples, as it uses a underlying Bayesian probability model rather than a pure algorithm <span class="citation">(<a href="#ref-kapelner2016" role="doc-biblioref">Kapelner and Bleich 2016</a>)</span>. One of the advantage of using a Bayesian approach is, that it computes Bayesian posterior distributions to approximate the nonparametric model parameters. The priors aim to prevent a single regression from dominating, thus reducing the risk of overfitting <span class="citation">(<a href="#ref-kapelner2016" role="doc-biblioref">Kapelner and Bleich 2016</a>; <a href="#ref-scarpone2020" role="doc-biblioref">Scarpone et al. 2020</a>)</span>.</p>
+Tree-based regression models have an advantage, as they can flexibly fit interactions and non-linearities. A sum-of-trees model - such as BART or random forest - has an even greater ability than a single-tree model. However, BART differs from these two examples, as it uses a underlying Bayesian probability model rather than a pure algorithm <span class="citation">(<a href="#ref-kapelner2016" role="doc-biblioref">Kapelner and Bleich 2016</a>)</span>. One of the advantages of using a Bayesian approach is, that it computes Bayesian posterior distributions to approximate the nonparametric model parameters. The priors aim to prevent a single regression from dominating, thus reducing the risk of overfitting <span class="citation">(<a href="#ref-kapelner2016" role="doc-biblioref">Kapelner and Bleich 2016</a>; <a href="#ref-scarpone2020" role="doc-biblioref">Scarpone et al. 2020</a>)</span>.</p>
 <p>For our analysis we have used the R package <code>bartMachine</code> <span class="citation">(<a href="#ref-kapelner2016" role="doc-biblioref">Kapelner and Bleich 2016</a>)</span>. Unfortunately <code>bartMachine</code> does not support tibble objects as input features, but apart from that it’s intuitive and simple to use.<br />
 In this post I will use the data we have used in our COVID-19 paper, to analyze age-adjusted incidence rates of COVID-19 for German counties. Even though the BART model has great predictive power, we will not use it to predict new cases of COVID-19, but rather use it as a exploratory tool to understand, what factors contribute to the spreading of COVID-19 and how they interact with the incidence rate.</p>
 <p>I want to make it clear, that I will use data of one specific date. We have chosen the 1st April 2020, to analyze only the first wave of COVID-19 in Germany. A friend of mine currently analyses what effects contributed to the second and third waves. Even though there are many factors, that kept being important, many features gained or lost importance and some even showed a inverted effect.</p>
@@ -6743,19 +6743,19 @@ summary(bm_All)</code></pre>
 <pre><code>## bartMachine v1.2.5.1 for regression
 ## 
 ## training data n = 401 and p = 366 
-## built in 5.5 secs on 20 cores, 100 trees, 300 burn-in and 2000 post. samples
+## built in 5.1 secs on 20 cores, 100 trees, 300 burn-in and 2000 post. samples
 ## 
 ## sigsq est for y beforehand: 0.024 
-## avg sigsq estimate after burn-in: 0.08903 
+## avg sigsq estimate after burn-in: 0.09841 
 ## 
 ## in-sample statistics:
-##  L1 = 57.69 
-##  L2 = 14.16 
-##  rmse = 0.19 
-##  Pseudo-Rsq = 0.9268
-## p-val for shapiro-wilk test of normality of residuals: 0.00056 
-## p-val for zero-mean noise: 0.99677</code></pre>
-<p>The Pseudo-R² of 0.93 and RMSE of 0.19 look quiet promising, but let’s check for error assumptions.</p>
+##  L1 = 61.38 
+##  L2 = 16.1 
+##  rmse = 0.2 
+##  Pseudo-Rsq = 0.9168
+## p-val for shapiro-wilk test of normality of residuals: 4e-05 
+## p-val for zero-mean noise: 0.99885</code></pre>
+<p>The Pseudo-R² of 0.92 and RMSE of 0.2 look quiet promising, but let’s check for error assumptions.</p>
 <pre class="r"><code>check_bart_error_assumptions(bm_All)</code></pre>
 <p><img src="errorAssumption.png" /></p>
 <p>Both plots look good. In the second one (Assessment of Heteroskedasticity) we can detect a visible pattern - however not a prominent one! From both plots I would assume that the overall performance of the model is good, however it might struggle with extreme values.</p>
@@ -6846,16 +6846,16 @@ summary(bm_final)</code></pre>
 ## built in 3.8 secs on 20 cores, 225 trees, 250 burn-in and 1000 post. samples
 ## 
 ## sigsq est for y beforehand: 0.185 
-## avg sigsq estimate after burn-in: 0.12634 
+## avg sigsq estimate after burn-in: 0.12948 
 ## 
 ## in-sample statistics:
-##  L1 = 89.45 
-##  L2 = 33.72 
+##  L1 = 90.07 
+##  L2 = 34.12 
 ##  rmse = 0.29 
-##  Pseudo-Rsq = 0.8257
-## p-val for shapiro-wilk test of normality of residuals: 0.00108 
-## p-val for zero-mean noise: 0.96513</code></pre>
-<p>Compared to the first BART model, the second one saw a reduction in Pseudo-R² from 0.93 to 0.83, equating to a 11% reduction in explained variability. The RMSE increased from 0.19 to 0.29, indicating that the final model predicted age-adjusted incidence rates of COVID-19 for German counties with an accuracy of +/− 1.3 cases per 100,000. Again we need to check error assumptions and fitted vs. actual values.</p>
+##  Pseudo-Rsq = 0.8237
+## p-val for shapiro-wilk test of normality of residuals: 0.00102 
+## p-val for zero-mean noise: 0.94207</code></pre>
+<p>Compared to the first BART model, the second one saw a reduction in Pseudo-R² from 0.92 to 0.82, equating to a 10% reduction in explained variability. The RMSE increased from 0.2 to 0.29, indicating that the final model predicted age-adjusted incidence rates of COVID-19 for German counties with an accuracy of +/− 1.3 cases per 100,000. Again we need to check error assumptions and fitted vs. actual values.</p>
 <pre class="r"><code>check_bart_error_assumptions(bm_final)</code></pre>
 <p><img src="errorAssumption2.png" /> The new model is expected to perform worse compared to the first model, but the Q-Q and Fitted vs. Residuals plots both look good. Again, the BART model struggles with extreme (high) values.</p>
 <pre class="r"><code>plot_y_vs_yhat(bm_final, credible_intervals = TRUE)</code></pre>
@@ -6864,7 +6864,7 @@ summary(bm_final)</code></pre>
 </div>
 <div id="spatial-autocorrelation" class="section level2">
 <h2>Spatial autocorrelation</h2>
-<p>Spatial autocorrelation can be tested by mapping the residuals. I have provided a cleaned shapefile of the NUTS3 (federal states) regions in Germany. The mapped residuals allow us to visualize under- and overpredictions and check for spatial clustering of residuals. To determine whether the spatial autocorrelation of residuals is statistically significant or not, one could <a href="https://mgimond.github.io/Spatial/spatial-autocorrelation-in-r.html#app8_3">compute Moran’s I</a>. But since there is no discernible pattern of clustering - the residuals are randomly distributed -, I will skip this step.</p>
+<p>Spatial autocorrelation can be tested by mapping the residuals. I have provided a cleaned shapefile of the NUTS3 (federal states) regions in Germany. The mapped residuals allow us to visualize under- and overpredictions and check for spatial clustering of residuals. From this map I could not detect a discernible pattern of clustering - the residuals are randomly distributed.</p>
 <pre class="r"><code>library(sf)
 library(RColorBrewer)
 library(tmap)
@@ -6887,7 +6887,28 @@ tm_shape(shp) +
             legend.frame = TRUE,
             legend.outside = FALSE, 
             bg.color = &quot;white&quot;)</code></pre>
-<p><img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
+<p><img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-15-1.png" width="672" />
+To determine whether the spatial autocorrelation of residuals is statistically significant or not, one could compute Moran’s I. I will not explain Moran’s I in this post, but I would highly recommend these posts: <a href="https://mgimond.github.io/Spatial/spatial-autocorrelation-in-r.html#app8_3">Intro to GIS and Spatial Analysis</a> and <a href="https://rpubs.com/quarcs-lab/spatial-autocorrelation">Spatial autocorrelation analysis in R</a>.</p>
+<pre class="r"><code>library(spdep)
+# Define neighboring polygons
+nb &lt;- poly2nb(shp, queen=TRUE)
+
+# Assign weights to each neighboring polygon
+lw &lt;- nb2listw(nb, style=&quot;B&quot;, zero.policy=TRUE)
+
+# Compute Moran&#39;s I statistic using a Monte-Carlo simulation 
+MC &lt;- moran.mc(shp$resid, lw, nsim=99)
+MC</code></pre>
+<pre><code>## 
+##  Monte-Carlo simulation of Moran I
+## 
+## data:  shp$resid 
+## weights: lw  
+## number of simulations + 1: 100 
+## 
+## statistic = 0.05977, observed rank = 95, p-value = 0.05
+## alternative hypothesis: greater</code></pre>
+<p>The Moran’s I score is between -1 and 1, where high (low) values determine positive (negative) spatial autocorrelation and 0 identifies the data is randomly distributed. The Morans’s I statistic of 0.06 (p=0.05) further confirms, that there is no spatial autocorrelation.</p>
 </div>
 <div id="partial-dependence-plots" class="section level2">
 <h2>Partial Dependence Plots</h2>
@@ -6901,7 +6922,7 @@ pd_plot(bm_final, &quot;S_115&quot;, levs = c(0.0, seq(0, 1, 0.1), 1))</code></p
 <pre class="r"><code>hist(bm_final$X$S_115, 20, 
      main = &quot;Histogram of the Regional Population Potential&quot;,
      xlab = &quot;Regional Population Potential&quot;)</code></pre>
-<p><img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-16-1.png" width="768" /></p>
+<p><img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-17-1.png" width="768" /></p>
 <p>The regional population potential measures the likelihood of direct interactions to occur between inhabitants. The PDP indicates small marginal changes in incidence rates for low values of regional population potential, which can be interpreted as evidence that in counties with a lower probability of human interaction, there is a lower probability of viral contagion. The greatest increase in partial dependence is observed between the 20th and 80th percentiles of regional population potential index scores (14,016 to 47,067), indicating a strong non-linear effect of this variable on incidence rates.</p>
 <p>To improve visual interpretability in the plot above it would make sense to log-transform the data. However, this is not possible using the build in <code>pd_plot</code> function. Therefore I have slightly rewritten this function to generate a ggplot output instead of a simple base R plot (I have provided the edited function on <a href="https://github.com/CHEST-Lab/BART_Covid-19/blob/master/pdPlotGG.R">GitHub</a>). Now we can treat the result as an ggplot2 object, scale the axis, adjust the theme, combine the histogram and PDP in one plot,…</p>
 <p>Below, I have included the PDPs from our paper, visualizing the partial dependence of the 10 most prevalent variables. The variable importance can be computed using the <code>investigate_var_importance</code> function. Based on the spatial exploratory data analysis, we have separated Germany into a low rate region (LLR) and high rate region (HHR). You can read the description and interpretation of the PDPs <a href="https://ij-healthgeographics.biomedcentral.com/articles/10.1186/s12942-020-00225-1#Sec18">here</a>.</p>
