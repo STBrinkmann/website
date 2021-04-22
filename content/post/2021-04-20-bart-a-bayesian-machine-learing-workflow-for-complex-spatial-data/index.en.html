@@ -1,8 +1,8 @@
 ---
-title: BART - A Bayesian machine learing workflow for complex spatial data
+title: BART - A Bayesian machine learning workflow for complex spatial data
 author: Sebastian Brinkmann
 date: '2021-04-20'
-slug: bart-a-bayesian-machine-learing-workflow-for-complex-spatial-data
+slug: bart-a-bayesian-machine-learning-workflow-for-complex-spatial-data
 categories: []
 tags:
   - Bayesian
@@ -10,7 +10,7 @@ tags:
   - COVID-19
   - R
 subtitle: ''
-summary: 'In our recent publication from 2020 we analyzed COVID-19 incidence rates using a multimethod approach. In this post I will present BART - a Bayesian machine learing algorithm - to model COVID-19 incidence rates.'
+summary: 'In our recent publication from 2020 we analyzed COVID-19 incidence rates using a multimethod approach. In this post I will present BART - a Bayesian machine learning algorithm - to model COVID-19 incidence rates.'
 authors: []
 lastmod: '2021-04-20T15:54:53+02:00'
 featured: no
@@ -6746,15 +6746,15 @@ summary(bm_All)</code></pre>
 ## built in 5.1 secs on 20 cores, 100 trees, 300 burn-in and 2000 post. samples
 ## 
 ## sigsq est for y beforehand: 0.024 
-## avg sigsq estimate after burn-in: 0.09841 
+## avg sigsq estimate after burn-in: 0.09704 
 ## 
 ## in-sample statistics:
-##  L1 = 61.38 
-##  L2 = 16.1 
+##  L1 = 61.22 
+##  L2 = 16.06 
 ##  rmse = 0.2 
-##  Pseudo-Rsq = 0.9168
-## p-val for shapiro-wilk test of normality of residuals: 4e-05 
-## p-val for zero-mean noise: 0.99885</code></pre>
+##  Pseudo-Rsq = 0.917
+## p-val for shapiro-wilk test of normality of residuals: 8e-05 
+## p-val for zero-mean noise: 0.98895</code></pre>
 <p>The Pseudo-R² of 0.92 and RMSE of 0.2 look quiet promising, but let’s check for error assumptions.</p>
 <pre class="r"><code>check_bart_error_assumptions(bm_All)</code></pre>
 <p><img src="errorAssumption.png" /></p>
@@ -6846,15 +6846,15 @@ summary(bm_final)</code></pre>
 ## built in 3.8 secs on 20 cores, 225 trees, 250 burn-in and 1000 post. samples
 ## 
 ## sigsq est for y beforehand: 0.185 
-## avg sigsq estimate after burn-in: 0.12948 
+## avg sigsq estimate after burn-in: 0.12952 
 ## 
 ## in-sample statistics:
-##  L1 = 90.07 
-##  L2 = 34.12 
+##  L1 = 90.41 
+##  L2 = 34.33 
 ##  rmse = 0.29 
-##  Pseudo-Rsq = 0.8237
-## p-val for shapiro-wilk test of normality of residuals: 0.00102 
-## p-val for zero-mean noise: 0.94207</code></pre>
+##  Pseudo-Rsq = 0.8226
+## p-val for shapiro-wilk test of normality of residuals: 0.00155 
+## p-val for zero-mean noise: 0.99065</code></pre>
 <p>Compared to the first BART model, the second one saw a reduction in Pseudo-R² from 0.92 to 0.82, equating to a 10% reduction in explained variability. The RMSE increased from 0.2 to 0.29, indicating that the final model predicted age-adjusted incidence rates of COVID-19 for German counties with an accuracy of +/− 1.3 cases per 100,000. Again we need to check error assumptions and fitted vs. actual values.</p>
 <pre class="r"><code>check_bart_error_assumptions(bm_final)</code></pre>
 <p><img src="errorAssumption2.png" /> The new model is expected to perform worse compared to the first model, but the Q-Q and Fitted vs. Residuals plots both look good. Again, the BART model struggles with extreme (high) values.</p>
@@ -6887,8 +6887,8 @@ tm_shape(shp) +
             legend.frame = TRUE,
             legend.outside = FALSE, 
             bg.color = &quot;white&quot;)</code></pre>
-<p><img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-15-1.png" width="672" />
-To determine whether the spatial autocorrelation of residuals is statistically significant or not, one could compute Moran’s I. I will not explain Moran’s I in this post, but I would highly recommend these posts: <a href="https://mgimond.github.io/Spatial/spatial-autocorrelation-in-r.html#app8_3">Intro to GIS and Spatial Analysis</a> and <a href="https://rpubs.com/quarcs-lab/spatial-autocorrelation">Spatial autocorrelation analysis in R</a>.</p>
+<p><img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
+<p>To determine whether the spatial autocorrelation of residuals is statistically significant or not, one could compute Moran’s I. I will not explain Moran’s I in this post, but I would highly recommend these posts: <a href="https://mgimond.github.io/Spatial/spatial-autocorrelation-in-r.html#app8_3">Intro to GIS and Spatial Analysis</a> and <a href="https://rpubs.com/quarcs-lab/spatial-autocorrelation">Spatial autocorrelation analysis in R</a>.</p>
 <pre class="r"><code>library(spdep)
 # Define neighboring polygons
 nb &lt;- poly2nb(shp, queen=TRUE)
@@ -6906,9 +6906,9 @@ MC</code></pre>
 ## weights: lw  
 ## number of simulations + 1: 100 
 ## 
-## statistic = 0.05977, observed rank = 95, p-value = 0.05
+## statistic = 0.059986, observed rank = 96, p-value = 0.04
 ## alternative hypothesis: greater</code></pre>
-<p>The Moran’s I score is between -1 and 1, where high (low) values determine positive (negative) spatial autocorrelation and 0 identifies the data is randomly distributed. The Morans’s I statistic of 0.06 (p=0.05) further confirms, that there is no spatial autocorrelation.</p>
+<p>The Moran’s I score is between -1 and 1, where high (low) values determine positive (negative) spatial autocorrelation and 0 identifies the data is randomly distributed. The Morans’s I statistic of 0.06 (p=0.04) further confirms, that there is no spatial autocorrelation.</p>
 </div>
 <div id="partial-dependence-plots" class="section level2">
 <h2>Partial Dependence Plots</h2>

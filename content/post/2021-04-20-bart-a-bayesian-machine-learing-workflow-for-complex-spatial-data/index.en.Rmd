@@ -1,8 +1,8 @@
 ---
-title: BART - A Bayesian machine learing workflow for complex spatial data
+title: BART - A Bayesian machine learning workflow for complex spatial data
 author: Sebastian Brinkmann
 date: '2021-04-20'
-slug: bart-a-bayesian-machine-learing-workflow-for-complex-spatial-data
+slug: bart-a-bayesian-machine-learning-workflow-for-complex-spatial-data
 categories: []
 tags:
   - Bayesian
@@ -10,7 +10,7 @@ tags:
   - COVID-19
   - R
 subtitle: ''
-summary: 'In our recent publication from 2020 we analyzed COVID-19 incidence rates using a multimethod approach. In this post I will present BART - a Bayesian machine learing algorithm - to model COVID-19 incidence rates.'
+summary: 'In our recent publication from 2020 we analyzed COVID-19 incidence rates using a multimethod approach. In this post I will present BART - a Bayesian machine learning algorithm - to model COVID-19 incidence rates.'
 authors: []
 lastmod: '2021-04-20T15:54:53+02:00'
 featured: no
@@ -240,6 +240,7 @@ The "Fitted vs. Actual Values" plot above indicates overall OK model performance
 ## Spatial autocorrelation
 
 Spatial autocorrelation can be tested by mapping the residuals. I have provided a cleaned shapefile of the NUTS3 (federal states) regions in Germany. The mapped residuals allow us to visualize under- and overpredictions and check for spatial clustering of residuals. From this map I could not detect a discernible pattern of clustering - the residuals are randomly distributed.
+
 ```{r fig.height=7, fig.width=7, message=FALSE, warning=FALSE}
 library(sf)
 library(RColorBrewer)
@@ -264,6 +265,7 @@ tm_shape(shp) +
             legend.outside = FALSE, 
             bg.color = "white")
 ```
+
 To determine whether the spatial autocorrelation of residuals is statistically significant or not, one could compute Moran's I. I will not explain Moran's I in this post, but I would highly recommend these posts: [Intro to GIS and Spatial Analysis](https://mgimond.github.io/Spatial/spatial-autocorrelation-in-r.html#app8_3) and [Spatial autocorrelation analysis in R](https://rpubs.com/quarcs-lab/spatial-autocorrelation).
 
 ```{r message=FALSE, warning=FALSE}
@@ -278,7 +280,8 @@ lw <- nb2listw(nb, style="B", zero.policy=TRUE)
 MC <- moran.mc(shp$resid, lw, nsim=99)
 MC
 ```
-The Moran's I score is between -1 and 1, where high (low) values determine positive (negative) spatial autocorrelation and 0 identifies the data is randomly distributed. The Morans's I statistic of `r round(MC$statistic, 2)` (p=`r round(MC$p.value, 2)`) further confirms, that there is no spatial autocorrelation. 
+
+The Moran's I score is between -1 and 1, where high (low) values determine positive (negative) spatial autocorrelation and 0 identifies the data is randomly distributed. The Morans's I statistic of `r round(MC$statistic, 2)` (p=`r round(MC$p.value, 2)`) further confirms, that there is no spatial autocorrelation.
 
 ## Partial Dependence Plots
 
