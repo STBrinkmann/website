@@ -32,10 +32,10 @@ text-align: justify}
 In our [recent publication from 2020](https://geobrinkmann.com/publication/scarpone2020/) we analyzed COVID-19 incidence and socioeconomic, infrastructural, and built environment characteristics using a multimethod approach. There are 401 counties in Germany; as shown in the figure below, these vary in size, such that the counties in Southern Germany are generally smaller with higher population densities. Natural log-transformed age-adjusted incidence rates of COVID-19 as of April 1st are shown, indicating spatial variation between the northeast and south-southwest of the study area. ![](Incidence_rates_map.svg){width="60%"}
 
 After conducting a throughout spatial exploratory analysis, we used a Bayesian Additive Regression Trees (BART; @Chipman2010) model, to identify important socioeconomic and built environment covariates with COVID-19 incidence rate. BART is a ensemble-of-trees method, such as random forests [@breiman2001] and stochastic gradient boosting [@friedman2002].\
-Tree-based regression models have an advantage, as they can flexibly fit interactions and non-linearities. A sum-of-trees model - such as BART or random forest - has an even greater ability than a single-tree model. However, BART differs from these two examples, as it uses a underlying Bayesian probability model rather than a pure algorithm [@kapelner2016]. On of the advantage of using a Bayesian approach is, that it computes Bayesian posterior distributions to approximate the nonparametric model parameters. The priors aim to prevent a single regression from dominating, thus reducing the risk of overfitting [@kapelner2016; @scarpone2020].
+Tree-based regression models have an advantage, as they can flexibly fit interactions and non-linearities. A sum-of-trees model - such as BART or random forest - has an even greater ability than a single-tree model. However, BART differs from these two examples, as it uses a underlying Bayesian probability model rather than a pure algorithm [@kapelner2016]. One of the advantage of using a Bayesian approach is, that it computes Bayesian posterior distributions to approximate the nonparametric model parameters. The priors aim to prevent a single regression from dominating, thus reducing the risk of overfitting [@kapelner2016; @scarpone2020].
 
 For our analysis we have used the R package `bartMachine` [@kapelner2016]. Unfortunately `bartMachine` does not support tibble objects as input features, but apart from that it's intuitive and simple to use.\
-In this post I will use the data we have used in our COVID-19 paper, to analyze age-adjusted incidence rates of COVID-19 for German counties. Even though the BART model has great predictive power, we will not predict new cases of COVID-19, but rather use it as a exploratory tool to understand, what factors contribute to the spreading of COVID-19.
+In this post I will use the data we have used in our COVID-19 paper, to analyze age-adjusted incidence rates of COVID-19 for German counties. Even though the BART model has great predictive power, we will not use it to predict new cases of COVID-19, but rather use it as a exploratory tool to understand, what factors contribute to the spreading of COVID-19 and how they interact with the incidence rate.
 
 I want to make it clear, that I will use data of one specific date. We have chosen the 1st April 2020, to analyze only the first wave of COVID-19 in Germany. A friend of mine currently analyses what effects contributed to the second and third waves. Even though there are many factors, that kept being important, many features gained or lost importance and some even showed a inverted effect.
 
@@ -59,7 +59,7 @@ library(dplyr)
 set_bart_machine_num_cores(20)
 ```
 
-Let's double check if the correct amount of RAM has been made available. If the message states a completely different amount of memory, try to manually write the java.parameters string, instead of copy&pasting.
+I would suggest, that you double check if the correct amount of RAM has been made available, when loading `bartMachine`. If the message states a completely different amount of memory, try to manually write the java.parameters string, instead of copy&pasting.
 
 Next, we need to download the data and normalize the church density (*Rch_den*) variable.
 
@@ -88,7 +88,7 @@ data %>% as_tibble() %>%
   row_spec(0, bold = TRUE)
 ```
 
-The first column (*AdjRate*) contains age-adjusted incidence rates. The X and Y coordinate (longitude and latitude) contain the spatial information. The NUTS2 code represents the district (Landkreis) ID, *BL_ID* contains the name of the federal state (Bundesland) and EWZ refers to the population count. After that follows a ton of socioeconomic, infrastructural, and built environment characteristics. We will thin out the important features later and talk about their meaning, so don't worry about the coding of the variables.
+The first column (*AdjRate*) contains age-adjusted incidence rates. The X and Y coordinates (longitude and latitude) contain the spatial information. The NUTS2 code represents the government regions (Regierungsbezirke) ID, *BL_ID* contains the name of the federal state (Bundesland) and EWZ refers to the population count. After that follows a ton of socioeconomic, infrastructural, and built environment characteristics. We will thin out the important features later and talk about their meaning, so don't worry about the coding of the variables.
 
 BART needs a data.frame of predictors and a vector of the response variable.
 
@@ -130,7 +130,7 @@ bm_All <- bartMachine(X = data_bm, y = y,
 summary(bm_All)
 ```
 
-The Pseudo-R² of 0.92 and RMSE of 0.20 look quiet promising, but let's check for error assumptions.
+The Pseudo-R² of `r round(bm_All$PseudoRsq, 2)` and RMSE of `r round(bm_All$rmse_train, 2)` look quiet promising, but let's check for error assumptions.
 
 ```{r eval=FALSE, fig.width=8, fig.height=8}
 check_bart_error_assumptions(bm_All)
@@ -151,7 +151,7 @@ The "Fitted vs. Actual Values" plot above indicates overall good model performan
 ## Variable Selection
 
 BART is quiet a powerful machine learning tool, but there is more to it than amazing R² values! If you are dealing with a high dimensional data set (like our data with 313 predictors), often only a relatively small subset of predictor variables truly influences the response variable. Occam's razor describes this philosophy, that simpler models should be preferred to unnecessarily complex ones.\
-The `var_selection_by_permute` function performs variable selection introduced by @bleich2014, to reduce model complexity. Let's run the next chunk and investigate the most important variables. You may skip this step just use my results, as this will take quiet long to run...
+The `var_selection_by_permute` function performs variable selection introduced by @bleich2014, to reduce model complexity. Let's run the next chunk and investigate the most important variables. You may skip this step and just use my results, as this will take quiet long to run...
 
 ```{r eval=FALSE}
 # Leave the num_trees_for_permute small, to force variables to compete for entry into the model!
@@ -221,7 +221,7 @@ bm_final <- bartMachine(X = data_subset, y = y,
 summary(bm_final)
 ```
 
-Compared to the first BART model, the second one saw a reduction in Pseudo-R² from 0.92 to 0.83, equating to a 10% reduction in explained variability. The RMSE increased from 0.20 to 0.29, indicating that the final model predicted age-adjusted incidence rates of COVID-19 for German counties with an accuracy of +/− 1.3 cases per 100,000. Again we need to check error assumptions and fitted vs. actual values.
+Compared to the first BART model, the second one saw a reduction in Pseudo-R² from `r round(bm_All$PseudoRsq, 2)` to `r round(bm_final$PseudoRsq, 2)`, equating to a `r round((bm_All$PseudoRsq - bm_final$PseudoRsq) / bm_All$PseudoRsq * 100)`% reduction in explained variability. The RMSE increased from `r round(bm_All$rmse_train, 2)` to `r round(bm_final$rmse_train, 2)`, indicating that the final model predicted age-adjusted incidence rates of COVID-19 for German counties with an accuracy of +/− `r round(exp(bm_final$rmse_train), 1)` cases per 100,000. Again we need to check error assumptions and fitted vs. actual values.
 
 ```{r eval=FALSE, fig.width=8, fig.height=8}
 check_bart_error_assumptions(bm_final)
@@ -239,7 +239,7 @@ The "Fitted vs. Actual Values" plot above indicates overall OK model performance
 
 ## Spatial autocorrelation
 
-Spatial autocorrelation can be tested by mapping the residuals. I have provided a cleaned shapefile of the NUTS3 (federal states) regions in Germany. The mapped residuals allow us to visualize under- and overpredictions and check for spatial clustering of residuals. To determine whether the spatial clustering of residuals is statistically significant or not, one could [compute Moran's I](https://mgimond.github.io/Spatial/spatial-autocorrelation-in-r.html#app8_3). But since there is no discernible pattern of autocorrelation - the residuals are randomly distributed -, I will skip this step.
+Spatial autocorrelation can be tested by mapping the residuals. I have provided a cleaned shapefile of the NUTS3 (federal states) regions in Germany. The mapped residuals allow us to visualize under- and overpredictions and check for spatial clustering of residuals. To determine whether the spatial autocorrelation of residuals is statistically significant or not, one could [compute Moran's I](https://mgimond.github.io/Spatial/spatial-autocorrelation-in-r.html#app8_3). But since there is no discernible pattern of clustering - the residuals are randomly distributed -, I will skip this step.
 
 ```{r fig.height=7, fig.width=7, message=FALSE, warning=FALSE}
 library(sf)
@@ -270,9 +270,9 @@ tm_shape(shp) +
 
 In the previous steps we have build a robust BART machine to predict age-adjusted incidence rates of COVID-19 for German counties. However, as already mentioned in the beginning, I am interested in using BART as a exploratory tool. The high R² indicates, that the model did understand the non-linear relationships of the covariates with the COVID-19 incidence rate. To visualize and explore these relationships, Partial Dependence Plots (PDPs) are a great tool. PDPs are graphical outputs that illustrate the marginal effect of each independent variable on the response variable [@friedman2002; @scarpone2017; @scarpone2020].
 
-The R package [pdp](https://cran.r-project.org/web/packages/pdp/index.html) provides great tools for computing partial dependence. However it does not support `bartMachine`. But that's no problem, as `bartMachine` also comes with a build in function to generate PDPs. The function in the `bartMachine` package is called `pd_plot`. I will demonstrate a PDP and it's corresponding histogram on the exam of *S_115* (Regional Population Potential). The values of *S_115* are plotted on the x-axis and its marginal effect in incidence rate (log-adjusted) on the y-axis.
+The R package [pdp](https://cran.r-project.org/web/packages/pdp/index.html) provides great tools for computing partial dependence. However it does not support `bartMachine`. But that's no problem, as `bartMachine` also comes with a build in function to generate PDPs. The function in the `bartMachine` package is called `pd_plot`. I will demonstrate a PDP and it's corresponding histogram on the example of *S_115* (Regional Population Potential). The values of *S_115* are plotted on the x-axis and its marginal effect in incidence rate (log-adjusted) on the y-axis.
 
-```{r fig.width=8, fig.height=8}
+```{r fig.height=8, fig.width=8, message=FALSE, warning=FALSE}
 # Set parameters to plot PDP top and histogram bottom
 par(mfrow = c(2,1))
 
@@ -286,7 +286,7 @@ The regional population potential measures the likelihood of direct interactions
 
 To improve visual interpretability in the plot above it would make sense to log-transform the data. However, this is not possible using the build in `pd_plot` function. Therefore I have slightly rewritten this function to generate a ggplot output instead of a simple base R plot (I have provided the edited function on [GitHub](https://github.com/CHEST-Lab/BART_Covid-19/blob/master/pdPlotGG.R)). Now we can treat the result as an ggplot2 object, scale the axis, adjust the theme, combine the histogram and PDP in one plot,...
 
-Below, I have included the PDPs from our paper, visualizing the partial dependence of the 10 most prevalent variables. Based on the spatial exploratory data analysis, we have separated Germany into a low rate region (LLR) and high rate region (HHR). You can read the description and interpretation of the PDPs [here](https://ij-healthgeographics.biomedcentral.com/articles/10.1186/s12942-020-00225-1#Sec18).
+Below, I have included the PDPs from our paper, visualizing the partial dependence of the 10 most prevalent variables. The variable importance can be computed using the `investigate_var_importance` function. Based on the spatial exploratory data analysis, we have separated Germany into a low rate region (LLR) and high rate region (HHR). You can read the description and interpretation of the PDPs [here](https://ij-healthgeographics.biomedcentral.com/articles/10.1186/s12942-020-00225-1#Sec18).
 
 [![Partial Dependence Plots (PDP) of the 10 most prevalent variables in the final Bayesian Additive Regression Tree (BART) model. Histograms are shown for the entire country (green), for only the low rates region (LRR, teal), and for only the high rates region (HRR, purple). The PDPs indicate marginal changes in the predicted (log-transformed, age-adjusted) incidence rate per 100,000 residents (upper y-axis) for different values of each independent variable (x-axis)](WallOfShame.svg)](https://ij-healthgeographics.biomedcentral.com/articles/10.1186/s12942-020-00225-1/figures/6)
 
