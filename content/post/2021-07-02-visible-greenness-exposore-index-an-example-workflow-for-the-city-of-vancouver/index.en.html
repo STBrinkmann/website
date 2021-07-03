@@ -1,0 +1,181 @@
+---
+title: Visible Greenness Exposure Index - An example workflow for the City of Vancouver
+author: Sebastian Brinkmann
+date: '2021-07-02'
+slug: visible-greenness-exposure-index-an-example-workflow-for-the-city-of-vancouver
+categories: []
+tags:
+  - R
+  - Greenspace
+  - Health Geography
+subtitle: ''
+summary: ''
+authors: []
+lastmod: '2021-07-02T15:16:27+02:00'
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+---
+
+<script src="{{< blogdown/postref >}}index.en_files/header-attrs/header-attrs.js"></script>
+
+
+<p>In a previous posts I have <a href="https://geobrinkmann.com/post/visible-greenness-exposure/">introduced the Visible Greenness Exposure Index (VGVI)</a> and demonstrated, <a href="https://geobrinkmann.com/post/visibility-sensitivity-analysis/">how to fine tune the parameters for calculateing the viewsheds</a>. In cooperation with <a href="https://www.smlabib.com/">Dr. S.M. Labib</a> we have build the R package <a href="https://github.com/STBrinkmann/GVI">GVI</a>, for easily calculating VGVI’s. On the GitHub website we have also provided examples to demonstrate, how to use the functions. However, a use case of this R package for researchers is, to compute the VGVI for a large study area.<br />
+Therefore, in this post, I’d like to provide a workflow for a large area of interest, using the City of Vancouver as my study area.</p>
+<div id="input" class="section level2">
+<h2>Input</h2>
+<p>For computing the VGVI, we need three raster layers: the Digital Terrain Model (DEM) and Digital Surface Model (DSM) and a Greenspace Mask. The Greenspace Mask is a binary raster based on a Land Cover Classification map, where 1 = vegetation and 0 = no vegetation. I have also included bluespaces (e.g. lakes and rivers) to the greenspace mask with the value 1, since these features also seem to provide mental health benefits (<a href="https://doi.org/10.1038/s41598-021-87675-0">White <em>et al.</em> 2021</a>).</p>
+<p>The data can be downloaded from Zenodo (will be published on 6.7.2021) and read in R like this.</p>
+<pre class="r"><code>### Load libraries
+library(terra) # handling raster data
+library(sf)    # handling shapefiles
+library(GVI)   # computing the VGVI
+
+# Folder where the data has been downloaded
+workdir &lt;- &quot;H:/Vancouver/Vancouver_Sample_Data/&quot;
+
+# Load DTM, DSM and Land Cover
+dtm &lt;- rast(file.path(workdir, &quot;Vancouver_DTM_1m.tif&quot;))
+dsm &lt;- rast(file.path(workdir, &quot;Vancouver_DSM_1m.tif&quot;))
+lulc &lt;- rast(file.path(workdir, &quot;Vancouver_LULC_2m.tif&quot;))
+
+# Reclassify values for the binary greenspace mask
+
+rcl_mat &lt;- matrix(c(1, 6, 0,    # no vegetation
+                    6, 13, 1,   # vegetation and water
+                    13, 14, 0), # no vegetation
+                  ncol = 3, byrow = TRUE)
+
+greenspace &lt;- classify(lulc, rcl = rcl_mat, include.lowest = TRUE)
+writeRaster(greenspace, file.path(workdir, &quot;Vancouver_GS_2m.tif&quot;))</code></pre>
+<p>Below I have provided a interactive map of a smaller region, to compare the DTM, DSM and Landuse.</p>
+<iframe frameborder="0" scrolling="no" seamless="seamless" style="display:block; width:95%; height:85vh;" src="https://datageobrinkmann.be/VGVI_input.html">
+</iframe>
+<p></br></p>
+<p>We also need the observer locations where the VGVI should be computed. In our example we could simply use all coordinates of the whole DSM. However, we can’t compute the VGVI from inside buildings, and it wouldn’t make sense to compute VGVI on water (unless you are interested in the view of stand-up paddlers). Therefore, in the next step, we only use the coordinates of useful cells from the Land Cover Classification map and convert it to a sf-point feature.</p>
+<pre class="r"><code># Useful Landcover Classification codes
+useful_codes &lt;- c(2:11, 13)
+
+# Get XY-coordinates
+xy_coords &lt;- xyFromCell(lulc, which(values(lulc) %in% useful_codes)) %&gt;% 
+  as_tibble()
+
+# Convert to shapefile
+vancouver_2m_sf &lt;- st_as_sf(xy_coords, coords = c(&quot;x&quot;, &quot;y&quot;), crs = 26910)
+
+# Save sf
+write_sf(vancouver_2m_sf, file.path(workdir, &quot;Vancouver_2m_xy.gpkg&quot;))</code></pre>
+<p>Creating and writing the shapefile might take some time, as it contains 16.741.566 features. At this point I would reccomend to restart the R session and clean the environment to free the RAM.</p>
+</div>
+<div id="vgvi" class="section level2">
+<h2>VGVI</h2>
+<p>Before computing the VGVI using the <code>vgvi_from_sf</code> from our GVI R package, I would recommend to think about some important parameters. I have partially covered this in my last <a href="https://geobrinkmann.com/post/visibility-sensitivity-analysis/">post</a>, where I talked about the parameters <em>raster_res</em> and <em>max_distance</em>. So far, we have not provided recommendations for fitting the weights parameters <em>m</em>, <em>b</em>, and <em>mode</em>, because we need to conduct more research in this area. However, in our study area, m = 1 and b = 3, using the exponential function (see plot below) for calculating the distance decay weights seems sufficient.</p>
+<p><img src="weights_example.svg" width="351" /></p>
+<p>Computing VGVI for a large area using multiple CPU cores can be RAM expensive. In addition to that, loading the <em>Vancouver_2m_xy.gpkg</em> shapefile into the R session is very RAM expensive, too. Therefore, I’ll make use of a SQL statement, to load the shapefile step by step. This way, the computation is more efficient and faster. In addition, by saving after every step, in case of an unexpected system failure, it is very easy to continue the script at the latest position. Below I have provided some R code.</p>
+<pre class="r"><code>library(magrittr)
+library(sf)
+library(terra)
+library(GVI)
+options(show.error.messages = FALSE)
+
+# Set your cores here!
+cores &lt;- 22
+
+# Set workdir
+workdir &lt;- &quot;H:/Vancouver/Vancouver_Sample_Data/&quot;
+
+# Make dir for saving the VGVI output continuously
+dir.create(file.path(workdir, &quot;out&quot;))
+
+# Load raster data
+dtm &lt;- rast(file.path(workdir, &quot;Vancouver_DTM_1m.tif&quot;))
+dsm &lt;- rast(file.path(workdir, &quot;Vancouver_DSM_1m.tif&quot;))
+greenspace &lt;- rast(file.path(workdir, &quot;Vancouver_GS_2m.tif&quot;))
+
+# Sequence for the SQL statement
+sql_seq &lt;- as.integer(seq(1, 16741566, length.out = 101))
+
+
+for(i in 2:max(seq_along(sql_seq))) {
+  cat(paste0(&quot;Iteration &quot;, i-1, &quot;/&quot;, length(sql_seq)-1, &quot;:\n&quot;))
+  
+  # Load shapefile with SQL statement
+  vancouver_sf &lt;- st_read(
+    file.path(workdir, &quot;raw&quot;, &quot;Vancouver_2m_xy.gpkg&quot;),
+    query = paste(&quot;SELECT * FROM \&quot;Vancouver_2m_xy\&quot; WHERE fid BETWEEN&quot;, 
+                  sql_seq[i-1], &quot;AND&quot;, sql_seq[i]),
+    quiet = TRUE)
+  
+  # Compute VGVI
+  vancouver_vgvi &lt;- vgvi_from_sf(observer = vancouver_sf,
+                                 dsm_rast = dsm, 
+                                 dtm_rast = dtm, 
+                                 greenspace_rast = greenspace,
+                                 max_distance = 550, observer_height = 1.7,
+                                 raster_res = 2,
+                                 m = 1, b = 3, mode = &quot;exponential&quot;,
+                                 cores = cores, chunk_size = 10000, 
+                                 folder_path = file.path(workdir, &quot;out&quot;),
+                                 progress = TRUE)
+  cat(&quot;\n&quot;)
+}</code></pre>
+<p>I recommend to save the code from above in a separate R script (e.g. vgvi_Vancouver_2m.R) and call this script from the console. On Linux you can do this with this command:<br />
+<code>sudo R CMD BATCH vgvi_Vancouver_2m.R &amp;</code></p>
+<p>This will run the R script in background and saves the output in a new file vgvi_Vancouver_2m.Rout. You can check the progress by calling <code>cat vgvi_Vancouver_2m.Rout</code>. In addition, I would recomend checking your CPU and RAM usage. I really like the <a href="https://htop.dev/">htop</a> tool for this!</p>
+</div>
+<div id="vgvi-to-raster" class="section level2">
+<h2>VGVI to Raster</h2>
+<p>In most cases we prefere working with raster layers instead if millions of point features. Therefore, we will combine all the VGVI shapefiles from the privious step and convert them to a single raster.</p>
+<pre class="r"><code>library(magrittr)
+library(sf)
+library(terra)
+library(raster)
+
+workdir &lt;- &quot;H:/Vancouver/Vancouver_Sample_Data/&quot;
+
+# List all shapefiles in the out-folder
+vgvi_paths &lt;- list.files(file.path(workdir, &quot;out&quot;), 
+                         full.names = TRUE, pattern = &quot;.gpkg&quot;)
+
+# Load the Greenspace Mask
+greenspace &lt;- rast(file.path(workdir, &quot;Vancouver_GS_2m.tif&quot;))
+
+pb = txtProgressBar(min = 0, max = length(vgvi_paths), initial = 0, style = 3)
+for (i in seq_along(vgvi_paths)) {
+  # Convert shapefile to raster, the Greenspace raster 
+  # will be used as template for CRS and extent
+  this_rast &lt;- terra::rasterize(terra::vect(vgvi_paths[i]), greenspace, &quot;VGVI&quot;)
+  names(this_rast) &lt;- &quot;VGVI&quot;
+
+  if (i == 1) {
+    terra::writeRaster(x = this_rast, 
+                       filename = file.path(workdir, &quot;big_rast.tif&quot;),
+                       overwrite = TRUE)
+  } else {
+    terra::writeRaster(terra::merge(x = this_rast, 
+                                    y = rast(file.path(workdir, &quot;big_rast.tif&quot;))),
+                       filename = file.path(workdir, &quot;big_rast.tif&quot;),
+                       overwrite = TRUE)
+  }
+  setTxtProgressBar(pb,i)
+}
+
+# Clean data
+big_rast &lt;- terra::rast(file.path(workdir, &quot;big_rast.tif&quot;)) %&gt;%
+  terra::classify(rcl = matrix(c(-Inf, 0, 0),
+                               ncol = 3,
+                               byrow = TRUE))
+
+# Apply smoothing and write raster
+big_rast %&gt;%
+  terra::focal(3, fun = median, na.rm = TRUE) %&gt;%
+  terra::mask(big_rast) %&gt;%
+  terra::writeRaster(file.path(workdir, &quot;big_rast_smooth.tif&quot;))</code></pre>
+<p>Below you can see the result of the VGVI algorithm. As you can see, the VGVI has not been calculated for areas with buildings or water.</p>
+<iframe frameborder="0" scrolling="no" seamless="seamless" style="display:block; width:95%; height:85vh;" src="https://datageobrinkmann.be/VGVI_out.html">
+</iframe>
+<p></br></p>
+</div>
