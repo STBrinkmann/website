@@ -33,21 +33,21 @@ library(tmaptools)
 library(sf)
 tmap_options(show.messages = FALSE)
 
-base_osm <- sf::read_sf("/media/sebastian/Red/Vancouver/Oficial/DSM_mask.gpkg") %>% 
+base_osm <- sf::read_sf("H:/Vancouver/Oficial/DSM_mask.gpkg") %>% 
   sf::st_buffer(10000) %>% 
   sf::st_crop(st_bbox(c(xmin = 473651, xmax = 533400, ymax = 5464507, ymin = 5425715), 
                       crs = st_crs(26910))) %>% 
   read_osm()
 
 tm_shape(base_osm) + tm_rgb() +
-  tm_shape(sf::read_sf("/media/sebastian/Red/Vancouver/Oficial/DSM_mask.gpkg")) + 
+  tm_shape(sf::read_sf("H:/Vancouver/Oficial/DSM_mask.gpkg")) + 
   tm_polygons(alpha = 0.3, col = "blue") +
   tm_layout(bg.color = "transparent")
 ```
 
 To analyze the effect of visible greenness I'll be using the [Viewshed Greenness Visibility Index (VGVI)](https://doi.org/10.1016/j.scitotenv.2020.143050). The VGVI expresses the proportion of visible greenness to the total visible area based on a viewshed. The estimated VGVI values range between 0 and 1, where 0 = no green cells are visible, and 1 = all of the visible cells are green. In a recent [post](https://geobrinkmann.com/post/visible-greenness-exposure/) I have demonstrated how to calculate the VGVI, and in my R package [GVI](https://github.com/STBrinkmann/GVI) (currently only available on GitHub) I have provided fast functions to compute the VGVI.
 
-To calculate the VGVI for an observer, the viewshed of this point needs to be computed first - hence the name ***Viewshed*** Greenness Visibility Index. The [*viewshed*](https://github.com/STBrinkmann/GVI#viewshed)function of the GVI package does exactly that. The basic idea is to apply a buffer on the observer position. Now we can "simply" check every point in this area, whether it is visible or not.\
+To calculate the VGVI for an observer, the viewshed of this point needs to be computed first - hence the name ***Viewshed*** Greenness Visibility Index. The [*viewshed*](https://github.com/STBrinkmann/GVI#viewshed) function of the GVI package does exactly that. The basic idea is to apply a buffer on the observer position. Now we can "simply" check every point in this area, whether it is visible or not.\
 To do so, we need a Digital Surface Model (DSM), Digital Terrain Model (DTM) and the observer location as input data for the *viewshed* function.
 
 ```{r message=FALSE, warning=FALSE}
@@ -57,7 +57,7 @@ library(sf)
 library(GVI)
 library(terra)
 
-workdir <- "/media/sebastian/Red/Vancouver/Vancouver_RS_Data/"
+workdir <- "H:/Vancouver/Vancouver_RS_Data/"
 
 # Load DSM and DEM
 dsm <- rast(file.path(workdir, "DSM.tif"))

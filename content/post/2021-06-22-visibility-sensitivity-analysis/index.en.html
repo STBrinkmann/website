@@ -21,14 +21,12 @@ projects: []
 ---
 
 <script src="{{< blogdown/postref >}}index.en_files/header-attrs/header-attrs.js"></script>
-<link href="{{< blogdown/postref >}}index.en_files/anchor-sections/anchor-sections.css" rel="stylesheet" />
-<script src="{{< blogdown/postref >}}index.en_files/anchor-sections/anchor-sections.js"></script>
 
 
 <p>As part of my Bachelor Thesis I am analyzing the effects of visible green- and bluespaces on mental health based on a medical study in Vancouver. The area of interest covers Vancouver City, Burnaby and Surrey.</p>
 <p><img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
 <p>To analyze the effect of visible greenness I’ll be using the <a href="https://doi.org/10.1016/j.scitotenv.2020.143050">Viewshed Greenness Visibility Index (VGVI)</a>. The VGVI expresses the proportion of visible greenness to the total visible area based on a viewshed. The estimated VGVI values range between 0 and 1, where 0 = no green cells are visible, and 1 = all of the visible cells are green. In a recent <a href="https://geobrinkmann.com/post/visible-greenness-exposure/">post</a> I have demonstrated how to calculate the VGVI, and in my R package <a href="https://github.com/STBrinkmann/GVI">GVI</a> (currently only available on GitHub) I have provided fast functions to compute the VGVI.</p>
-<p>To calculate the VGVI for an observer, the viewshed of this point needs to be computed first - hence the name <strong><em>Viewshed</em></strong> Greenness Visibility Index. The <a href="https://github.com/STBrinkmann/GVI#viewshed"><em>viewshed</em></a>function of the GVI package does exactly that. The basic idea is to apply a buffer on the observer position. Now we can “simply” check every point in this area, whether it is visible or not.<br />
+<p>To calculate the VGVI for an observer, the viewshed of this point needs to be computed first - hence the name <strong><em>Viewshed</em></strong> Greenness Visibility Index. The <a href="https://github.com/STBrinkmann/GVI#viewshed"><em>viewshed</em></a> function of the GVI package does exactly that. The basic idea is to apply a buffer on the observer position. Now we can “simply” check every point in this area, whether it is visible or not.<br />
 To do so, we need a Digital Surface Model (DSM), Digital Terrain Model (DTM) and the observer location as input data for the <em>viewshed</em> function.</p>
 <pre class="r"><code># Load libraries
 library(dplyr)
@@ -36,7 +34,7 @@ library(sf)
 library(GVI)
 library(terra)
 
-workdir &lt;- &quot;/media/sebastian/Red/Vancouver/Vancouver_RS_Data/&quot;
+workdir &lt;- &quot;H:/Vancouver/Vancouver_RS_Data/&quot;
 
 # Load DSM and DEM
 dsm &lt;- rast(file.path(workdir, &quot;DSM.tif&quot;))
