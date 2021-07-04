@@ -9,7 +9,7 @@ tags:
   - Greenspace
   - Health Geography
 subtitle: ''
-summary: ''
+summary: 'Example workflow for a large study area when using the GVI R package'
 authors: []
 lastmod: '2021-07-02T15:16:27+02:00'
 featured: no
@@ -21,9 +21,12 @@ projects: []
 ---
 
 <script src="{{< blogdown/postref >}}index.en_files/header-attrs/header-attrs.js"></script>
+<link href="{{< blogdown/postref >}}index.en_files/anchor-sections/anchor-sections.css" rel="stylesheet" />
+<script src="{{< blogdown/postref >}}index.en_files/anchor-sections/anchor-sections.js"></script>
 
 
-<p>In a previous posts I have <a href="https://geobrinkmann.com/post/visible-greenness-exposure/">introduced the Visible Greenness Exposure Index (VGVI)</a> and demonstrated, <a href="https://geobrinkmann.com/post/visibility-sensitivity-analysis/">how to fine tune the parameters for calculateing the viewsheds</a>. In cooperation with <a href="https://www.smlabib.com/">Dr. S.M. Labib</a> we have build the R package <a href="https://github.com/STBrinkmann/GVI">GVI</a>, for easily calculating VGVI’s. On the GitHub website we have also provided examples to demonstrate, how to use the functions. However, a use case of this R package for researchers is, to compute the VGVI for a large study area.<br />
+<p>In a previous posts I have <a href="https://geobrinkmann.com/post/visible-greenness-exposure/">introduced the Viewshed Greenness Visibility Index (VGVI)</a> and demonstrated, <a href="https://geobrinkmann.com/post/visibility-sensitivity-analysis/">how to fine tune the parameters for calculateing the viewsheds</a>. In cooperation with <a href="https://www.smlabib.com/">Dr. S.M. Labib</a> we have build the R package <a href="https://github.com/STBrinkmann/GVI">GVI</a>, for easily calculating VGVI’s. The VGVI expresses the proportion of visible greenness to the total visible area and is calculated using a viewshed based on a Digital Surface Model (DSM). There are other methods to compute visible greenness, for example using Google Street View panorama images instead of a DSM (<a href="https://doi.org/10.1016/j.ufug.2015.06.006">Li <em>et al.</em> 2015</a>). Though the method we present has some advantages, as DSM and Landuse data is already being provided for public use for many regions worldwide. Furthermore, it is very easy to not only compute the overall visible greenness, but - for example - compute visible tree-coverage or visible blue-space. Such information is important to understand how specific build environment features affect health. I will demonstrate how to calculate visible tree-coverage in the end of this post.</p>
+<p>On the <a href="https://github.com/STBrinkmann/GVI">GitHub website</a> we have already provided examples on how to use the functions. However, a use case of this R package for researchers is to compute the VGVI for a large study area.<br />
 Therefore, in this post, I’d like to provide a workflow for a large area of interest, using the City of Vancouver as my study area.</p>
 <div id="input" class="section level2">
 <h2>Input</h2>
@@ -33,6 +36,7 @@ Therefore, in this post, I’d like to provide a workflow for a large area of in
 library(terra) # handling raster data
 library(sf)    # handling shapefiles
 library(GVI)   # computing the VGVI
+library(dplyr) # data wrangeling
 
 # Folder where the data has been downloaded
 workdir &lt;- &quot;H:/Vancouver/Vancouver_Sample_Data/&quot;
@@ -51,7 +55,7 @@ rcl_mat &lt;- matrix(c(1, 6, 0,    # no vegetation
 
 greenspace &lt;- classify(lulc, rcl = rcl_mat, include.lowest = TRUE)
 writeRaster(greenspace, file.path(workdir, &quot;Vancouver_GS_2m.tif&quot;))</code></pre>
-<p>Below I have provided a interactive map of a smaller region, to compare the DTM, DSM and Landuse.</p>
+<p>Below I have provided a interactive map of a smaller region, to compare the DTM, DSM and Landuse. In <a href="https://geobrinkmann.com/post/visible-greenness-exposure/#section-greenspace-mask">my other post</a> I have also listed all classes of the Landuse map in detail.</p>
 <iframe frameborder="0" scrolling="no" seamless="seamless" style="display:block; width:95%; height:85vh;" src="https://datageobrinkmann.be/VGVI_input.html">
 </iframe>
 <p></br></p>
@@ -68,18 +72,18 @@ vancouver_2m_sf &lt;- st_as_sf(xy_coords, coords = c(&quot;x&quot;, &quot;y&quot
 
 # Save sf
 write_sf(vancouver_2m_sf, file.path(workdir, &quot;Vancouver_2m_xy.gpkg&quot;))</code></pre>
-<p>Creating and writing the shapefile might take some time, as it contains 16.741.566 features. At this point I would reccomend to restart the R session and clean the environment to free the RAM.</p>
+<p>Creating and writing the shapefile might take some time, as it contains 16.741.566 features. At this point I would recommend to restart the R session and clean the environment to free the RAM.</p>
 </div>
 <div id="vgvi" class="section level2">
 <h2>VGVI</h2>
-<p>Before computing the VGVI using the <code>vgvi_from_sf</code> from our GVI R package, I would recommend to think about some important parameters. I have partially covered this in my last <a href="https://geobrinkmann.com/post/visibility-sensitivity-analysis/">post</a>, where I talked about the parameters <em>raster_res</em> and <em>max_distance</em>. So far, we have not provided recommendations for fitting the weights parameters <em>m</em>, <em>b</em>, and <em>mode</em>, because we need to conduct more research in this area. However, in our study area, m = 1 and b = 3, using the exponential function (see plot below) for calculating the distance decay weights seems sufficient.</p>
+<p>Before computing the VGVI using the <code>vgvi_from_sf</code> function from our GVI R package, I would recommend to think about some important parameters. I have partially covered this in my last <a href="https://geobrinkmann.com/post/visibility-sensitivity-analysis/">post</a>, where I talked about the parameters <em>raster_res</em> and <em>max_distance</em>. So far, we have not provided recommendations for fitting the weights parameters <em>m</em>, <em>b</em>, and <em>mode</em>, because we need to conduct more research in this area. However, in our study area, m = 1 and b = 3, using the exponential function (see plot below) for calculating the distance decay weights seems sufficient.</p>
 <p><img src="weights_example.svg" width="351" /></p>
-<p>Computing VGVI for a large area using multiple CPU cores can be RAM expensive. In addition to that, loading the <em>Vancouver_2m_xy.gpkg</em> shapefile into the R session is very RAM expensive, too. Therefore, I’ll make use of a SQL statement, to load the shapefile step by step. This way, the computation is more efficient and faster. In addition, by saving after every step, in case of an unexpected system failure, it is very easy to continue the script at the latest position. Below I have provided some R code.</p>
+<p>Computing VGVI for a large area using multiple CPU cores can be RAM expensive. In addition to that, loading the complete <em>Vancouver_2m_xy.gpkg</em> shapefile into the R session is very RAM expensive, too. Therefore, I’ll make use of a SQL statement, to load the shapefile step by step. This way, the computation is more efficient and faster. Furthermore, by saving after every step, it is very easy to continue the script at the latest position in case of an unexpected system failure.</p>
 <pre class="r"><code>library(magrittr)
 library(sf)
 library(terra)
 library(GVI)
-options(show.error.messages = FALSE)
+options(show.error.messages = T)
 
 # Set your cores here!
 cores &lt;- 22
@@ -96,7 +100,7 @@ dsm &lt;- rast(file.path(workdir, &quot;Vancouver_DSM_1m.tif&quot;))
 greenspace &lt;- rast(file.path(workdir, &quot;Vancouver_GS_2m.tif&quot;))
 
 # Sequence for the SQL statement
-sql_seq &lt;- as.integer(seq(1, 16741566, length.out = 101))
+sql_seq &lt;- as.integer(seq(1, 16741566, length.out = 201))
 
 
 for(i in 2:max(seq_along(sql_seq))) {
@@ -104,7 +108,7 @@ for(i in 2:max(seq_along(sql_seq))) {
   
   # Load shapefile with SQL statement
   vancouver_sf &lt;- st_read(
-    file.path(workdir, &quot;raw&quot;, &quot;Vancouver_2m_xy.gpkg&quot;),
+    file.path(workdir, &quot;Vancouver_2m_xy.gpkg&quot;),
     query = paste(&quot;SELECT * FROM \&quot;Vancouver_2m_xy\&quot; WHERE fid BETWEEN&quot;, 
                   sql_seq[i-1], &quot;AND&quot;, sql_seq[i]),
     quiet = TRUE)
@@ -122,19 +126,19 @@ for(i in 2:max(seq_along(sql_seq))) {
                                  progress = TRUE)
   cat(&quot;\n&quot;)
 }</code></pre>
-<p>I recommend to save the code from above in a separate R script (e.g. vgvi_Vancouver_2m.R) and call this script from the console. On Linux you can do this with this command:<br />
+<p>I recommend to save the code from above in a separate R script (e.g. vgvi_Vancouver_2m.R) and call this script from the console. On Linux you can do this with the command:<br />
 <code>sudo R CMD BATCH vgvi_Vancouver_2m.R &amp;</code></p>
-<p>This will run the R script in background and saves the output in a new file vgvi_Vancouver_2m.Rout. You can check the progress by calling <code>cat vgvi_Vancouver_2m.Rout</code>. In addition, I would recomend checking your CPU and RAM usage. I really like the <a href="https://htop.dev/">htop</a> tool for this!</p>
+<p>This will run the R script in background and saves the output in a new file vgvi_Vancouver_2m<strong>.Rout</strong>. You can check the progress by calling <code>cat vgvi_Vancouver_2m.Rout</code>. In addition, I would recommend checking your CPU and RAM usage. I really like the <a href="https://htop.dev/">htop</a> tool for this!</p>
 </div>
 <div id="vgvi-to-raster" class="section level2">
 <h2>VGVI to Raster</h2>
-<p>In most cases we prefere working with raster layers instead if millions of point features. Therefore, we will combine all the VGVI shapefiles from the privious step and convert them to a single raster.</p>
+<p>In most cases we prefer working with raster layers instead of millions of point features. Therefore, we will combine all the VGVI shapefiles from the previous step and convert them to a single raster (we will include this functionality in our package in the future). Also, I found it useful to smooth the final product by applying a moving window (focal) smoothing function.</p>
 <pre class="r"><code>library(magrittr)
 library(sf)
 library(terra)
 library(raster)
 
-workdir &lt;- &quot;H:/Vancouver/Vancouver_Sample_Data/&quot;
+workdir &lt;- &quot;/media/sebastian/Red/Vancouver/Vancouver_Sample_Data/&quot;
 
 # List all shapefiles in the out-folder
 vgvi_paths &lt;- list.files(file.path(workdir, &quot;out&quot;), 
@@ -145,8 +149,8 @@ greenspace &lt;- rast(file.path(workdir, &quot;Vancouver_GS_2m.tif&quot;))
 
 pb = txtProgressBar(min = 0, max = length(vgvi_paths), initial = 0, style = 3)
 for (i in seq_along(vgvi_paths)) {
-  # Convert shapefile to raster, the Greenspace raster 
-  # will be used as template for CRS and extent
+  # Convert shapefile to raster, the Greenspace raster  will be 
+  # used as a template for CRS and extent
   this_rast &lt;- terra::rasterize(terra::vect(vgvi_paths[i]), greenspace, &quot;VGVI&quot;)
   names(this_rast) &lt;- &quot;VGVI&quot;
 
@@ -174,8 +178,19 @@ big_rast %&gt;%
   terra::focal(3, fun = median, na.rm = TRUE) %&gt;%
   terra::mask(big_rast) %&gt;%
   terra::writeRaster(file.path(workdir, &quot;big_rast_smooth.tif&quot;))</code></pre>
-<p>Below you can see the result of the VGVI algorithm. As you can see, the VGVI has not been calculated for areas with buildings or water.</p>
+</div>
+<div id="tree-coverage-visibility" class="section level2">
+<h2>Tree-Coverage Visibility</h2>
+<p>As already mentioned in the beginning, it may be of interest to model visible tree-cover or visible blue-spaces or similar visibility assessments. Since we used a Landcover Classification map for differentiating between green vs. no-green, it is now very simple and straight forward to analyze visible tree-cover. As we did before, we need to classify coniferous and deciduous trees as 1, and the rest as 0.</p>
+<pre class="r"><code>rcl_mat &lt;- matrix(c(1, 6, 0,    # no trees
+                    6, 8, 1,    # coniferous and deciduous trees
+                    8, 14, 0),  # no trees
+                  ncol = 3, byrow = TRUE)
+
+tree_cover &lt;- classify(lulc, rcl = rcl_mat, include.lowest = TRUE)</code></pre>
+<p>Based on this new binary tree-cover mask, the Viewshed Tree-Cover Visibility Index (VTVI) can be calculated using the scripts from above. I have excluded observer locations that are underneath trees. Below you can see the result of the VGVI and VTVI. As you can see, they have not been computed for areas with buildings or water. In the VGVI layer you can also see, that cells which are located underneath trees have an extremely high VGVI value. This is because the viewshed algorithm can’t “see” beyond those trees and returns only one single visible cell, which is green. We are currently working on ways for solving this limitation.</p>
 <iframe frameborder="0" scrolling="no" seamless="seamless" style="display:block; width:95%; height:85vh;" src="https://datageobrinkmann.be/VGVI_out.html">
 </iframe>
 <p></br></p>
+<p>When looking at the VTVI layer, higher values are rarely achieved (4th quantile = ) because it is generally harder to view trees compared to overall vegetation. The two big parks in the north and south are the areas with the highest VTVI values. The residential area in the east also achieved relatively high values. This might be explained by the very large London plane trees (<em>Platanus × acerifolia</em>), European beech trees (<em>Fagus sylvatica</em>) and horse chestnut trees (Aesculus hippocastanum) that have been planted in the side alleys.</p>
 </div>
