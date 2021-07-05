@@ -11,6 +11,7 @@ image:
 lastmod: "2020-05-07T00:00:00Z"
 projects: []
 subtitle: "Text Mining and Topic Modelling using a Structural Topic Model"
+summary: "In 2001 a project has been created to transform the former steel production site in Belval, Luxembourg into the Cité des Sciences. In 2015 the new campus has been opened. In this analysis I'm using a Structural Topic Model (STM) to explore how this topic is being represented in the news."
 tags:
 - STM
 - Text Mining
