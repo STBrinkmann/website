@@ -29,7 +29,7 @@ Therefore, in this post, I'd like to provide a workflow for a large area of inte
 
 For computing the VGVI, we need three raster layers: the Digital Terrain Model (DEM) and Digital Surface Model (DSM) and a Greenspace Mask. The Greenspace Mask is a binary raster based on a Land Cover Classification map, where 1 = vegetation and 0 = no vegetation. I have also included bluespaces (e.g. lakes and rivers) to the greenspace mask with the value 1, since these features also seem to provide mental health benefits ([White *et al.* 2021](https://doi.org/10.1038/s41598-021-87675-0)).
 
-The data can be downloaded from Zenodo (will be published on 6.7.2021) and read in R like this.
+The data can be downloaded from [Zenodo](https://doi.org/10.5281/zenodo.5061256) and read in R like this.
 
 ```{r message=FALSE, warning=FALSE, eval=FALSE}
 ### Load libraries
@@ -157,7 +157,7 @@ library(sf)
 library(terra)
 library(raster)
 
-workdir <- "/media/sebastian/Red/Vancouver/Vancouver_Sample_Data/"
+workdir <- "H:/Vancouver/Vancouver_Sample_Data/"
 
 # List all shapefiles in the out-folder
 vgvi_paths <- list.files(file.path(workdir, "out"), 
@@ -220,4 +220,4 @@ Based on this new binary tree-cover mask, the Viewshed Tree-Cover Visibility Ind
 
 </br>
 
-When looking at the VTVI layer, higher values are rarely achieved (4th quantile = ) because it is generally harder to view trees compared to overall vegetation. The two big parks in the north and south are the areas with the highest VTVI values. The residential area in the east also achieved relatively high values. This might be explained by the very large London plane trees (*Platanus × acerifolia*), European beech trees (*Fagus sylvatica*) and horse chestnut trees (Aesculus hippocastanum) that have been planted in the side alleys.
+When looking at the VTVI layer, higher values are rarely achieved because it is generally harder to view trees compared to overall vegetation. The Langara Golf Course in the south and the Little Mountain park in the north are the two areas with the highest VTVI values. The residential area in the east also achieved relatively high values. This might be explained by the very large London plane trees (*Platanus × acerifolia*), European beech trees (*Fagus sylvatica*) and horse chestnut trees (*Aesculus hippocastanum*) that have been planted in the side alleys.

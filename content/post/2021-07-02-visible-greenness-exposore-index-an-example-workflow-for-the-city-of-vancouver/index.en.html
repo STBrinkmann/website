@@ -21,8 +21,6 @@ projects: []
 ---
 
 <script src="{{< blogdown/postref >}}index.en_files/header-attrs/header-attrs.js"></script>
-<link href="{{< blogdown/postref >}}index.en_files/anchor-sections/anchor-sections.css" rel="stylesheet" />
-<script src="{{< blogdown/postref >}}index.en_files/anchor-sections/anchor-sections.js"></script>
 
 
 <p>In a previous posts I have <a href="https://geobrinkmann.com/post/visible-greenness-exposure/">introduced the Viewshed Greenness Visibility Index (VGVI)</a> and demonstrated, <a href="https://geobrinkmann.com/post/visibility-sensitivity-analysis/">how to fine tune the parameters for calculateing the viewsheds</a>. In cooperation with <a href="https://www.smlabib.com/">Dr. S.M. Labib</a> we have build the R package <a href="https://github.com/STBrinkmann/GVI">GVI</a>, for easily calculating VGVI’s. The VGVI expresses the proportion of visible greenness to the total visible area and is calculated using a viewshed based on a Digital Surface Model (DSM). There are other methods to compute visible greenness, for example using Google Street View panorama images instead of a DSM (<a href="https://doi.org/10.1016/j.ufug.2015.06.006">Li <em>et al.</em> 2015</a>). Though the method we present has some advantages, as DSM and Landuse data is already being provided for public use for many regions worldwide. Furthermore, it is very easy to not only compute the overall visible greenness, but - for example - compute visible tree-coverage or visible blue-space. Such information is important to understand how specific build environment features affect health. I will demonstrate how to calculate visible tree-coverage in the end of this post.</p>
@@ -31,7 +29,7 @@ Therefore, in this post, I’d like to provide a workflow for a large area of in
 <div id="input" class="section level2">
 <h2>Input</h2>
 <p>For computing the VGVI, we need three raster layers: the Digital Terrain Model (DEM) and Digital Surface Model (DSM) and a Greenspace Mask. The Greenspace Mask is a binary raster based on a Land Cover Classification map, where 1 = vegetation and 0 = no vegetation. I have also included bluespaces (e.g. lakes and rivers) to the greenspace mask with the value 1, since these features also seem to provide mental health benefits (<a href="https://doi.org/10.1038/s41598-021-87675-0">White <em>et al.</em> 2021</a>).</p>
-<p>The data can be downloaded from Zenodo (will be published on 6.7.2021) and read in R like this.</p>
+<p>The data can be downloaded from <a href="https://doi.org/10.5281/zenodo.5061256">Zenodo</a> and read in R like this.</p>
 <pre class="r"><code>### Load libraries
 library(terra) # handling raster data
 library(sf)    # handling shapefiles
@@ -138,7 +136,7 @@ library(sf)
 library(terra)
 library(raster)
 
-workdir &lt;- &quot;/media/sebastian/Red/Vancouver/Vancouver_Sample_Data/&quot;
+workdir &lt;- &quot;H:/Vancouver/Vancouver_Sample_Data/&quot;
 
 # List all shapefiles in the out-folder
 vgvi_paths &lt;- list.files(file.path(workdir, &quot;out&quot;), 
@@ -192,5 +190,5 @@ tree_cover &lt;- classify(lulc, rcl = rcl_mat, include.lowest = TRUE)</code></pr
 <iframe frameborder="0" scrolling="no" seamless="seamless" style="display:block; width:95%; height:85vh;" src="https://datageobrinkmann.be/VGVI_out.html">
 </iframe>
 <p></br></p>
-<p>When looking at the VTVI layer, higher values are rarely achieved (4th quantile = ) because it is generally harder to view trees compared to overall vegetation. The two big parks in the north and south are the areas with the highest VTVI values. The residential area in the east also achieved relatively high values. This might be explained by the very large London plane trees (<em>Platanus × acerifolia</em>), European beech trees (<em>Fagus sylvatica</em>) and horse chestnut trees (Aesculus hippocastanum) that have been planted in the side alleys.</p>
+<p>When looking at the VTVI layer, higher values are rarely achieved because it is generally harder to view trees compared to overall vegetation. The Langara Golf Course in the south and the Little Mountain park in the north are the two areas with the highest VTVI values. The residential area in the east also achieved relatively high values. This might be explained by the very large London plane trees (<em>Platanus × acerifolia</em>), European beech trees (<em>Fagus sylvatica</em>) and horse chestnut trees (<em>Aesculus hippocastanum</em>) that have been planted in the side alleys.</p>
 </div>
