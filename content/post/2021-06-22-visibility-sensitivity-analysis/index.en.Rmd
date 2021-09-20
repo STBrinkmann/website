@@ -158,7 +158,7 @@ visibleDistance(viewshed_2) %>%
 
 To find the specific distance threshold of my area of interest, I'll use the sample of 4000 points and compute the viewshed and proportion of visible area for each distance value.
 
-```{r eval=FALSE, echo=FALSE}
+```{r eval=FALSE}
 for(i in 1:nrow(sf_sample)) {
   # Viewshed
   this_dist <- viewshed(observer = sf_sample[i, ], max_distance = 1000,

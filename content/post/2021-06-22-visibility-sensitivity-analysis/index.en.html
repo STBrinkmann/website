@@ -153,6 +153,20 @@ viewshed_2 &lt;- GVI::viewshed(observer = st_observer,
 </tbody>
 </table>
 <p>To find the specific distance threshold of my area of interest, I’ll use the sample of 4000 points and compute the viewshed and proportion of visible area for each distance value.</p>
+<pre class="r"><code>for(i in 1:nrow(sf_sample)) {
+  # Viewshed
+  this_dist &lt;- viewshed(observer = sf_sample[i, ], max_distance = 1000,
+                        dsm_rast = dsm, dtm_rast = dtm) %&gt;%
+    # Costum function 
+    visibleDistance()
+  
+  # Add to &quot;out&quot;
+  if (i == 1) {
+    out &lt;- this_dist
+  } else {
+    out &lt;- rbind(out, this_dist)
+  }
+}</code></pre>
 <p>The plot below indicates, that visibility decreases with increasing distance. Interestingly, there are two distance levels where visibility increases locally, at 250 m and 500 m. This might be due to city planning effects. Most points are located at streets, maybe parks are planned to be evenly distributed in the Vancouver Metropolitan area for close, equal access.</p>
 <p>Based on this analysis I set the distance parameter to 550 meters.</p>
 <p><img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
