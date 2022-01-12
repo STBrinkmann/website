@@ -13,7 +13,7 @@ subtitle: ''
 summary: 'In our recent publication from 2020 we analyzed COVID-19 incidence rates using a multimethod approach. In this post I will present BART - a Bayesian machine learning algorithm - to model COVID-19 incidence rates.'
 authors: []
 lastmod: '2021-04-20T15:54:53+02:00'
-featured: no
+featured: yes
 image:
   caption: ''
   focal_point: ''
@@ -24,8 +24,6 @@ bibliography: references.bib
 ---
 
 <script src="{{< blogdown/postref >}}index.en_files/header-attrs/header-attrs.js"></script>
-<link href="{{< blogdown/postref >}}index.en_files/anchor-sections/anchor-sections.css" rel="stylesheet" />
-<script src="{{< blogdown/postref >}}index.en_files/anchor-sections/anchor-sections.js"></script>
 <script src="{{< blogdown/postref >}}index.en_files/kePrint/kePrint.js"></script>
 <link href="{{< blogdown/postref >}}index.en_files/lightable/lightable.css" rel="stylesheet" />
 
@@ -6737,25 +6735,26 @@ Max
                       k=2, nu=3, q=0.9, num_trees=100, 
                       num_iterations_after_burn_in=2000, 
                       num_burn_in = 300, 
-                      seed = 1234, verbose = FALSE)
-
-summary(bm_All)</code></pre>
-<pre><code>## bartMachine v1.2.5.1 for regression
+                      seed = 1234, verbose = FALSE)</code></pre>
+<pre><code>## Warning in build_bart_machine(X, y, Xy, num_trees, num_burn_in, num_iterations_after_burn_in, : Setting the seed when using parallelization does not result in deterministic output.
+## If you need deterministic output, you must run &quot;set_bart_machine_num_cores(1)&quot; and then build the BART model with the set seed.</code></pre>
+<pre class="r"><code>summary(bm_All)</code></pre>
+<pre><code>## bartMachine v1.2.6 for regression
 ## 
 ## training data n = 401 and p = 366 
-## built in 5.1 secs on 20 cores, 100 trees, 300 burn-in and 2000 post. samples
+## built in 7.3 secs on 20 cores, 100 trees, 300 burn-in and 2000 post. samples
 ## 
 ## sigsq est for y beforehand: 0.024 
-## avg sigsq estimate after burn-in: 0.09704 
+## avg sigsq estimate after burn-in: 0.08411 
 ## 
 ## in-sample statistics:
-##  L1 = 61.22 
-##  L2 = 16.06 
-##  rmse = 0.2 
-##  Pseudo-Rsq = 0.917
-## p-val for shapiro-wilk test of normality of residuals: 8e-05 
-## p-val for zero-mean noise: 0.98895</code></pre>
-<p>The Pseudo-R² of 0.92 and RMSE of 0.2 look quiet promising, but let’s check for error assumptions.</p>
+##  L1 = 56.04 
+##  L2 = 13.1 
+##  rmse = 0.18 
+##  Pseudo-Rsq = 0.9323
+## p-val for shapiro-wilk test of normality of residuals: 0.00087 
+## p-val for zero-mean noise: 0.96076</code></pre>
+<p>The Pseudo-R² of 0.93 and RMSE of 0.18 look quiet promising, but let’s check for error assumptions.</p>
 <pre class="r"><code>check_bart_error_assumptions(bm_All)</code></pre>
 <p><img src="errorAssumption.png" /></p>
 <p>Both plots look good. In the second one (Assessment of Heteroskedasticity) we can detect a visible pattern - however not a prominent one! From both plots I would assume that the overall performance of the model is good, however it might struggle with extreme values.</p>
@@ -6838,24 +6837,26 @@ var_sel$important_vars_cv</code></pre>
 <p>With the subset of important predictors, we will build a second BART model. Again, I have already computed the optimal hyperparameters using the <code>bartMachineCV</code> function.</p>
 <pre class="r"><code>bm_final &lt;- bartMachine(X = data_subset, y = y, 
                         k=3, nu=3, q=0.99, num_trees=225,
-                        seed = 1234, verbose = FALSE)
-summary(bm_final)</code></pre>
-<pre><code>## bartMachine v1.2.5.1 for regression
+                        seed = 1234, verbose = FALSE)</code></pre>
+<pre><code>## Warning in build_bart_machine(X, y, Xy, num_trees, num_burn_in, num_iterations_after_burn_in, : Setting the seed when using parallelization does not result in deterministic output.
+## If you need deterministic output, you must run &quot;set_bart_machine_num_cores(1)&quot; and then build the BART model with the set seed.</code></pre>
+<pre class="r"><code>summary(bm_final)</code></pre>
+<pre><code>## bartMachine v1.2.6 for regression
 ## 
 ## training data n = 401 and p = 31 
-## built in 3.8 secs on 20 cores, 225 trees, 250 burn-in and 1000 post. samples
+## built in 5 secs on 20 cores, 225 trees, 250 burn-in and 1000 post. samples
 ## 
 ## sigsq est for y beforehand: 0.185 
-## avg sigsq estimate after burn-in: 0.12952 
+## avg sigsq estimate after burn-in: 0.12811 
 ## 
 ## in-sample statistics:
-##  L1 = 90.41 
-##  L2 = 34.33 
+##  L1 = 89.74 
+##  L2 = 34.06 
 ##  rmse = 0.29 
-##  Pseudo-Rsq = 0.8226
-## p-val for shapiro-wilk test of normality of residuals: 0.00155 
-## p-val for zero-mean noise: 0.99065</code></pre>
-<p>Compared to the first BART model, the second one saw a reduction in Pseudo-R² from 0.92 to 0.82, equating to a 10% reduction in explained variability. The RMSE increased from 0.2 to 0.29, indicating that the final model predicted age-adjusted incidence rates of COVID-19 for German counties with an accuracy of +/− 1.3 cases per 100,000. Again we need to check error assumptions and fitted vs. actual values.</p>
+##  Pseudo-Rsq = 0.824
+## p-val for shapiro-wilk test of normality of residuals: 0.00122 
+## p-val for zero-mean noise: 0.94939</code></pre>
+<p>Compared to the first BART model, the second one saw a reduction in Pseudo-R² from 0.93 to 0.82, equating to a 12% reduction in explained variability. The RMSE increased from 0.18 to 0.29, indicating that the final model predicted age-adjusted incidence rates of COVID-19 for German counties with an accuracy of +/− 1.3 cases per 100,000. Again we need to check error assumptions and fitted vs. actual values.</p>
 <pre class="r"><code>check_bart_error_assumptions(bm_final)</code></pre>
 <p><img src="errorAssumption2.png" /> The new model is expected to perform worse compared to the first model, but the Q-Q and Fitted vs. Residuals plots both look good. Again, the BART model struggles with extreme (high) values.</p>
 <pre class="r"><code>plot_y_vs_yhat(bm_final, credible_intervals = TRUE)</code></pre>
@@ -6906,9 +6907,9 @@ MC</code></pre>
 ## weights: lw  
 ## number of simulations + 1: 100 
 ## 
-## statistic = 0.059986, observed rank = 96, p-value = 0.04
+## statistic = 0.059486, observed rank = 99, p-value = 0.01
 ## alternative hypothesis: greater</code></pre>
-<p>The Moran’s I score is between -1 and 1, where high (low) values determine positive (negative) spatial autocorrelation and 0 identifies the data is randomly distributed. The Morans’s I statistic of 0.06 (p=0.04) further confirms, that there is no spatial autocorrelation.</p>
+<p>The Moran’s I score is between -1 and 1, where high (low) values determine positive (negative) spatial autocorrelation and 0 identifies the data is randomly distributed. The Morans’s I statistic of 0.06 (p=0.01) further confirms, that there is no spatial autocorrelation.</p>
 </div>
 <div id="partial-dependence-plots" class="section level2">
 <h2>Partial Dependence Plots</h2>

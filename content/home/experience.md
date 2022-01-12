@@ -28,7 +28,7 @@ experience:
     location: FAU Erlangen-Nürnberg
     date_start: '2020-04-01'
     date_end: ''
-    description: Collecting and processing of census and OSM data. Developing algorithms, as well as statistical modeling in the projects COVID-19 and PURE SPACE. Writing publications as a co-author.
+    description: Collecting and processing remote sensing, census and OSM data. Developing algorithms and software in C++ and R. Statistical modelling in the COVID-19, PURE SPACE and GEM projects, as well as contributing to scientific publications.
         
   - title: Student assistant
     company: Remote Sensing & GIS
@@ -36,5 +36,5 @@ experience:
     location: FAU Erlangen-Nürnberg
     date_start: '2019-04-01'
     date_end: '2019-09-30'
-    description: Development of scripts for the processing of optical satellite images and TanDEM-X data in R and Shell, in the context of glaciology.
+    description: Development of scripts for processing optical satellite images and TanDEM-X data in R and Shell, in the context of glaciology. Georeferencing of glacier outlines in QGIS.
 ---

@@ -35,7 +35,7 @@ feature:
 - description: Intermediate
   icon: laptop-code
   icon_pack: fas
-  name: HTML & CSS
+  name: HTML, CSS & C++
 - description: Beginner
   icon: python
   icon_pack: fab
@@ -43,7 +43,7 @@ feature:
 - description: Beginner
   icon: laptop-code
   icon_pack: fas
-  name: C# & C++
+  name: C#
 
 # Uncomment to use emoji icons.
 #- icon = ":smile:"

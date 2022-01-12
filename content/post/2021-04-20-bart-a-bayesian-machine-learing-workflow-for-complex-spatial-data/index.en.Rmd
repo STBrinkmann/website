@@ -13,7 +13,7 @@ subtitle: ''
 summary: 'In our recent publication from 2020 we analyzed COVID-19 incidence rates using a multimethod approach. In this post I will present BART - a Bayesian machine learning algorithm - to model COVID-19 incidence rates.'
 authors: []
 lastmod: '2021-04-20T15:54:53+02:00'
-featured: no
+featured: yes
 image:
   caption: ''
   focal_point: ''
