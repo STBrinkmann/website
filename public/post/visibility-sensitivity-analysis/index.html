@@ -1,0 +1,1235 @@
+<!DOCTYPE html><html lang="en-us" >
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  
+  
+  
+  <meta name="generator" content="Wowchemy 5.0.0-beta.1 for Hugo">
+  
+
+  
+
+  
+  
+
+  
+  
+  
+  
+  
+    
+    
+    
+  
+  
+
+  <meta name="author" content="Sebastian Brinkmann">
+
+  
+  
+  
+    
+  
+  <meta name="description" content="Thinking critically about parameters before running the code is always important. In this post I will explain how to set important parameters when conducting a Visibility Analysis.">
+
+  
+  <link rel="alternate" hreflang="en-us" href="/post/visibility-sensitivity-analysis/">
+
+  
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  
+
+  
+  
+  
+  <meta name="theme-color" content="rgb(255, 0, 60)">
+  
+
+  
+  
+  
+  <script src="/js/mathjax-config.js"></script>
+  
+
+  
+  
+  
+  
+    
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha256-FMvZuGapsJLjouA6k7Eo2lusoAX9i0ShlWFG6qt7SLc=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" integrity="sha256-Vzbj7sDDS/woiFS3uNKo8eIuni59rjyNGtXfstRzStA=" crossorigin="anonymous">
+
+    
+    
+    
+      
+    
+    
+      
+      
+        
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.2.0/styles/github.min.css" crossorigin="anonymous" title="hl-light">
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.2.0/styles/dracula.min.css" crossorigin="anonymous" title="hl-dark" disabled>
+        
+      
+    
+
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.min.css" integrity="sha512-1xoFisiGdy9nvho8EgXuXvnpR5GAMSjFwp40gSRE3NwdUdIMIKuPa7bqoUhLD0O/5tPNhteAsE5XyyMi5reQVA==" crossorigin="anonymous">
+    
+
+    
+
+    
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/lazysizes/5.2.2/lazysizes.min.js" integrity="sha512-TmDwFLhg3UA4ZG0Eb4MIyT1O1Mb+Oww5kFG0uHqXsdbyZz9DcvYQhKpGgNkamAI6h2lGGZq2X8ftOJvF/XjTUg==" crossorigin="anonymous" async></script>
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" integrity="" crossorigin="anonymous" async></script>
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+
+  
+
+  
+  
+  
+    
+      
+      
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,700%7CRoboto:400,400italic,700%7CRoboto+Mono&display=swap">
+    
+  
+
+  
+  
+  
+  
+  
+  <link rel="stylesheet" href="/css/wowchemy.503c3c3f31e06bfd8fee8e66b8a83451.css">
+
+  
+
+
+
+
+  
+
+  
+
+
+  
+  
+
+  
+
+  <link rel="manifest" href="/index.webmanifest">
+  <link rel="icon" type="image/png" href="/images/icon_hub8298344815fb61130442b7c2888b4e0_27889_32x32_fill_lanczos_center_2.png">
+  <link rel="apple-touch-icon" type="image/png" href="/images/icon_hub8298344815fb61130442b7c2888b4e0_27889_192x192_fill_lanczos_center_2.png">
+
+  <link rel="canonical" href="/post/visibility-sensitivity-analysis/">
+
+  
+  
+  
+  
+  
+  
+  
+    
+    
+  
+  
+  <meta property="twitter:card" content="summary">
+  
+  <meta property="og:site_name" content="GeoBrinkmann">
+  <meta property="og:url" content="/post/visibility-sensitivity-analysis/">
+  <meta property="og:title" content="Visibility - Sensitivity Analysis | GeoBrinkmann">
+  <meta property="og:description" content="Thinking critically about parameters before running the code is always important. In this post I will explain how to set important parameters when conducting a Visibility Analysis."><meta property="og:image" content="/images/icon_hub8298344815fb61130442b7c2888b4e0_27889_512x512_fill_lanczos_center_2.png">
+  <meta property="twitter:image" content="/images/icon_hub8298344815fb61130442b7c2888b4e0_27889_512x512_fill_lanczos_center_2.png"><meta property="og:locale" content="en-us">
+  
+    
+      <meta property="article:published_time" content="2021-06-22T00:00:00&#43;00:00">
+    
+    <meta property="article:modified_time" content="2021-06-22T18:06:03&#43;02:00">
+  
+
+  
+
+
+    
+
+
+
+
+
+
+  
+
+
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "/post/visibility-sensitivity-analysis/"
+  },
+  "headline": "Visibility - Sensitivity Analysis",
+  
+  "datePublished": "2021-06-22T00:00:00Z",
+  "dateModified": "2021-06-22T18:06:03+02:00",
+  
+  "author": {
+    "@type": "Person",
+    "name": "Sebastian Brinkmann"
+  },
+  
+  "publisher": {
+    "@type": "Organization",
+    "name": "GeoBrinkmann",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "/images/icon_hub8298344815fb61130442b7c2888b4e0_27889_192x192_fill_lanczos_center_2.png"
+    }
+  },
+  "description": "Thinking critically about parameters before running the code is always important. In this post I will explain how to set important parameters when conducting a Visibility Analysis."
+}
+</script>
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+
+  <title>Visibility - Sensitivity Analysis | GeoBrinkmann</title>
+
+</head>
+
+
+<body id="top" data-spy="scroll" data-offset="70" data-target="#TableOfContents" class="page-wrapper  ">
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <script src="/js/wowchemy-init.min.1df0392aab543464b23a85146803aaf2.js"></script>
+
+  
+
+<aside class="search-results" id="search">
+  <div class="container">
+    <section class="search-header">
+
+      <div class="row no-gutters justify-content-between mb-3">
+        <div class="col-6">
+          <h1>Search</h1>
+        </div>
+        <div class="col-6 col-search-close">
+          <a class="js-search" href="#"><i class="fas fa-times-circle text-muted" aria-hidden="true"></i></a>
+        </div>
+      </div>
+
+      <div id="search-box">
+        
+        <input name="q" id="search-query" placeholder="Search..." autocapitalize="off"
+        autocomplete="off" autocorrect="off" spellcheck="false" type="search" class="form-control">
+        
+      </div>
+
+      
+
+    </section>
+    <section class="section-search-results">
+
+      <div id="search-hits">
+        
+      </div>
+
+    </section>
+  </div>
+</aside>
+
+
+
+  <div class="page-header">
+    
+
+
+
+
+
+
+
+
+
+
+
+
+<nav class="navbar navbar-expand-lg navbar-light compensate-for-scrollbar" id="navbar-main">
+  <div class="container">
+
+    
+
+    
+    <button type="button" class="navbar-toggler" data-toggle="collapse"
+            data-target="#navbar-content" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+    <span><i class="fas fa-bars"></i></span>
+    </button>
+    
+
+    
+
+    
+    
+    <div class="navbar-collapse main-menu-item collapse justify-content-start" id="navbar-content">
+
+      
+      <ul class="navbar-nav d-md-inline-flex">
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        
+
+        
+        
+        
+        
+
+        
+          
+            
+            
+          
+          
+            
+            
+            
+              
+            
+            
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link " href="/#hero"><span>Start</span></a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        
+
+        
+        
+        
+        
+
+        
+          
+            
+            
+          
+          
+            
+            
+            
+              
+            
+            
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link " href="/#posts"><span>Posts</span></a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        
+
+        
+        
+        
+        
+
+        
+          
+            
+            
+          
+          
+            
+            
+            
+              
+            
+            
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link " href="/#featured"><span>Publications & Packages</span></a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        
+
+        
+        
+        
+        
+
+        
+          
+            
+            
+          
+          
+            
+            
+            
+              
+            
+            
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link " href="/#contact"><span>Contact</span></a>
+        </li>
+
+        
+        
+
+      
+
+        
+      </ul>
+    </div>
+
+    <ul class="nav-icons navbar-nav flex-row ml-auto d-flex pl-md-2">
+
+      
+      
+        
+      
+
+      
+      
+
+      
+      
+      <li class="nav-item dropdown theme-dropdown">
+        <a href="#" class="nav-link" data-toggle="dropdown" aria-haspopup="true" aria-label="Display preferences">
+          <i class="fas fa-moon" aria-hidden="true"></i>
+        </a>
+        <div class="dropdown-menu">
+          <a href="#" class="dropdown-item js-set-theme-light">
+            <span>Light</span>
+          </a>
+          <a href="#" class="dropdown-item js-set-theme-dark">
+            <span>Dark</span>
+          </a>
+          <a href="#" class="dropdown-item js-set-theme-auto">
+            <span>Automatic</span>
+          </a>
+        </div>
+      </li>
+      
+
+      
+
+    </ul>
+
+  </div>
+</nav>
+
+
+  </div>
+
+  <div class="page-body">
+    <article class="article">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+  
+  
+<div class="article-container pt-3">
+  <h1>Visibility - Sensitivity Analysis</h1>
+
+  
+
+  
+    
+
+
+<div class="article-metadata">
+
+  
+  
+
+  
+  <span class="article-date">
+    
+    
+      
+          Last updated on
+      
+    
+    Jun 22, 2021
+  </span>
+  
+
+  
+
+  
+  <span class="middot-divider"></span>
+  <span class="article-reading-time">
+    6 min read
+  </span>
+  
+
+  
+  
+  
+  
+  
+
+  
+  
+
+</div>
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+</div>
+
+
+
+  <div class="article-container">
+
+    <div class="article-style">
+      
+<script src="/post/visibility-sensitivity-analysis/index.en_files/header-attrs/header-attrs.js"></script>
+
+
+<p>As part of my Bachelor Thesis I am analyzing the effects of visible green- and bluespaces on mental health based on a medical study in Vancouver. The area of interest covers Vancouver City, Burnaby and Surrey.</p>
+<p><img src="/post/visibility-sensitivity-analysis/index.en_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
+<p>To analyze the effect of visible greenness I’ll be using the <a href="https://doi.org/10.1016/j.scitotenv.2020.143050">Viewshed Greenness Visibility Index (VGVI)</a>. The VGVI expresses the proportion of visible greenness to the total visible area based on a viewshed. The estimated VGVI values range between 0 and 1, where 0 = no green cells are visible, and 1 = all of the visible cells are green. In a recent <a href="https://geobrinkmann.com/post/visible-greenness-exposure/">post</a> I have demonstrated how to calculate the VGVI, and in my R package <a href="https://github.com/STBrinkmann/GVI">GVI</a> (currently only available on GitHub) I have provided fast functions to compute the VGVI.</p>
+<p>To calculate the VGVI for an observer, the viewshed of this point needs to be computed first - hence the name <strong><em>Viewshed</em></strong> Greenness Visibility Index. The <a href="https://github.com/STBrinkmann/GVI#viewshed"><em>viewshed</em></a> function of the GVI package does exactly that. The basic idea is to apply a buffer on the observer position. Now we can “simply” check every point in this area, whether it is visible or not.<br />
+To do so, we need a Digital Surface Model (DSM), Digital Terrain Model (DTM) and the observer location as input data for the <em>viewshed</em> function.</p>
+<pre class="r"><code># Load libraries
+library(dplyr)
+library(sf)
+library(GVI)
+library(terra)
+
+workdir &lt;- &quot;H:/Vancouver/Vancouver_RS_Data/&quot;
+
+# Load DSM and DEM
+dsm &lt;- rast(file.path(workdir, &quot;DSM.tif&quot;))
+dtm &lt;- rast(file.path(workdir, &quot;DTM.tif&quot;))
+
+# Sample observer location
+st_observer &lt;- sfheaders::sf_point(c(487616.2, 5455970)) %&gt;% 
+    st_sf(crs = st_crs(26910))
+
+# Compute Viewshed
+viewshed_1 &lt;- GVI::viewshed(observer = st_observer,
+                            dsm_rast = dsm, dtm_rast = dtm,
+                            max_distance = 250, resolution = 1,
+                            observer_height = 1.7, plot = TRUE)</code></pre>
+<p><img src="/post/visibility-sensitivity-analysis/index.en_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<p>In the plot above, the Digital Surface Model (DSM) is visualized on the left. The viewshed is shown on the right, where green = visible and yellow = no-visible area. The observer in the example - visualized as the red dot - can see far over the sports field to the west and has little visibility to the east.</p>
+<p>Next, we would compute the VGVI based on the viewshed and a greenspace mask. However, in this post I would like to focus on the two parameters <em>distance</em> and <em>resolution</em>. Distance describes the radius of the buffer around the observer location. The resolution parameter describes the resolution that the rasters should be aggregated to. High resolution yields the most realistic results, but on cost of computation time.</p>
+<div id="sensitivity-analysis" class="section level2">
+<h2>Sensitivity Analysis</h2>
+<p>When computing the VGVI for a single, or few points, you wouldn’t need to consider using a lower resolution or adjusting the maximum distance. The computation time is rather low even at high resolution with a high maximum distance (e.g. 800m with 1m resolution: 5.5 secs). However, when computing the VGVI for a larger area - like the whole City of Vancouver - it is very important to consider these parameters. In the following I conduct a sensitivity analysis for the two parameters.</p>
+<div id="samples" class="section level3">
+<h3>Samples</h3>
+<p>For the sensitivity analysis of the two parameters I’ll use a representative sample of 4000 observer locations.</p>
+<pre class="r"><code>set.seed(1234)
+
+# Grab 4000 random points. The Van_2m_xy.gpkg file has 108.320.000 points
+fid_sample &lt;- sample(1:108320000, 4000)
+
+# Read the shapefile using an SQL statement
+my_query = paste(&quot;SELECT * FROM \&quot;Van_2m_xy\&quot; WHERE fid IN (&quot;, toString(fid_sample), &quot;)&quot;)
+sf_sample &lt;- st_read(file.path(workdir, &quot;Van_2m_xy.gpkg&quot;),
+                 query = my_query,
+                 quiet = TRUE)</code></pre>
+<p><img src="/post/visibility-sensitivity-analysis/index.en_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+</div>
+<div id="distance" class="section level3">
+<h3>Distance</h3>
+<p>In the example above I have used a distance of only 250 meters. Below I have computed the VGVI for the same observer location, but with a 800 meter radius.</p>
+<pre class="r"><code># Compute Viewshed
+viewshed_2 &lt;- GVI::viewshed(observer = st_observer,
+                            dsm_rast = dsm, dtm_rast = dtm,
+                            max_distance = 800, resolution = 1,
+                            observer_height = 1.7, plot = TRUE)</code></pre>
+<p><img src="/post/visibility-sensitivity-analysis/index.en_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<p>Increasing the distance to 800 meters doesn’t really affect the visible area. Most of what can be seen at this specific observer location, is withing the smaller 250 m radius. But the computation time decreases from 5.5 to 0.3 seconds!</p>
+<p>Therefore, it’s important to investigate if the relationship between distance and visible area. The function below calculates the proportion of visible area for each distance value of the viewshed raster.</p>
+<pre class="r"><code>visibleDistance &lt;- function(x) {
+  # Get XY coordinates of cells
+  xy &lt;- terra::xyFromCell(x, which(!is.na(x[])))
+  
+  # Calculate euclidean distance from observer to cells
+  centroid &lt;- colMeans(terra::xyFromCell(x, which(!is.na(x[]))))
+  dxy = round(sqrt((centroid[1] - xy[,1])^2 + (centroid[2] - xy[,2])^2))
+  dxy[dxy==0] = min(dxy[dxy!=0])
+  
+  # Combine distance and value
+  cbind(dxy, unlist(terra::extract(x, xy), use.names = FALSE)) %&gt;%
+    as_tibble() %&gt;% 
+    rename(visible = V2) %&gt;% 
+    arrange(dxy) %&gt;% 
+    group_by(dxy) %&gt;% 
+    # Mean visible area for each distinct distance value
+    summarise(visible = mean(visible)) %&gt;% 
+    ungroup() %&gt;% 
+    return()
+}</code></pre>
+<p>Let’s apply it on the second viewshed:</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Distance</th>
+<th align="right">Visibility</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">1</td>
+<td align="right">100.0%</td>
+</tr>
+<tr class="even">
+<td align="left">2</td>
+<td align="right">100.0%</td>
+</tr>
+<tr class="odd">
+<td align="left">3</td>
+<td align="right">100.0%</td>
+</tr>
+<tr class="even">
+<td align="left">4</td>
+<td align="right">100.0%</td>
+</tr>
+<tr class="odd">
+<td align="left">5</td>
+<td align="right">100.0%</td>
+</tr>
+<tr class="even">
+<td align="left">796</td>
+<td align="right">0.2%</td>
+</tr>
+<tr class="odd">
+<td align="left">797</td>
+<td align="right">0.1%</td>
+</tr>
+<tr class="even">
+<td align="left">798</td>
+<td align="right">0.1%</td>
+</tr>
+<tr class="odd">
+<td align="left">799</td>
+<td align="right">0.1%</td>
+</tr>
+<tr class="even">
+<td align="left">800</td>
+<td align="right">0.2%</td>
+</tr>
+</tbody>
+</table>
+<p>To find the specific distance threshold of my area of interest, I’ll use the sample of 4000 points and compute the viewshed and proportion of visible area for each distance value.</p>
+<pre class="r"><code>for(i in 1:nrow(sf_sample)) {
+  # Viewshed
+  this_dist &lt;- viewshed(observer = sf_sample[i, ], max_distance = 1000,
+                        dsm_rast = dsm, dtm_rast = dtm) %&gt;%
+    # Costum function 
+    visibleDistance()
+  
+  # Add to &quot;out&quot;
+  if (i == 1) {
+    out &lt;- this_dist
+  } else {
+    out &lt;- rbind(out, this_dist)
+  }
+}</code></pre>
+<p>The plot below indicates, that visibility decreases with increasing distance. Interestingly, there are two distance levels where visibility increases locally, at 250 m and 500 m. This might be due to city planning effects. Most points are located at streets, maybe parks are planned to be evenly distributed in the Vancouver Metropolitan area for close, equal access.</p>
+<p>Based on this analysis I set the distance parameter to 550 meters.</p>
+<p><img src="/post/visibility-sensitivity-analysis/index.en_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+</div>
+<div id="resolution" class="section level3">
+<h3>Resolution</h3>
+<p>The resolution parameter describes the resolution that the rasters should be aggregated to. Using the distance value of 550 meters, the viewshed with a 1 m resolution has 1.210.000 cells and takes 1 second. A viewshed with 5 meter resolution has 48.400 cells and takes only 0.5 seconds to compute. However, higher resolution yields in more accurate results. Below I have provided an example for comparison.</p>
+<p><img src="/post/visibility-sensitivity-analysis/index.en_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+<p>The function below calculates the similarity of visibility for each resolution compared to the 1 meter resolution.</p>
+<pre class="r"><code>compare_resolution &lt;- function(observer, dsm_path, dtm_path) {
+  viewshed_tbl &lt;- lapply(c(1, 2, 5, 10), FUN = function(x) {
+    # Get values of viewshed with resolution x
+    time_a &lt;- Sys.time()
+    all_value &lt;- viewshed(observer = observer, dsm_rast = rast(dsm_path), dtm_rast = rast(dtm_path),
+                          max_distance = 550, observer_height = 1.7, resolution = x) %&gt;%
+      values() %&gt;%
+      na.omit()
+    time_b &lt;- Sys.time()
+    
+    # Return Distance, proportion of visible area and computation time
+    return(tibble(
+      Resolution = x,
+      Similarity = length(which(all_value == 1)) / length(all_value),
+      Time = as.numeric(difftime(time_b, time_a, units = &quot;secs&quot;))
+    ))
+  }) %&gt;% 
+    do.call(rbind, .)
+  
+  viewshed_tbl %&gt;% 
+    rowwise() %&gt;% 
+    mutate(Similarity = min(viewshed_tbl[1,2], Similarity) / max(viewshed_tbl[1,2], Similarity)) %&gt;% 
+    return()
+}</code></pre>
+<p>The boxplots below confirm the assumption, that similarity decreases with increasing resolution. Mean computation time for 1 m, 2 m, 5 m and 10 m resolution was 4.80 seconds, 1.05 seconds, 0.85 seconds and 0.75 seconds, respectively. A resolution of 2 meters seems to be a optimal compromise, as it has a ~75% similarity, but the computation time decreases to about <span class="math inline">\(\frac{1}{5}\)</span>, too.</p>
+<p><img src="/post/visibility-sensitivity-analysis/index.en_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
+</div>
+</div>
+<div id="conclusion" class="section level2">
+<h2>Conclusion</h2>
+<p>In this post I have conducted a sensitivity analysis on the parameters distance and resolution for the viewshed function in the Vancouver Metropolitan Area. The thresholds for the distance and resolution is 550 meters and 2 meters, respectively.<br />
+The complete study area contains 108.320.000 points, computation time on a high performance server is ~20 days. Therefore, it is important to critically think about these parameters beforehand.</p>
+</div>
+
+    </div>
+
+    
+
+
+
+
+
+
+<div class="article-tags">
+  
+  <a class="badge badge-light" href="/tag/greenspace/">Greenspace</a>
+  
+  <a class="badge badge-light" href="/tag/exploratory-spatial-data-analysis-esda/">Exploratory Spatial Data Analysis (ESDA)</a>
+  
+  <a class="badge badge-light" href="/tag/r/">R</a>
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+
+
+  
+  
+  
+    
+  
+  
+  
+  <div class="media author-card content-widget-hr">
+    
+      
+      <img class="avatar mr-3 avatar-circle" src="/author/sebastian-brinkmann/avatar_hud31c4adb0e1cc755b24b80d2efa36a23_537176_270x270_fill_q75_lanczos_center.jpg" alt="Sebastian Brinkmann">
+    
+
+    <div class="media-body">
+      <h5 class="card-title">Sebastian Brinkmann</h5>
+      <h6 class="card-subtitle">BSc Student in Physical Geography</h6>
+      <p class="card-text">My research interests include spatial analysis, remote sensing, data science, urban forestry and epidemiology.</p>
+      <ul class="network-icon" aria-hidden="true">
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="/#contact" >
+        <i class="fas fa-envelope"></i>
+      </a>
+    </li>
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="https://github.com/STBrinkmann" target="_blank" rel="noopener">
+        <i class="fab fa-github"></i>
+      </a>
+    </li>
+  
+</ul>
+
+    </div>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <div class="article-widget content-widget-hr">
+    <h3>Related</h3>
+    <ul>
+      
+      <li><a href="/publication/gvi-greenness-visibility-index-r-package/">GVI: Greenness Visibility Index R package</a></li>
+      
+      <li><a href="/post/visible-greenness-exposure-index-an-example-workflow-for-the-city-of-vancouver/">Visible Greenness Exposure Index - An example workflow for the City of Vancouver</a></li>
+      
+      <li><a href="/post/visible-greenness-exposure/">Visible Greenness Exposure</a></li>
+      
+      <li><a href="/post/bart-a-bayesian-machine-learning-workflow-for-complex-spatial-data/">BART - A Bayesian machine learning workflow for complex spatial data</a></li>
+      
+      <li><a href="/post/covid-19-15km-radius-webapp/">COVID-19: 15km Radius WebApp</a></li>
+      
+    </ul>
+  </div>
+  
+
+
+
+
+
+  </div>
+</article>
+  </div>
+
+  <div class="page-footer">
+    
+    
+    <div class="container">
+      <footer class="site-footer">
+  
+
+  <p class="powered-by">
+    
+  </p>
+
+  
+  
+
+
+
+
+
+
+  <p class="powered-by">
+    
+    
+    
+    Published with
+    <a href="https://wowchemy.com/?utm_campaign=poweredby" target="_blank" rel="noopener">Wowchemy</a>  —
+    the free, <a href="https://github.com/wowchemy/wowchemy-hugo-modules" target="_blank" rel="noopener">
+    open source</a> website builder that empowers creators.
+    
+  </p>
+</footer>
+
+    </div>
+    
+  </div>
+
+  
+<div id="modal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Cite</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <pre><code class="tex hljs"></code></pre>
+      </div>
+      <div class="modal-footer">
+        <a class="btn btn-outline-primary my-1 js-copy-cite" href="#" target="_blank">
+          <i class="fas fa-copy"></i> Copy
+        </a>
+        <a class="btn btn-outline-primary my-1 js-download-cite" href="#" target="_blank">
+          <i class="fas fa-download"></i> Download
+        </a>
+        <div id="modal-error"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+      
+
+    
+    
+    
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+
+      
+      
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/4.1.4/imagesloaded.pkgd.min.js" integrity="sha256-lqvxZrPLtfffUl2G/e7szqSvPBILGbwmsGE1MKlOi0Q=" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.isotope/3.0.6/isotope.pkgd.min.js" integrity="sha256-CBrpuqrMhXwcLLUd5tvQ4euBHCdh7wGlDfNz8vbu/iI=" crossorigin="anonymous"></script>
+      
+
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" integrity="sha256-yt2kYMy0w8AbtF89WXb2P1rfjcP/HTHLT7097U8Y5b8=" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/instant.page/5.1.0/instantpage.min.js" integrity="sha512-1+qUtKoh9XZW7j+6LhRMAyOrgSQKenQ4mluTR+cvxXjP1Z54RxZuzstR/H9kgPXQsVB8IW7DMDFUJpzLjvhGSQ==" crossorigin="anonymous"></script>
+
+      
+
+      
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.2.0/highlight.min.js" integrity="sha512-TDKKr+IvoqZnPzc3l35hdjpHD0m+b2EC2SrLEgKDRWpxf2rFCxemkgvJ5kfU48ip+Y+m2XVKyOCD85ybtlZDmw==" crossorigin="anonymous"></script>
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.2.0/languages/r.min.js"></script>
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.2.0/languages/latex.min.js"></script>
+        
+      
+
+    
+
+    
+    
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.min.js" integrity="sha512-SeiQaaDh73yrb56sTW/RgVdi/mMqNeM2oBwubFHagc5BkixSpP1fvqF47mKzPGWYSSy4RwbBunrJBQ4Co8fRWA==" crossorigin="anonymous"></script>
+    
+
+    
+    
+    <script>const code_highlighting = true;</script>
+    
+
+    
+    
+    
+    
+    
+    
+    <script>
+      const search_config = {"indexURI":"/index.json","minLength":1,"threshold":0.3};
+      const i18n = {"no_results":"No results found","placeholder":"Search...","results":"results found"};
+      const content_type = {
+        'post': "Posts",
+        'project': "Projects",
+        'publication' : "Publications",
+        'event' : "Events",
+        'slides' : "Slides"
+        };
+    </script>
+    
+
+    
+    
+
+    
+    
+    <script id="search-hit-fuse-template" type="text/x-template">
+      <div class="search-hit" id="summary-{{key}}">
+      <div class="search-hit-content">
+        <div class="search-hit-name">
+          <a href="{{relpermalink}}">{{title}}</a>
+          <div class="article-metadata search-hit-type">{{type}}</div>
+          <p class="search-hit-description">{{snippet}}</p>
+        </div>
+      </div>
+      </div>
+    </script>
+    
+
+    
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.2.1/fuse.min.js" integrity="sha256-VzgmKYmhsGNNN4Ph1kMW+BjoYJM2jV5i4IlFoeZA9XI=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script>
+    
+
+    
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+      
+      
+    
+    
+    <script src="/js/wowchemy.min.572b7caf7fe601716a0f74d67d754c21.js"></script>
+
+    
+
+
+
+
+
+
+</body>
+</html>

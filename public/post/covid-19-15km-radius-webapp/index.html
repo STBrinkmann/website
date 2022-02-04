@@ -1,0 +1,1176 @@
+<!DOCTYPE html><html lang="en-us" >
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  
+  
+  
+  <meta name="generator" content="Wowchemy 5.0.0-beta.1 for Hugo">
+  
+
+  
+
+  
+  
+
+  
+  
+  
+  
+  
+    
+    
+    
+  
+  
+
+  <meta name="author" content="Sebastian Brinkmann">
+
+  
+  
+  
+    
+  
+  <meta name="description" content="Klicke hier für die mobilfreundliche Version 📱
+ COVID-19 Bewegungsradius Stand: 15.1.2020 Die 15-Kilomenter Regel, nachdem sich Bewohner mit einer 7-Tage Inzidenz von über 200 nur noch 15 km um ihren Wohnort bewegen dürfen, sorgt für Verwirrung.">
+
+  
+  <link rel="alternate" hreflang="en-us" href="/post/covid-19-15km-radius-webapp/">
+
+  
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  
+
+  
+  
+  
+  <meta name="theme-color" content="rgb(255, 0, 60)">
+  
+
+  
+  
+  
+  <script src="/js/mathjax-config.js"></script>
+  
+
+  
+  
+  
+  
+    
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha256-FMvZuGapsJLjouA6k7Eo2lusoAX9i0ShlWFG6qt7SLc=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" integrity="sha256-Vzbj7sDDS/woiFS3uNKo8eIuni59rjyNGtXfstRzStA=" crossorigin="anonymous">
+
+    
+    
+    
+      
+    
+    
+      
+      
+        
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.2.0/styles/github.min.css" crossorigin="anonymous" title="hl-light">
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.2.0/styles/dracula.min.css" crossorigin="anonymous" title="hl-dark" disabled>
+        
+      
+    
+
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.min.css" integrity="sha512-1xoFisiGdy9nvho8EgXuXvnpR5GAMSjFwp40gSRE3NwdUdIMIKuPa7bqoUhLD0O/5tPNhteAsE5XyyMi5reQVA==" crossorigin="anonymous">
+    
+
+    
+
+    
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/lazysizes/5.2.2/lazysizes.min.js" integrity="sha512-TmDwFLhg3UA4ZG0Eb4MIyT1O1Mb+Oww5kFG0uHqXsdbyZz9DcvYQhKpGgNkamAI6h2lGGZq2X8ftOJvF/XjTUg==" crossorigin="anonymous" async></script>
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" integrity="" crossorigin="anonymous" async></script>
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+
+  
+
+  
+  
+  
+    
+      
+      
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,700%7CRoboto:400,400italic,700%7CRoboto+Mono&display=swap">
+    
+  
+
+  
+  
+  
+  
+  
+  <link rel="stylesheet" href="/css/wowchemy.503c3c3f31e06bfd8fee8e66b8a83451.css">
+
+  
+
+
+
+
+  
+
+  
+
+
+  
+  
+
+  
+
+  <link rel="manifest" href="/index.webmanifest">
+  <link rel="icon" type="image/png" href="/images/icon_hub8298344815fb61130442b7c2888b4e0_27889_32x32_fill_lanczos_center_2.png">
+  <link rel="apple-touch-icon" type="image/png" href="/images/icon_hub8298344815fb61130442b7c2888b4e0_27889_192x192_fill_lanczos_center_2.png">
+
+  <link rel="canonical" href="/post/covid-19-15km-radius-webapp/">
+
+  
+  
+  
+  
+  
+  
+  
+    
+    
+  
+  
+  <meta property="twitter:card" content="summary">
+  
+  <meta property="og:site_name" content="GeoBrinkmann">
+  <meta property="og:url" content="/post/covid-19-15km-radius-webapp/">
+  <meta property="og:title" content="COVID-19: 15km Radius WebApp | GeoBrinkmann">
+  <meta property="og:description" content="Klicke hier für die mobilfreundliche Version 📱
+ COVID-19 Bewegungsradius Stand: 15.1.2020 Die 15-Kilomenter Regel, nachdem sich Bewohner mit einer 7-Tage Inzidenz von über 200 nur noch 15 km um ihren Wohnort bewegen dürfen, sorgt für Verwirrung."><meta property="og:image" content="/images/icon_hub8298344815fb61130442b7c2888b4e0_27889_512x512_fill_lanczos_center_2.png">
+  <meta property="twitter:image" content="/images/icon_hub8298344815fb61130442b7c2888b4e0_27889_512x512_fill_lanczos_center_2.png"><meta property="og:locale" content="en-us">
+  
+    
+      <meta property="article:published_time" content="2021-01-15T00:00:00&#43;00:00">
+    
+    <meta property="article:modified_time" content="2021-01-15T18:43:26&#43;01:00">
+  
+
+  
+
+
+    
+
+
+
+
+
+
+  
+
+
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "/post/covid-19-15km-radius-webapp/"
+  },
+  "headline": "COVID-19: 15km Radius WebApp",
+  
+  "datePublished": "2021-01-15T00:00:00Z",
+  "dateModified": "2021-01-15T18:43:26+01:00",
+  
+  "author": {
+    "@type": "Person",
+    "name": "Sebastian Brinkmann"
+  },
+  
+  "publisher": {
+    "@type": "Organization",
+    "name": "GeoBrinkmann",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "/images/icon_hub8298344815fb61130442b7c2888b4e0_27889_192x192_fill_lanczos_center_2.png"
+    }
+  },
+  "description": "Klicke hier für die mobilfreundliche Version 📱\n COVID-19 Bewegungsradius Stand: 15.1.2020 Die 15-Kilomenter Regel, nachdem sich Bewohner mit einer 7-Tage Inzidenz von über 200 nur noch 15 km um ihren Wohnort bewegen dürfen, sorgt für Verwirrung."
+}
+</script>
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+
+  <title>COVID-19: 15km Radius WebApp | GeoBrinkmann</title>
+
+</head>
+
+
+<body id="top" data-spy="scroll" data-offset="70" data-target="#TableOfContents" class="page-wrapper  ">
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <script src="/js/wowchemy-init.min.1df0392aab543464b23a85146803aaf2.js"></script>
+
+  
+
+<aside class="search-results" id="search">
+  <div class="container">
+    <section class="search-header">
+
+      <div class="row no-gutters justify-content-between mb-3">
+        <div class="col-6">
+          <h1>Search</h1>
+        </div>
+        <div class="col-6 col-search-close">
+          <a class="js-search" href="#"><i class="fas fa-times-circle text-muted" aria-hidden="true"></i></a>
+        </div>
+      </div>
+
+      <div id="search-box">
+        
+        <input name="q" id="search-query" placeholder="Search..." autocapitalize="off"
+        autocomplete="off" autocorrect="off" spellcheck="false" type="search" class="form-control">
+        
+      </div>
+
+      
+
+    </section>
+    <section class="section-search-results">
+
+      <div id="search-hits">
+        
+      </div>
+
+    </section>
+  </div>
+</aside>
+
+
+
+  <div class="page-header">
+    
+
+
+
+
+
+
+
+
+
+
+
+
+<nav class="navbar navbar-expand-lg navbar-light compensate-for-scrollbar" id="navbar-main">
+  <div class="container">
+
+    
+
+    
+    <button type="button" class="navbar-toggler" data-toggle="collapse"
+            data-target="#navbar-content" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+    <span><i class="fas fa-bars"></i></span>
+    </button>
+    
+
+    
+
+    
+    
+    <div class="navbar-collapse main-menu-item collapse justify-content-start" id="navbar-content">
+
+      
+      <ul class="navbar-nav d-md-inline-flex">
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        
+
+        
+        
+        
+        
+
+        
+          
+            
+            
+          
+          
+            
+            
+            
+              
+            
+            
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link " href="/#hero"><span>Start</span></a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        
+
+        
+        
+        
+        
+
+        
+          
+            
+            
+          
+          
+            
+            
+            
+              
+            
+            
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link " href="/#posts"><span>Posts</span></a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        
+
+        
+        
+        
+        
+
+        
+          
+            
+            
+          
+          
+            
+            
+            
+              
+            
+            
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link " href="/#featured"><span>Publications & Packages</span></a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        
+
+        
+        
+        
+        
+
+        
+          
+            
+            
+          
+          
+            
+            
+            
+              
+            
+            
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link " href="/#contact"><span>Contact</span></a>
+        </li>
+
+        
+        
+
+      
+
+        
+      </ul>
+    </div>
+
+    <ul class="nav-icons navbar-nav flex-row ml-auto d-flex pl-md-2">
+
+      
+      
+        
+      
+
+      
+      
+
+      
+      
+      <li class="nav-item dropdown theme-dropdown">
+        <a href="#" class="nav-link" data-toggle="dropdown" aria-haspopup="true" aria-label="Display preferences">
+          <i class="fas fa-moon" aria-hidden="true"></i>
+        </a>
+        <div class="dropdown-menu">
+          <a href="#" class="dropdown-item js-set-theme-light">
+            <span>Light</span>
+          </a>
+          <a href="#" class="dropdown-item js-set-theme-dark">
+            <span>Dark</span>
+          </a>
+          <a href="#" class="dropdown-item js-set-theme-auto">
+            <span>Automatic</span>
+          </a>
+        </div>
+      </li>
+      
+
+      
+
+    </ul>
+
+  </div>
+</nav>
+
+
+  </div>
+
+  <div class="page-body">
+    <article class="article">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+  
+  
+<div class="article-container pt-3">
+  <h1>COVID-19: 15km Radius WebApp</h1>
+
+  
+
+  
+    
+
+
+<div class="article-metadata">
+
+  
+  
+
+  
+  <span class="article-date">
+    
+    
+      
+          Last updated on
+      
+    
+    Jan 15, 2021
+  </span>
+  
+
+  
+
+  
+  <span class="middot-divider"></span>
+  <span class="article-reading-time">
+    2 min read
+  </span>
+  
+
+  
+  
+  
+  
+  
+
+  
+  
+
+</div>
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+</div>
+
+
+
+  <div class="article-container">
+
+    <div class="article-style">
+      <p>Klicke <a href="https://datageobrinkmann.be/bewegungsradius/" target="_blank" rel="noopener">hier</a> für die mobilfreundliche Version 📱<br /></p>
+<iframe frameborder="0" scrolling="no" seamless="seamless" style="display:block; width:95%; height:85vh;" src="https://datageobrinkmann.be/bewegungsradius/"></iframe>
+<br />
+<h1 id="covid-19-bewegungsradius">COVID-19 Bewegungsradius</h1>
+<h3 id="stand-1512020">Stand: 15.1.2020</h3>
+<p>Die 15-Kilomenter Regel, nachdem sich Bewohner mit einer 7-Tage Inzidenz
+von über 200 nur noch 15 km um ihren Wohnort bewegen dürfen, sorgt für
+Verwirrung. Diese App soll dabei helfen, den individuellen
+Bewegungsradius zu ermitteln.<br>
+Zunächst wird die aktuelle 7-Tage-Inzidenz für jeden Landkreis
+gedownloaded und in zwei Kategorien eingeteilt: &lt; 200 und &gt;= 200.
+Anschließend wird die Adresse georeferenziert und ein 15 km Buffer wird
+um die Gemeinde, bzw. den Landkreis der Adresse, oder auch die Adresse
+selbst gelegt.<br>
+Der genaue Wert der 7-Tage-Inzidenz, sowie die Verfügbarkeiten von
+Intensivstationbetten (ITS) kann durch Anklicken eines Landkreisen
+ausgelesen werden.</p>
+<h2 id="die-corona-regeln-in-den-bundesländern">Die Corona-Regeln in den Bundesländern</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Bundesland</th>
+<th style="text-align:left">15-km Regel</th>
+<th style="text-align:left">Mehr Infos</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Baden-Württemberg</td>
+<td style="text-align:left">Wird aktuell nicht umgesetzt</td>
+<td style="text-align:left"><a href="https://www.baden-wuerttemberg.de/de/service/aktuelle-infos-zu-corona/" target="_blank" rel="noopener">url</a></td>
+</tr>
+<tr>
+<td style="text-align:left">Bayern</td>
+<td style="text-align:left">Ab der Gemeindegrenze</td>
+<td style="text-align:left"><a href="https://www.corona-katastrophenschutz.bayern.de/faq/index.php" target="_blank" rel="noopener">url</a></td>
+</tr>
+<tr>
+<td style="text-align:left">Berlin</td>
+<td style="text-align:left">Ab der Stadtgrenze</td>
+<td style="text-align:left"><a href="https://www.rbb24.de/politik/thema/2020/coronavirus/beitraege_neu/2020/04/berlin-corona-massnahmen-lockerung-ausgang-kontakt-erlaubt.html" target="_blank" rel="noopener">url</a></td>
+</tr>
+<tr>
+<td style="text-align:left">Brandenburg</td>
+<td style="text-align:left">Für touristische Ausflüge, Sport und Bewegung im Freien, um den jeweiligen Landkreis bzw. die kreisfreie Stadt</td>
+<td style="text-align:left"><a href="https://kkm.brandenburg.de/kkm/de/" target="_blank" rel="noopener">url</a></td>
+</tr>
+<tr>
+<td style="text-align:left">Bremen</td>
+<td style="text-align:left">Wird aktuell nicht umgesetzt</td>
+<td style="text-align:left"><a href="https://www.bremen.de/corona" target="_blank" rel="noopener">url</a></td>
+</tr>
+<tr>
+<td style="text-align:left">Hamburg</td>
+<td style="text-align:left">Wird aktuell nicht umgesetzt</td>
+<td style="text-align:left"><a href="https://www.hamburg.de/coronavirus/" target="_blank" rel="noopener">url</a></td>
+</tr>
+<tr>
+<td style="text-align:left">Hessen</td>
+<td style="text-align:left">Ab der Gemeindegrenze; betroffene Landkreise: Gießen, Limburg-Weilburg, Fulda, Vogelsbergkreis</td>
+<td style="text-align:left"><a href="https://www.faz.net/aktuell/rhein-main/corona-weitere-kreise-in-hessen-fuehren-15-kilometer-regel-ein-17143539.html" target="_blank" rel="noopener">url</a></td>
+</tr>
+<tr>
+<td style="text-align:left">Mecklenburg-Vorpommern</td>
+<td style="text-align:left">Ab der Wohnadresse</td>
+<td style="text-align:left"><a href="https://www.regierung-mv.de/corona/Corona-Regeln-seit-10.01.2021/" target="_blank" rel="noopener">url</a></td>
+</tr>
+<tr>
+<td style="text-align:left">Niedersachsen</td>
+<td style="text-align:left">Ab der Wohnadresse, durch Kommunen geregelt</td>
+<td style="text-align:left"><a href="https://www.niedersachsen.de/Coronavirus" target="_blank" rel="noopener">url</a></td>
+</tr>
+<tr>
+<td style="text-align:left">Nordrhein-Westfalen</td>
+<td style="text-align:left">Ab der Gemeindegrenze; betroffene Landkreise: Höxter, Minden-Lübbecke, Oberbergischer Kreis, Recklinghausen</td>
+<td style="text-align:left"><a href="https://www.land.nrw/corona" target="_blank" rel="noopener">url</a></td>
+</tr>
+<tr>
+<td style="text-align:left">Rheinland-Pfalz</td>
+<td style="text-align:left">Ab der Gemeindegrenze, durch Kommunen geregelt</td>
+<td style="text-align:left"><a href="https://corona.rlp.de/index.php?id=34836" target="_blank" rel="noopener">url</a></td>
+</tr>
+<tr>
+<td style="text-align:left">Saarland</td>
+<td style="text-align:left">Für touristische Ausflüge, um die Wohnadresse</td>
+<td style="text-align:left"><a href="https://www.saarland.de/DE/portale/corona/home/home_node.html" target="_blank" rel="noopener">url</a></td>
+</tr>
+<tr>
+<td style="text-align:left">Sachsen</td>
+<td style="text-align:left">Ab der Wohnadresse</td>
+<td style="text-align:left"><a href="https://www.coronavirus.sachsen.de/index.html" target="_blank" rel="noopener">url</a></td>
+</tr>
+<tr>
+<td style="text-align:left">Sachsen-Anhalt</td>
+<td style="text-align:left">Ab der Gemeindegrenze</td>
+<td style="text-align:left"><a href="https://coronavirus.sachsen-anhalt.de/" target="_blank" rel="noopener">url</a></td>
+</tr>
+<tr>
+<td style="text-align:left">Schleswig-Holstein</td>
+<td style="text-align:left">Ab der Gemeindegrenze, durch Kommunen geregelt</td>
+<td style="text-align:left"><a href="https://www.schleswig-holstein.de/DE/Schwerpunkte/Coronavirus/FAQ/Dossier/Allgemeines_Verwaltung.html" target="_blank" rel="noopener">url</a></td>
+</tr>
+<tr>
+<td style="text-align:left">Thüringen</td>
+<td style="text-align:left">Ab der Gemeindegrenze, nicht verpflichtend</td>
+<td style="text-align:left"><a href="https://corona.thueringen.de/" target="_blank" rel="noopener">url</a></td>
+</tr>
+</tbody>
+</table>
+<h2 id="credits">Credits</h2>
+<ul>
+<li>Geocoding <a href="https://datascienceplus.com/osm-nominatim-with-r-getting-locations-geo-coordinates-by-its-address/" target="_blank" rel="noopener">D.
+Kisler</a></li>
+<li>GPS locater via Dr. Tom August’s <a href="https://github.com/AugustT/shiny_geolocation" target="_blank" rel="noopener">shiny geolocation Javascript
+script</a></li>
+<li>API Aufrufe zu den aktuellen <a href="https://services7.arcgis.com/mOBPykOjAyBO2ZKk/ArcGIS/rest/services/Covid19_RKI_Sums/FeatureServer/0/" target="_blank" rel="noopener">COVID-19
+Fallzahlen</a>
+und <a href="https://www.divi.de/register/tagesreport" target="_blank" rel="noopener">ITS-Betten</a> via
+<a href="https://github.com/entorb/COVID-19-Coronavirus-German-Regions" target="_blank" rel="noopener">entorb’s GitHub
+Seite</a></li>
+</ul>
+<h2 id="disclaimer">Disclaimer</h2>
+<p>Dieses Tool dient nur zu Unterhaltungszwecken und stellt keine
+medizinische, rechtliche oder sonstige Form der Beratung dar. Benutzer
+sollten sich auf die offiziellen Richtlinien und Empfehlungen ihrer
+nationalen, staatlichen und lokalen Behörden beziehen. Es werden
+keinerlei personenbezogener Daten gespeichert.</p>
+
+    </div>
+
+    
+
+
+
+
+
+
+<div class="article-tags">
+  
+  <a class="badge badge-light" href="/tag/covid-19/">COVID-19</a>
+  
+  <a class="badge badge-light" href="/tag/gis/">GIS</a>
+  
+  <a class="badge badge-light" href="/tag/r/">R</a>
+  
+  <a class="badge badge-light" href="/tag/shiny/">Shiny</a>
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+
+
+  
+  
+  
+    
+  
+  
+  
+  <div class="media author-card content-widget-hr">
+    
+      
+      <img class="avatar mr-3 avatar-circle" src="/author/sebastian-brinkmann/avatar_hud31c4adb0e1cc755b24b80d2efa36a23_537176_270x270_fill_q75_lanczos_center.jpg" alt="Sebastian Brinkmann">
+    
+
+    <div class="media-body">
+      <h5 class="card-title">Sebastian Brinkmann</h5>
+      <h6 class="card-subtitle">BSc Student in Physical Geography</h6>
+      <p class="card-text">My research interests include spatial analysis, remote sensing, data science, urban forestry and epidemiology.</p>
+      <ul class="network-icon" aria-hidden="true">
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="/#contact" >
+        <i class="fas fa-envelope"></i>
+      </a>
+    </li>
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="https://github.com/STBrinkmann" target="_blank" rel="noopener">
+        <i class="fab fa-github"></i>
+      </a>
+    </li>
+  
+</ul>
+
+    </div>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <div class="article-widget content-widget-hr">
+    <h3>Related</h3>
+    <ul>
+      
+      <li><a href="/post/bart-a-bayesian-machine-learning-workflow-for-complex-spatial-data/">BART - A Bayesian machine learning workflow for complex spatial data</a></li>
+      
+      <li><a href="/post/visible-greenness-exposure/">Visible Greenness Exposure</a></li>
+      
+      <li><a href="/publication/scarpone2020/">A multimethod approach for county-scale geospatial analysis of emerging infectious diseases. A cross-sectional case study of COVID-19 incidence in Germany</a></li>
+      
+      <li><a href="/publication/gvi-greenness-visibility-index-r-package/">GVI: Greenness Visibility Index R package</a></li>
+      
+      <li><a href="/post/visible-greenness-exposure-index-an-example-workflow-for-the-city-of-vancouver/">Visible Greenness Exposure Index - An example workflow for the City of Vancouver</a></li>
+      
+    </ul>
+  </div>
+  
+
+
+
+
+
+  </div>
+</article>
+  </div>
+
+  <div class="page-footer">
+    
+    
+    <div class="container">
+      <footer class="site-footer">
+  
+
+  <p class="powered-by">
+    
+  </p>
+
+  
+  
+
+
+
+
+
+
+  <p class="powered-by">
+    
+    
+    
+    Published with
+    <a href="https://wowchemy.com/?utm_campaign=poweredby" target="_blank" rel="noopener">Wowchemy</a>  —
+    the free, <a href="https://github.com/wowchemy/wowchemy-hugo-modules" target="_blank" rel="noopener">
+    open source</a> website builder that empowers creators.
+    
+  </p>
+</footer>
+
+    </div>
+    
+  </div>
+
+  
+<div id="modal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Cite</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <pre><code class="tex hljs"></code></pre>
+      </div>
+      <div class="modal-footer">
+        <a class="btn btn-outline-primary my-1 js-copy-cite" href="#" target="_blank">
+          <i class="fas fa-copy"></i> Copy
+        </a>
+        <a class="btn btn-outline-primary my-1 js-download-cite" href="#" target="_blank">
+          <i class="fas fa-download"></i> Download
+        </a>
+        <div id="modal-error"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+      
+
+    
+    
+    
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+
+      
+      
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/4.1.4/imagesloaded.pkgd.min.js" integrity="sha256-lqvxZrPLtfffUl2G/e7szqSvPBILGbwmsGE1MKlOi0Q=" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.isotope/3.0.6/isotope.pkgd.min.js" integrity="sha256-CBrpuqrMhXwcLLUd5tvQ4euBHCdh7wGlDfNz8vbu/iI=" crossorigin="anonymous"></script>
+      
+
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" integrity="sha256-yt2kYMy0w8AbtF89WXb2P1rfjcP/HTHLT7097U8Y5b8=" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/instant.page/5.1.0/instantpage.min.js" integrity="sha512-1+qUtKoh9XZW7j+6LhRMAyOrgSQKenQ4mluTR+cvxXjP1Z54RxZuzstR/H9kgPXQsVB8IW7DMDFUJpzLjvhGSQ==" crossorigin="anonymous"></script>
+
+      
+
+      
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.2.0/highlight.min.js" integrity="sha512-TDKKr+IvoqZnPzc3l35hdjpHD0m+b2EC2SrLEgKDRWpxf2rFCxemkgvJ5kfU48ip+Y+m2XVKyOCD85ybtlZDmw==" crossorigin="anonymous"></script>
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.2.0/languages/r.min.js"></script>
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.2.0/languages/latex.min.js"></script>
+        
+      
+
+    
+
+    
+    
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.min.js" integrity="sha512-SeiQaaDh73yrb56sTW/RgVdi/mMqNeM2oBwubFHagc5BkixSpP1fvqF47mKzPGWYSSy4RwbBunrJBQ4Co8fRWA==" crossorigin="anonymous"></script>
+    
+
+    
+    
+    <script>const code_highlighting = true;</script>
+    
+
+    
+    
+    
+    
+    
+    
+    <script>
+      const search_config = {"indexURI":"/index.json","minLength":1,"threshold":0.3};
+      const i18n = {"no_results":"No results found","placeholder":"Search...","results":"results found"};
+      const content_type = {
+        'post': "Posts",
+        'project': "Projects",
+        'publication' : "Publications",
+        'event' : "Events",
+        'slides' : "Slides"
+        };
+    </script>
+    
+
+    
+    
+
+    
+    
+    <script id="search-hit-fuse-template" type="text/x-template">
+      <div class="search-hit" id="summary-{{key}}">
+      <div class="search-hit-content">
+        <div class="search-hit-name">
+          <a href="{{relpermalink}}">{{title}}</a>
+          <div class="article-metadata search-hit-type">{{type}}</div>
+          <p class="search-hit-description">{{snippet}}</p>
+        </div>
+      </div>
+      </div>
+    </script>
+    
+
+    
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.2.1/fuse.min.js" integrity="sha256-VzgmKYmhsGNNN4Ph1kMW+BjoYJM2jV5i4IlFoeZA9XI=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script>
+    
+
+    
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+      
+      
+    
+    
+    <script src="/js/wowchemy.min.572b7caf7fe601716a0f74d67d754c21.js"></script>
+
+    
+
+
+
+
+
+
+</body>
+</html>

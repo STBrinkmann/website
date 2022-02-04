@@ -1,0 +1,1885 @@
+<!DOCTYPE html><html lang="en-us" >
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  
+  
+  
+  <meta name="generator" content="Wowchemy 5.0.0-beta.1 for Hugo">
+  
+
+  
+
+  
+  
+
+  
+  
+  
+  
+  
+    
+    
+    
+  
+  
+
+  <meta name="author" content="Sebastian Brinkmann">
+
+  
+  
+  
+    
+  
+  <meta name="description" content="Exposure to residential greenness or green spaces such as parks or gardens are beneficial for multiple measures of health. One type of greenspace exposure is visibility, referring to the visual perception of greenness. In this post I will demonstrate, how to conduct a viewshed based visibility analysis.">
+
+  
+  <link rel="alternate" hreflang="en-us" href="/post/visible-greenness-exposure/">
+
+  
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  
+
+  
+  
+  
+  <meta name="theme-color" content="rgb(255, 0, 60)">
+  
+
+  
+  
+  
+  <script src="/js/mathjax-config.js"></script>
+  
+
+  
+  
+  
+  
+    
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha256-FMvZuGapsJLjouA6k7Eo2lusoAX9i0ShlWFG6qt7SLc=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" integrity="sha256-Vzbj7sDDS/woiFS3uNKo8eIuni59rjyNGtXfstRzStA=" crossorigin="anonymous">
+
+    
+    
+    
+      
+    
+    
+      
+      
+        
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.2.0/styles/github.min.css" crossorigin="anonymous" title="hl-light">
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.2.0/styles/dracula.min.css" crossorigin="anonymous" title="hl-dark" disabled>
+        
+      
+    
+
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.min.css" integrity="sha512-1xoFisiGdy9nvho8EgXuXvnpR5GAMSjFwp40gSRE3NwdUdIMIKuPa7bqoUhLD0O/5tPNhteAsE5XyyMi5reQVA==" crossorigin="anonymous">
+    
+
+    
+
+    
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/lazysizes/5.2.2/lazysizes.min.js" integrity="sha512-TmDwFLhg3UA4ZG0Eb4MIyT1O1Mb+Oww5kFG0uHqXsdbyZz9DcvYQhKpGgNkamAI6h2lGGZq2X8ftOJvF/XjTUg==" crossorigin="anonymous" async></script>
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" integrity="" crossorigin="anonymous" async></script>
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+
+  
+
+  
+  
+  
+    
+      
+      
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,700%7CRoboto:400,400italic,700%7CRoboto+Mono&display=swap">
+    
+  
+
+  
+  
+  
+  
+  
+  <link rel="stylesheet" href="/css/wowchemy.503c3c3f31e06bfd8fee8e66b8a83451.css">
+
+  
+
+
+
+
+  
+
+  
+
+
+  
+  
+
+  
+
+  <link rel="manifest" href="/index.webmanifest">
+  <link rel="icon" type="image/png" href="/images/icon_hub8298344815fb61130442b7c2888b4e0_27889_32x32_fill_lanczos_center_2.png">
+  <link rel="apple-touch-icon" type="image/png" href="/images/icon_hub8298344815fb61130442b7c2888b4e0_27889_192x192_fill_lanczos_center_2.png">
+
+  <link rel="canonical" href="/post/visible-greenness-exposure/">
+
+  
+  
+  
+  
+  
+  
+  
+    
+    
+  
+  
+  <meta property="twitter:card" content="summary">
+  
+  <meta property="og:site_name" content="GeoBrinkmann">
+  <meta property="og:url" content="/post/visible-greenness-exposure/">
+  <meta property="og:title" content="Visible Greenness Exposure | GeoBrinkmann">
+  <meta property="og:description" content="Exposure to residential greenness or green spaces such as parks or gardens are beneficial for multiple measures of health. One type of greenspace exposure is visibility, referring to the visual perception of greenness. In this post I will demonstrate, how to conduct a viewshed based visibility analysis."><meta property="og:image" content="/images/icon_hub8298344815fb61130442b7c2888b4e0_27889_512x512_fill_lanczos_center_2.png">
+  <meta property="twitter:image" content="/images/icon_hub8298344815fb61130442b7c2888b4e0_27889_512x512_fill_lanczos_center_2.png"><meta property="og:locale" content="en-us">
+  
+    
+      <meta property="article:published_time" content="2021-03-15T00:00:00&#43;00:00">
+    
+    <meta property="article:modified_time" content="2021-03-15T18:43:26&#43;01:00">
+  
+
+  
+
+
+    
+
+
+
+
+
+
+  
+
+
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "/post/visible-greenness-exposure/"
+  },
+  "headline": "Visible Greenness Exposure",
+  
+  "datePublished": "2021-03-15T00:00:00Z",
+  "dateModified": "2021-03-15T18:43:26+01:00",
+  
+  "author": {
+    "@type": "Person",
+    "name": "Sebastian Brinkmann"
+  },
+  
+  "publisher": {
+    "@type": "Organization",
+    "name": "GeoBrinkmann",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "/images/icon_hub8298344815fb61130442b7c2888b4e0_27889_192x192_fill_lanczos_center_2.png"
+    }
+  },
+  "description": "Exposure to residential greenness or green spaces such as parks or gardens are beneficial for multiple measures of health. One type of greenspace exposure is visibility, referring to the visual perception of greenness. In this post I will demonstrate, how to conduct a viewshed based visibility analysis."
+}
+</script>
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+
+  <title>Visible Greenness Exposure | GeoBrinkmann</title>
+
+</head>
+
+
+<body id="top" data-spy="scroll" data-offset="70" data-target="#TableOfContents" class="page-wrapper  ">
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <script src="/js/wowchemy-init.min.1df0392aab543464b23a85146803aaf2.js"></script>
+
+  
+
+<aside class="search-results" id="search">
+  <div class="container">
+    <section class="search-header">
+
+      <div class="row no-gutters justify-content-between mb-3">
+        <div class="col-6">
+          <h1>Search</h1>
+        </div>
+        <div class="col-6 col-search-close">
+          <a class="js-search" href="#"><i class="fas fa-times-circle text-muted" aria-hidden="true"></i></a>
+        </div>
+      </div>
+
+      <div id="search-box">
+        
+        <input name="q" id="search-query" placeholder="Search..." autocapitalize="off"
+        autocomplete="off" autocorrect="off" spellcheck="false" type="search" class="form-control">
+        
+      </div>
+
+      
+
+    </section>
+    <section class="section-search-results">
+
+      <div id="search-hits">
+        
+      </div>
+
+    </section>
+  </div>
+</aside>
+
+
+
+  <div class="page-header">
+    
+
+
+
+
+
+
+
+
+
+
+
+
+<nav class="navbar navbar-expand-lg navbar-light compensate-for-scrollbar" id="navbar-main">
+  <div class="container">
+
+    
+
+    
+    <button type="button" class="navbar-toggler" data-toggle="collapse"
+            data-target="#navbar-content" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+    <span><i class="fas fa-bars"></i></span>
+    </button>
+    
+
+    
+
+    
+    
+    <div class="navbar-collapse main-menu-item collapse justify-content-start" id="navbar-content">
+
+      
+      <ul class="navbar-nav d-md-inline-flex">
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        
+
+        
+        
+        
+        
+
+        
+          
+            
+            
+          
+          
+            
+            
+            
+              
+            
+            
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link " href="/#hero"><span>Start</span></a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        
+
+        
+        
+        
+        
+
+        
+          
+            
+            
+          
+          
+            
+            
+            
+              
+            
+            
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link " href="/#posts"><span>Posts</span></a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        
+
+        
+        
+        
+        
+
+        
+          
+            
+            
+          
+          
+            
+            
+            
+              
+            
+            
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link " href="/#featured"><span>Publications & Packages</span></a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        
+
+        
+        
+        
+        
+
+        
+          
+            
+            
+          
+          
+            
+            
+            
+              
+            
+            
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link " href="/#contact"><span>Contact</span></a>
+        </li>
+
+        
+        
+
+      
+
+        
+      </ul>
+    </div>
+
+    <ul class="nav-icons navbar-nav flex-row ml-auto d-flex pl-md-2">
+
+      
+      
+        
+      
+
+      
+      
+
+      
+      
+      <li class="nav-item dropdown theme-dropdown">
+        <a href="#" class="nav-link" data-toggle="dropdown" aria-haspopup="true" aria-label="Display preferences">
+          <i class="fas fa-moon" aria-hidden="true"></i>
+        </a>
+        <div class="dropdown-menu">
+          <a href="#" class="dropdown-item js-set-theme-light">
+            <span>Light</span>
+          </a>
+          <a href="#" class="dropdown-item js-set-theme-dark">
+            <span>Dark</span>
+          </a>
+          <a href="#" class="dropdown-item js-set-theme-auto">
+            <span>Automatic</span>
+          </a>
+        </div>
+      </li>
+      
+
+      
+
+    </ul>
+
+  </div>
+</nav>
+
+
+  </div>
+
+  <div class="page-body">
+    <article class="article">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+  
+  
+<div class="article-container pt-3">
+  <h1>Visible Greenness Exposure</h1>
+
+  
+
+  
+    
+
+
+<div class="article-metadata">
+
+  
+  
+
+  
+  <span class="article-date">
+    
+    
+      
+          Last updated on
+      
+    
+    Mar 15, 2021
+  </span>
+  
+
+  
+
+  
+  <span class="middot-divider"></span>
+  <span class="article-reading-time">
+    21 min read
+  </span>
+  
+
+  
+  
+  
+  
+  
+
+  
+  
+
+</div>
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+</div>
+
+
+
+  <div class="article-container">
+
+    <div class="article-style">
+      
+<script src="/post/visible-greenness-exposure/index.en_files/header-attrs/header-attrs.js"></script>
+<link href="/post/visible-greenness-exposure/index.en_files/anchor-sections/anchor-sections.css" rel="stylesheet" />
+<script src="/post/visible-greenness-exposure/index.en_files/anchor-sections/anchor-sections.js"></script>
+<script src="/post/visible-greenness-exposure/index.en_files/kePrint/kePrint.js"></script>
+<link href="/post/visible-greenness-exposure/index.en_files/lightable/lightable.css" rel="stylesheet" />
+
+
+<style>
+body {
+text-align: justify}
+</style>
+<p>Exposure to residential greenness or green spaces such as parks or gardens are beneficial for multiple measures of health <span class="citation">(<a href="#section-ref-markevych2017" role="doc-biblioref">Markevych et al. 2017</a>; <a href="#section-ref-labib2020" role="doc-biblioref">Labib, Lindley, and Huck 2020</a>)</span>. Greenness and greenspace will be used as synonyms henceforth. Greenspace exposure can be categorized into three types: (a) availability, referring to the physical amount of greenspace, (b) accessibility, meaning the spatial proximity to greenspace, and (c) visibility, referring to the visual perception of greenness <span class="citation">(<a href="#section-ref-labib2020" role="doc-biblioref">Labib, Lindley, and Huck 2020</a>)</span>.</p>
+<p>In <a href="https://www.geography.nat.fau.eu/research/cultural-geography/wg-digital-health/#collapse_5">our</a> recent publication (in submission) we measured greenness taking a top-down, bird’s eye view approach using remote sensing derived <a href="https://eos.com/ndvi/">NDVI</a>, to approximate the availability of greenness. Furthermore, we used a distance weighted road network to calculate potential neighborhood exposure models around participants place of residency, therefore also accounting for accessibility.</p>
+<p>The next step will be, to combine greenness visibility with our potential neighborhood exposure models.</p>
+<p>In this post, I will therefore demonstrate how to download and prepare all necessary files and methods needed for a visibility analysis. In the first part I demonstrate data acquisition and processing, in the second part I will explain the main functions used for the visibility analysis. My implementation of these methods is very light weighted and fast, while still maintaining high resolution. The functions presented in this post for computing a viewshed based Green Visibility Index (GVI), have also been included in the <a href="https://github.com/STBrinkmann/GVI">GVI</a> R package.</p>
+<div id="section-libraries" class="section level2">
+<h2>Libraries</h2>
+<p>First load all packages. If one of these packages has not been installed, use the <code>install.packages()</code> function.</p>
+<p><a href="https://CRAN.R-project.org/package=terra">terra</a> is a relatively new R package that replaces the well known <a href="https://CRAN.R-project.org/package=raster">raster</a>. I have found <code>terra</code> to work much faster for most tasks.</p>
+<pre class="r"><code>library(dplyr)
+library(sf)
+library(ggplot2)
+library(ggthemes)
+library(terra)
+library(lidR)
+library(future)
+library(data.table)</code></pre>
+</div>
+<div id="section-data" class="section level2">
+<h2>Data</h2>
+<p>The data is being stored in a different directory than this R project. Therefore I first need to assign my working directory.</p>
+<pre class="r"><code>workdir &lt;- &quot;/media/sebastian/Red/Vancouver&quot;</code></pre>
+<div id="section-dtm" class="section level3">
+<h3>DTM</h3>
+<p>First, we need to download the digital terrain model (DTM) generated from LiDAR data collected in 2013 for the City of Vancouver from the <a href="https://opendata.vancouver.ca/pages/home/">City of Vancouver Open Data Portal</a>.</p>
+<pre class="r"><code># Download DTM as .zip
+download.file(&quot;https://webtransfer.vancouver.ca/opendata/TIF/DEM_2013_TIF.zip&quot;,
+              destfile = file.path(workdir, &quot;dtm.zip&quot;))
+
+# Unzip
+unzip(zipfile = file.path(workdir, &quot;dtm.zip&quot;), exdir = &quot;Data&quot;) 
+
+# Delete .zip 
+unlink(file.path(workdir, &quot;dtm.zip&quot;), recursive = TRUE)</code></pre>
+<pre class="r"><code>DTM &lt;- terra::rast(file.path(workdir, &quot;DEM/DEM_2013.tif&quot;))
+
+plot(DTM)</code></pre>
+<p><img src="/post/visible-greenness-exposure/index.en_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+</div>
+<div id="section-lidar" class="section level3">
+<h3>LiDAR</h3>
+<p>Next, we will load the shapefile for the LiDAR 2013 tiles.</p>
+<pre class="r"><code># Lidar tiles
+lidar_tiles &lt;- read_sf(&quot;https://opendata.vancouver.ca/explore/dataset/lidar-2013/download/?format=geojson&quot;) %&gt;% 
+  st_transform(crs(DTM)) %&gt;% 
+  dplyr::select(name, lidar_url)
+
+lidar_tiles %&gt;% 
+  ggplot() +
+  geom_sf() + 
+  theme_map()</code></pre>
+<p><img src="/post/visible-greenness-exposure/index.en_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<p>Each tile of this shapefile contains the tile name and a link, to download the LiDAR data. The total file size of all 168 LiDAR scenes is ~90GB. We will store them in a temporary file and calculate a DSM from the data later. I would highly recommend using parallel computation for this and to do something else while the data is being downloaded.</p>
+<pre class="r"><code>lidar_download &lt;- function(x, tmp_dir) {
+  # Download GeoTIFF as .zip
+  download.file(x$lidar_url, destfile = paste0(file.path(tmp_dir, x$name), &quot;.zip&quot;))
+  
+  # Unzip
+  unzip(zipfile = paste0(file.path(tmp_dir, x$name), &quot;.zip&quot;), 
+        exdir = file.path(tmp_dir))
+  
+  # Delete .zip 
+  unlink(paste0(file.path(tmp_dir, x$name), &quot;.zip&quot;), recursive = TRUE)
+}
+
+# Set number of  cores and path to tmp_dir
+cores &lt;- 22
+tmp_dir &lt;- file.path(workdir, &quot;Temp&quot;)
+
+if (!dir.exists(tmp_dir)) {
+  dir.create(tmp_dir)
+}
+
+# Run function
+if (cores &gt; 1) {
+  if (Sys.info()[[&quot;sysname&quot;]] == &quot;Windows&quot;) {
+    cl &lt;- parallel::makeCluster(cores)
+    parallel::parApply(cl, lidar_tiles, 1, FUN = lidar_download, 
+                                    tmp_dir = tmp_dir)
+    parallel::stopCluster(cl)
+  }
+  else {
+    split(lidar_tiles, seq(nrow(lidar_tiles))) %&gt;% 
+      parallel::mclapply(FUN = lidar_download, tmp_dir = tmp_dir, 
+                         mc.cores = cores, mc.preschedule = TRUE)
+  }
+} else {
+  apply(lidar_tiles, 1, FUN = lidar_download, 
+         tmp_dir = tmp_dir)
+}</code></pre>
+<p>One LiDAR tile has almost no land points and the algorithm can’t process it.</p>
+<p><img src="bad_LAS.png" /></p>
+<p>Therefore, we need to remove it.</p>
+<pre class="r"><code>file.remove(file.path(tmp_dir, &quot;CoV_4850E_54510N.las&quot;))</code></pre>
+<p>Next, we can load all LiDAR files with the <code>lidR</code> package <span class="citation">(<a href="#section-ref-roussel2020" role="doc-biblioref">Roussel et al. 2020</a>)</span> and calculate the DSM using the pit-free <span class="citation">(<a href="#section-ref-khosravipour2014" role="doc-biblioref">Khosravipour et al. 2014</a>)</span> algorithm.</p>
+<pre class="r"><code>lidar_catalog &lt;- lidR::readLAScatalog(tmp_dir)
+crs(lidar_catalog) &lt;- terra::crs(DTM)
+opt_independent_files(lidar_catalog) &lt;- TRUE
+
+# Use future to calculate DSM
+# Adjust number of cores with the workers parameter. This process is very RAM heavy!
+plan(multisession, gc = TRUE, workers = 10)
+
+# I would recommend to run this code from the console, to visualize the progress.
+lidar_dsm &lt;- grid_canopy(lidar_catalog, res = 0.5, 
+                         pitfree(thresholds = c(0, 2, 5, 10, 15, 20), max_edge = c(0, 1.5)))
+
+# Save raster and remove variables
+lidar_dsm %&gt;% 
+  terra::rast() %&gt;% 
+  terra::writeRaster(filename = file.path(workdir, &quot;DSM/dsm.tif&quot;), format=&quot;GTIFF&quot;)
+rm(lidar_catalog, lidar_dsm)
+
+# Load DSM
+dsm &lt;- terra::rast(file.path(workdir, &quot;DSM/dsm.tif&quot;))</code></pre>
+<p>Let’s take a look on the DSM. We will be using the <a href="https://CRAN.R-project.org/package=rayshader">rayshader</a> package to generate a 2D map.</p>
+<pre class="r"><code>dsm_clip &lt;- rast(xmin = 487200, xmax = 487800, 
+                 ymin = 5455800, ymax = 5456400,
+                 crs = crs(dsm), res = 0.5)
+
+# Crop DSM and convert to matrix
+elev_matrix &lt;- dsm %&gt;% 
+  crop(dsm_clip) %&gt;% 
+  matrix(
+    as.vector(terra::values(.)),
+    nrow = ncol(.), ncol = nrow(.)
+  ) %&gt;% 
+  t()
+
+library(rayshader)
+options(&quot;cores&quot; = 16)
+
+# Calculate rayshader layers
+ambmat &lt;- ambient_shade(elev_matrix, multicore = TRUE)
+raymat &lt;- ray_shade(elev_matrix, lambert = TRUE, multicore = TRUE)
+
+
+# Plot 2D
+elev_matrix %&gt;%
+  sphere_shade(texture = &quot;unicorn&quot;) %&gt;%
+  add_shadow(raymat, max_darken = 0.5) %&gt;%
+  add_shadow(ambmat, max_darken = 0.1) %&gt;%
+  plot_map()</code></pre>
+<p><img src="/post/visible-greenness-exposure/index.en_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<p>There are some missing values in the raster and at the right edge of the map we can see a “wall.” This is due to the fact, that power lines are being measured by LiDAR, too. Therefore we need to post-process the DSM to smooth the raster and fill empty pixels. We will apply a moving window approach. However, the DSM is too large, to apply <code>focal</code> on the whole raster at once. Therefore we will use the <code>lidar_tiles</code> shapefile from above, to apply smoothing and NA-value filling on subsets of the raster. To avoid edge effects, we first crop the DSM to a buffered LiDAR tile, apply the <code>focal</code> and finally crop the processed DSM to the unbuffered LiDAR tile.</p>
+<pre class="r"><code># Check if processing directory exists.
+delete_folder &lt;- FALSE
+proc_dir &lt;- file.path(workdir, &quot;DSM/Proc&quot;)
+
+if(!dir.exists(proc_dir)) {
+  delete_folder &lt;- TRUE
+  dir.create(proc_dir)
+}
+
+pb = txtProgressBar(min = 0, max = nrow(lidar_tiles), initial = 0, style = 3)
+for (i in 1:nrow(lidar_tiles)) {
+  dsm %&gt;% 
+    # Crop to buffered tile
+    terra::crop(sf::st_buffer(lidar_tiles[i,], 10)) %&gt;% 
+    # Fill NA values
+    terra::focal(3, fun = median, na.only = T) %&gt;%
+    # Smoothing
+    terra::focal(9, fun = median, na.rm = TRUE) %&gt;%
+    # Crop to unbuffered tile
+    terra::crop(lidar_tiles[i,]) %&gt;% 
+    terra::writeRaster(filename = file.path(proc_dir, 
+                                            paste0(&quot;dsm_tile_&quot;, i, &quot;.tif&quot;)),
+                       format=&quot;GTIFF&quot;)
+  
+  setTxtProgressBar(pb, i)
+}
+
+# Merge raster tiles
+filled_dsm &lt;- dir(proc_dir, pattern = &quot;dsm_tile_&quot;, full.names = T) %&gt;% 
+    lapply(rast) %&gt;% 
+    do.call(terra::merge, .)
+
+# Delete temp files
+if (delete_folder) {
+  unlink(proc_dir, recursive = TRUE)
+} else {
+ unlink(dir(proc_dir, pattern = &quot;dsm_tile_&quot;, full.names = T)) 
+}
+
+terra::writeRaster(filled_dsm, format=&quot;GTIFF&quot;,
+                   filename = file.path(workdir, &quot;DSM/dsm_filled.tif&quot;))</code></pre>
+<p>Now let’s look at the post-processed raster.</p>
+<pre class="r"><code># Crop DSM and convert to matrix
+elev_matrix &lt;- filled_dsm %&gt;% 
+  crop(dsm_clip) %&gt;% 
+  matrix(
+    as.vector(terra::values(.)),
+    nrow = ncol(.), ncol = nrow(.)
+  ) %&gt;% 
+  t()
+
+# Calculate rayshader layers
+ambmat &lt;- ambient_shade(elev_matrix, multicore = TRUE)
+raymat &lt;- ray_shade(elev_matrix, lambert = TRUE, multicore = TRUE)
+
+
+# Plot 2D
+elev_matrix %&gt;%
+  sphere_shade(texture = &quot;unicorn&quot;) %&gt;%
+  add_shadow(raymat, max_darken = 0.5) %&gt;%
+  add_shadow(ambmat, max_darken = 0.1) %&gt;%
+  plot_map()</code></pre>
+<p><img src="/post/visible-greenness-exposure/index.en_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+<p>The DSM is a lot smoother than before. I have tested multiple different parameters for the smoothing-step and w=9 returned the best looking results. In the future I may apply the smoothing-step only on raster cells covered by power lines.</p>
+</div>
+</div>
+<div id="section-visibility-analysis" class="section level2">
+<h2>Visibility Analysis</h2>
+<p>Greenspace is associated with several health benefits along multiple pathways <span class="citation">(<a href="#section-ref-markevych2017" role="doc-biblioref">Markevych et al. 2017</a>; <a href="#section-ref-dzhambov2020" role="doc-biblioref">Dzhambov et al. 2020</a>; <a href="#section-ref-labib2020" role="doc-biblioref">Labib, Lindley, and Huck 2020</a>)</span>. In a recent study (in submission), we analyze health benefits based on the availability and accessibility of greenspace, using a top-down, bird’s eye view, approach. Visibility describes a third type of exposure assessment and refers to the amount of greenspace that can be seen from a given point <span class="citation">(<a href="#section-ref-labib2020" role="doc-biblioref">Labib, Lindley, and Huck 2020</a>)</span>. Recent studies have adopted viewshed-based visibility analysis <span class="citation">(<a href="#section-ref-chamberlain2013" role="doc-biblioref">Chamberlain and Meitner 2013</a>; <a href="#section-ref-tabrizian2020" role="doc-biblioref">Tabrizian et al. 2020</a>; <a href="#section-ref-labib2021" role="doc-biblioref">Labib, Huck, and Lindley 2021</a>)</span>, however there still is a limited use of visibility exposure assessment in current studies <span class="citation">(<a href="#section-ref-labib2020" role="doc-biblioref">Labib, Lindley, and Huck 2020</a>)</span>. The following code is primarily based on the methods described by <span class="citation"><a href="#section-ref-labib2021" role="doc-biblioref">Labib, Huck, and Lindley</a> (<a href="#section-ref-labib2021" role="doc-biblioref">2021</a>)</span> and their Python code of the <a href="https://github.com/jonnyhuck/green-visibility-index/blob/master/gvi.py">Green Visibility Index</a>, and the overall process is illustrated in the figure below.</p>
+<p><a href="https://doi.org/10.1016/j.scitotenv.2020.143050"><img src="gvi.jpg" style="width:7.13in" /></a></p>
+<p><sub><em>Conceptual design of greenspace visibility modelling <span class="citation">(<a href="#section-ref-labib2021" role="doc-biblioref">Labib, Huck, and Lindley 2021</a>)</span>.</em></sub></p>
+<p>The line of sight is being calculated from the observer to every point in the area of interest, to distinguish between visible and invisible points. To determine green and no-green points, a greenspace mask will be intersected.
+To make the code presented in this post easier to understand, it has not been fully optimized. I have created the R package <a href="https://github.com/STBrinkmann/GVI">GVI</a>, where I implemented the same functions with optimized data structures and heavy use of C++ code.</p>
+<div id="section-rasterprofile" class="section level3">
+<h3>Rasterprofile</h3>
+<p>To calculate the visibility of a point B from point A, we first need to access all raster cells from point A to B. The <code>rasterprofile</code> function returns a <code>matrix</code> with all cells from A to B, containing X- and Y-coordinates, the height and the cell-number for every cell. Surprisingly the <code>raster::extract</code> is faster than <code>terra::extract</code> when using a matrix.</p>
+<pre class="r"><code>rasterprofile &lt;- function(r, x0, y0, x1, y1, resolution){
+  # Sample a raster along a straight line between two points
+  # Try to match the sampling size to the raster resolution
+  dx = sqrt((x0 - x1)^2 + (y0 - y1)^2)
+  nsteps = 1 + round(dx / resolution)
+  pointsZ &lt;- cbind(x0 + (0:nsteps) * (x1 - x0) / nsteps, 
+                   y0 + (0:nsteps) * (y1 - y0) / nsteps)
+  
+  rasterVals &lt;- raster::extract(x = r, y = pointsZ, cellnumber = TRUE)
+  
+  pointsZ &lt;- cbind(pointsZ, rasterVals[,2], rasterVals[,1])
+  
+  if (anyNA(pointsZ)) {
+    pointsZ &lt;- pointsZ[stats::complete.cases(pointsZ),,drop = FALSE]
+  }
+  return(pointsZ)
+}</code></pre>
+</div>
+<div id="section-line-of-sight" class="section level3">
+<h3>Line of Sight</h3>
+<p>The observer at point A can only see point B, if no object in between point A and B blocks the view to point B. The <code>lineOfSight</code> function evaluates visibility along all cells from A to B, by calculating tangent <em>⍺</em> from <em>𝚫height</em> (opposite side) and <em>distance traveled</em> (adjacent side) and comparing it for every step. To see a point, its tangent <em>⍺</em> must be greater than the biggest tangent <em>⍺</em> so far.</p>
+<p>In R we would write a for loop and compare the tangent of the current point to the maximum tangent so far. Therefore this step can’t be vectorised, because the subsequent iterations depend on previous ones. Native R code is quiet “slow” for these kind of tasks. Therefore I have implemented this step in C++ using the <a href="http://www.rcpp.org/">Rcpp</a> package.</p>
+<pre class="cpp"><code>#include &lt;Rcpp.h&gt;
+using namespace Rcpp;
+
+// [[Rcpp::export]]
+NumericVector isVisibleC(NumericVector x) {
+  int n = x.size();
+  NumericVector out(n);
+  out[0] = 1;
+  
+  double max_tangent = -9999;
+  
+  for(int i = 1; i &lt; n; ++i) {
+    double this_tangent = x[i];
+    
+    if (this_tangent &gt; max_tangent) {
+      max_tangent = this_tangent;
+      out[i] = 1;
+    } else {
+      out[i] = -1;
+    }
+  }
+  return out;
+}</code></pre>
+<p>The <code>lineOfSight</code> function returns a <code>data.table</code> containing the cell number and corresponding visibility of all points from A to B. Visible cells have a value of 1 and non visible cells -1.</p>
+<pre class="r"><code>lineOfSight &lt;- function(xy1, x0, y0, height0, resolution, dsm_data) {
+  # Get start XY from input
+  x1 &lt;- xy1[1]
+  y1 &lt;- xy1[2]
+  
+  # Get the pixels in the line
+  pixels &lt;- rasterprofile(r = dsm_data, x0 = x0, y0 = y0, x1 = x1, y1 = y1, 
+                          resolution = resolution)
+  
+  # Distance traveled so far
+  distance_traveled = sqrt((y0 - pixels[,2])^2 + (x0 - pixels[,1])^2)
+    
+  # Calculate tangent from delta height (opposite side) and distance traveled (adjacent side)
+  tangents &lt;- (pixels[,3] - height0) / (distance_traveled * resolution)
+  
+  # Is visible? Current tangent must be greater than max. tangent
+  visibility &lt;- isVisibleC(tangents)
+  
+  # Return cellnumber and visibility-value
+  data.table::as.data.table(cbind(pixels[,4], visibility))
+}</code></pre>
+</div>
+<div id="section-viewshed" class="section level3">
+<h3>Viewshed</h3>
+<p>Finally, the visibility of all points withing a certain buffer around point A can be calculated, using the <code>lineOfSight</code> function. The <code>viewshed</code> function returns a circular raster (start point + max_distance-buffer) where values of 1 indicate visible points and -1 non-visible points. To calculate visibility for all points in the raster, we only need to calculate the line of sight from the center to all boundary points of the circle and store the information of each point in between.</p>
+<pre class="r"><code>viewshed &lt;- function(sf_start, max_distance, dsm_data, dtm_data, resolution, 
+                     observer_height, cores = 1, plot = FALSE) {
+  
+  # AOI
+  this_aoi &lt;- sf_start %&gt;% 
+    sf::st_buffer(max_distance)
+  
+  # Coordinates of start point
+  x0 &lt;- sf::st_coordinates(sf_start)[1]
+  y0 &lt;- sf::st_coordinates(sf_start)[2]
+  
+  # Observer height
+  height0 &lt;- as.numeric(terra::extract(dtm_data, cbind(x0, y0))) + observer_height
+  
+  # If the resolution parameter differs from the input-DSM resolution,
+  # resample the DSM to the lower resolution.
+  # Also, convert dsm_data_masked to &quot;Raster&quot; object, for faster internal calculation.
+  if ((res(dsm_data)[1] != resolution) &amp; (resolution &gt;= 1)) {
+    dsm_data_masked &lt;- terra::crop(dsm_data, this_aoi) %&gt;% 
+      terra::aggregate(fact = resolution/terra::res(.)) %&gt;% 
+      terra::mask(terra::vect(this_aoi))
+    
+    output &lt;- terra::setValues(dsm_data_masked, 0) %&gt;%
+      terra::mask(dsm_data_masked)
+    
+    dsm_data_masked &lt;- as(dsm_data_masked, &quot;Raster&quot;)
+  } else {
+    dsm_data_masked &lt;- terra::crop(dsm_data, this_aoi) %&gt;% 
+      terra::mask(terra::vect(this_aoi))
+    
+    output &lt;- terra::setValues(dsm_data_masked, 0) %&gt;% 
+      terra::mask(dsm_data_masked)
+    
+    dsm_data_masked &lt;- as(dsm_data_masked, &quot;Raster&quot;)
+  }
+  
+  
+  # Calculate boundaries of output raster (boundaries are adjacent to NA values)
+  output_boundaries &lt;- terra::expand(output, resolution*2) %&gt;% 
+    terra::boundaries()
+  
+  # Get coordinates of boundaries cells and convert to list
+  xy_stop &lt;- terra::xyFromCell(output_boundaries, which(terra::values(output_boundaries) == 1)) %&gt;% 
+    split(seq(nrow(.)))
+  
+  # Apply lineOfSight function on every point in xy_stop
+  if (cores &gt; 1) {
+    if (Sys.info()[[&quot;sysname&quot;]] == &quot;Windows&quot;) {
+      cl &lt;- parallel::makeCluster(cores)
+      parallel::clusterExport(cl, &quot;rasterprofile&quot;)
+      parallel::clusterEvalQ(cl, library(&quot;dplyr&quot;))
+      this_LoS &lt;- parallel::parLapply(cl, xy_stop, fun = lineOfSight, 
+                                     x0 = x0, y0 = y0,
+                                     height0 = height0, resolution = resolution, 
+                                     dsm_data = dsm_data_masked)
+      parallel::stopCluster(cl)
+    }
+    else {
+      this_LoS &lt;- parallel::mclapply(xy_stop, lineOfSight, 
+                                     x0 = x0, y0 = y0,
+                                     height0 = height0, resolution = resolution, 
+                                     dsm_data = dsm_data_masked, 
+                                     mc.cores = cores, mc.preschedule = TRUE)
+    }
+  } else {
+    this_LoS &lt;- lapply(xy_stop, FUN = lineOfSight, 
+                       x0 = x0, y0 = y0,
+                       height0 = height0, resolution = resolution, 
+                       dsm_data = dsm_data_masked)
+  }
+  
+  # Bind list
+  this_LoS &lt;- data.table::rbindlist(this_LoS)
+  
+  # Copy result of lapply to the output raster 
+  output[this_LoS[[1]]] &lt;- this_LoS[[2]]
+  
+  # Compare DSM with Visibilty
+  if (plot) {
+    par(mfrow=c(1,2))
+    plot(dsm_data_masked); points(x0, y0, col = &quot;red&quot;, pch = 20, cex = 2)
+    plot(output, legend = F); points(x0, y0, col = &quot;red&quot;, pch = 20, cex = 2)
+    par(mfrow=c(1,1))
+  }
+  return(output)
+}</code></pre>
+<p>The animation below illustrates, the functionality of the <code>viewshed</code> function. Starting with a raster of unknown visibility (yellow), we iterative call the <code>lineOfSight</code> function and set the status of each raster cell to visible (green) or no-visible (white).</p>
+<p><img src="LoS.gif" /><!-- --></p>
+</div>
+<div id="section-examples" class="section level3">
+<h3>Examples</h3>
+<p>We need to create a start point to compare the effect of different resolutions.</p>
+<pre class="r"><code># Disable progress bar for terra::aggregate
+terra::terraOptions(progress = 0)
+
+sf_start &lt;- sfheaders::sf_point(c(487616.2, 5455970)) %&gt;% 
+    st_sf(crs = st_crs(26910))</code></pre>
+<div id="section-resolution-0.5m" class="section level4">
+<h4>1. Resolution = 0.5m</h4>
+<p>Output-Raster-Cells: 1 440 000<br />
+Runtime: 0.85 seconds (cores=1: 1.80 seconds)<br />
+Total visibility: 11.9%</p>
+<pre class="r"><code>viewshed_1 &lt;- viewshed(sf_start = sf_start, max_distance = 300,
+                       dsm_data = filled_dsm, dtm_data = DTM, 
+                       resolution = 0.5, observer_height = 1.8, 
+                       cores = 10, plot = TRUE)</code></pre>
+<p><img src="/post/visible-greenness-exposure/index.en_files/figure-html/unnamed-chunk-20-1.png" width="1536" /></p>
+</div>
+<div id="section-resolution-1m" class="section level4">
+<h4>2. Resolution = 1m</h4>
+<p>Output-Raster-Cells: 360 000<br />
+Runtime: 0.45 seconds (cores=1: 0.75 seconds)<br />
+Total visibility: 12.4%</p>
+<pre class="r"><code>viewshed_2 &lt;- viewshed(sf_start = sf_start, max_distance = 300,
+                       dsm_data = filled_dsm, dtm_data = DTM, 
+                       resolution = 1, observer_height = 1.8, 
+                       cores = 10, plot = TRUE)</code></pre>
+<p><img src="/post/visible-greenness-exposure/index.en_files/figure-html/unnamed-chunk-21-1.png" width="1536" /></p>
+</div>
+<div id="section-resolution-2m" class="section level4">
+<h4>3. Resolution = 2m</h4>
+<p>Output-Raster-Cells: 90 000<br />
+Runtime: 0.35 seconds (cores=1: 0.40 seconds)<br />
+Total visibility: 12.8%</p>
+<pre class="r"><code>viewshed_3 &lt;- viewshed(sf_start = sf_start, max_distance = 300,
+                       dsm_data = filled_dsm, dtm_data = DTM, 
+                       resolution = 2, observer_height = 1.8, 
+                       cores = 5, plot = TRUE)</code></pre>
+<p><img src="/post/visible-greenness-exposure/index.en_files/figure-html/unnamed-chunk-22-1.png" width="1536" /></p>
+</div>
+<div id="section-resolution-5m" class="section level4">
+<h4>4. Resolution = 5m</h4>
+<p>Output-Raster-Cells: 14 400<br />
+Runtime: 0.22 seconds (cores=1: 0.18 seconds)<br />
+Total visibility: 14.6%</p>
+<pre class="r"><code>viewshed_4 &lt;- viewshed(sf_start = sf_start, max_distance = 300,
+                       dsm_data = filled_dsm, dtm_data = DTM, 
+                       resolution = 5, observer_height = 1.8, 
+                       cores = 2, plot = TRUE)</code></pre>
+<p><img src="/post/visible-greenness-exposure/index.en_files/figure-html/unnamed-chunk-23-1.png" width="1536" /></p>
+</div>
+</div>
+</div>
+<div id="section-network-visible-greenspace" class="section level2">
+<h2>Network Visible Greenspace</h2>
+<p>One practical application of the viewshed algorithm is, to calculate the visible neighborhood greenness of an observer, by analyzing visible greenness along roads and paths in the neighborhood.</p>
+<div id="section-greenspace-mask" class="section level3">
+<h3>Greenspace Mask</h3>
+<p>To determine the level of greenness for the visible cells in a viewshed, we need to define green and no-green pixels. For this purpose we will be using the <a href="http://www.metrovancouver.org/data/Data/LandCoverClassification-2m/LCC2014_2m_LiDAR_gdb.zip">Vancouver Land Cover Classification 2014 - 2m LiDAR (Raster)</a>. This data can be opened using ArcGIS and exported as TIFF for further analysis. From the documentation we can read the class values as follows:</p>
+<table style="width:90%; font-family: &quot;Arial Narrow&quot;, &quot;Source Sans Pro&quot;, sans-serif; width: auto !important; margin-left: auto; margin-right: auto;" class=" lightable-classic lightable-striped">
+<thead>
+<tr>
+<th style="text-align:left;font-weight: bold;">
+Value
+</th>
+<th style="text-align:center;font-weight: bold;">
+Level 1
+</th>
+<th style="text-align:center;font-weight: bold;">
+Level 2
+</th>
+<th style="text-align:center;font-weight: bold;">
+Level 3
+</th>
+<th style="text-align:left;font-weight: bold;">
+Criteria
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+1
+</td>
+<td style="text-align:center;">
+Built-up
+</td>
+<td style="text-align:center;">
+Buildings
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:left;">
+Identified using shape/size, shadow cast, height, relative canopy height, texture.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+Paved
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:left;">
+Everything from sidewalks and alleys to highways.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+3
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+Other Built
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:left;">
+Not concrete/asphalt built surfaces or building roofs. Sports surfaces (artificial turf and running tacks), possibly transit or rail areas, other impervious surfaces, etc.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+4
+</td>
+<td style="text-align:center;">
+Bare
+</td>
+<td style="text-align:center;">
+Barren
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:left;">
+Beaches, alpine rock, shoreline rock, etc. Lack of vegetation. Likely not soil (colour/context suggests no organic matter and/or imperviousness). Also quarries, gravel pits, dirt roads.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+5
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+Soil
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:left;">
+Agricultural soils (could be light or dark), cleared/open areas where darker colours indicate organic matter present (as compared to, e.g. sand), potentially riverine/alluvial deposits.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+6
+</td>
+<td style="text-align:center;">
+Vegetation
+</td>
+<td style="text-align:center;">
+Tree canopy
+</td>
+<td style="text-align:center;">
+Coniferous
+</td>
+<td style="text-align:left;">
+Predominantly coniferous (&gt;75%)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+7
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+Deciduous
+</td>
+<td style="text-align:left;">
+Predominantly deciduous (&gt;75%)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+8
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+Shrub
+</td>
+<td style="text-align:left;">
+Woody, leafy, and generally rough-textured vegetation shorter than trees (approx. &lt;3-4m), taller than grass.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+9
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+Grass-herb
+</td>
+<td style="text-align:center;">
+Modified Grass-herb
+</td>
+<td style="text-align:left;">
+Crops, golf course greens, city park grass, lawns, etc.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+10
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+Natural Grass-herb
+</td>
+<td style="text-align:left;">
+Alpine meadows, near-shore grass areas, bog/wetland areas.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+11
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+Non-photosynthetic vegetation
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:left;">
+Dead grass, drought stressed vegetation, could include log
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+12
+</td>
+<td style="text-align:center;">
+Water
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:left;">
+Lakes, rivers, inlets, irrigation channels, retention ponds, pools, etc.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+13
+</td>
+<td style="text-align:center;">
+Shadow
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:left;">
+Dark pixels with v/ low reflectance values. Image features not easily visible. Compare w/ RapidEye image for shadow
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+14
+</td>
+<td style="text-align:center;">
+Clouds/Ice
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:left;">
+Very bright pixels, that are not high-reflectance features from built-up areas.
+</td>
+</tr>
+</tbody>
+</table>
+<p>For demonstration purpose I will use all vegetation classes as one criteria (green vs. no-green).</p>
+<pre class="r"><code># Load LandCover
+landCover &lt;- rast(file.path(workdir, &quot;LCC2014_2m_LiDAR1.tif&quot;))
+
+# Select Vegetation
+greenspace &lt;- landCover %in% c(6:10); invisible(gc())
+
+# Plot to compare LandCover and vegetation mask
+par(mfrow = c(1,2))
+landCover %&gt;% 
+  crop(dsm_clip) %&gt;% 
+  plot(legend = FALSE)
+
+points(st_coordinates(sf_start)[1], st_coordinates(sf_start)[2], 
+       col = &quot;blue&quot;, cex = 3, pch = 20)
+
+greenspace %&gt;% 
+  crop(dsm_clip) %&gt;% 
+  plot(legend = FALSE)
+
+points(st_coordinates(sf_start)[1], st_coordinates(sf_start)[2], 
+       col = &quot;blue&quot;, cex = 3, pch = 20)</code></pre>
+<p><img src="/post/visible-greenness-exposure/index.en_files/figure-html/unnamed-chunk-25-1.png" width="1536" /></p>
+</div>
+<div id="section-green-visibility-index" class="section level3">
+<h3>Green Visibility Index</h3>
+<p>The <code>gvi</code> (Green Visibility Index; <span class="citation">(<a href="#section-ref-labib2021" role="doc-biblioref">Labib, Huck, and Lindley 2021</a>)</span>) function returns the proportion of visible greenspace to total visibility. The values range between 0 and 1, where 0 = no green cells are visible, and 1 = all of the visible cells are green. Applying the <code>visibleGreen</code> function on the <code>viewshed_1</code> object calculated above returns 0.91, meaning that 91% of the visible area is vegetated.<br />
+In the original paper of <span class="citation"><a href="#section-ref-labib2021" role="doc-biblioref">Labib, Huck, and Lindley</a> (<a href="#section-ref-labib2021" role="doc-biblioref">2021</a>)</span> the authors also applied a distance decay function, to account for the reducing visual prominence of an object in space with increasing distance from the observer. However, I will address this issue in another post about distance decay models.</p>
+<pre class="r"><code>gvi &lt;- function(viewshed, greenspace) {
+  # Get XY coordinates that are visible
+  xy &lt;- viewshed %&gt;% 
+    terra::xyFromCell(which(viewshed[] == 1))
+
+  # Intersect XY with greenspace mask
+  output &lt;- greenspace[terra::cellFromXY(greenspace, xy)] %&gt;% 
+    unlist(use.names = FALSE)
+
+  # Proportion of visible green
+  return(sum(output == 1) / length(output))
+}</code></pre>
+</div>
+<div id="section-network-analysis" class="section level3">
+<h3>Network Analysis</h3>
+<p>We will use the <code>DRIGLUCoSE</code> R package from our recent publication to calculate a road network, and finally asses visible greenspace along the network. For a detailed explanation of the <code>DRIGLUCoSE</code> package see the <a href="https://github.com/STBrinkmann/DRIGLUCoSE">GitHub repository</a>.</p>
+<pre class="r"><code># Download and process road network from OSM data
+aoi.osm &lt;- DRIGLUCoSE::osm_roads(x = sf_start, dist = 10, speed = 75)
+
+# Calculate isodistances
+aoi.isodistances &lt;- DRIGLUCoSE::isodistances(x = sf_start %&gt;% mutate(tag = 1),
+                                             tag = &quot;tag&quot;, road_network = aoi.osm, 
+                                             speed = 75, 
+                                             isochrones_seq = seq(1, 10, 1))</code></pre>
+<p>In the figure below the isodistances are being illustrated. The red point represents the starting point. We will calculate visible greenspace proportion every 10m.</p>
+<p><img src="/post/visible-greenness-exposure/index.en_files/figure-html/unnamed-chunk-28-1.svg" width="960" /></p>
+<p>To evaluate network visibility, we will write a new function <code>networkVisibleGreenspace</code> to combine all previous steps to a single point along the network.</p>
+<pre class="r"><code>networkVisibleGreenspace &lt;- function(x, isodistance, greenspace,
+                                     dsm_data, dtm_data, 
+                                     resolution, max_distance, observer_height, 
+                                     cores, plot = FALSE) {
+  
+  # 1. Calculate viewshed
+  this_viewshed &lt;- viewshed(sf_start = x, max_distance = max_distance,
+                            dsm_data = dsm_data, dtm_data = dtm_data, 
+                            resolution = resolution, 
+                            observer_height = observer_height, 
+                            cores = cores, plot = plot)
+  
+  # 2. Proportion of visible greenspace of total visibility (GVI)
+  this_gvi &lt;- gvi(viewshed = this_viewshed, greenspace = greenspace)
+  
+  # 3. Get time value of x from isodistance
+  return(dplyr::tibble(time = isodistance[sf::st_nearest_feature(x, isodistance),]$time, 
+                       GVI = this_gvi,
+                       X = as.numeric(st_coordinates(x)[1]),
+                       Y = as.numeric(st_coordinates(x)[2])))
+}</code></pre>
+<p>We can use the <code>st_line_sample</code> function to sample points along the isodistance object. In the viewshed examples above we have seen, that for <code>resolution = 2</code> the computation time hardly differs if we set <code>cores = 1</code>. Therefore I use <code>cores = 1</code> in the <code>networkVisibleGreenspace</code> and call it from the <code>mclapply</code> with parallel processing.</p>
+<pre class="r"><code># Sample points on the isodistance for every 25m 
+all_points &lt;- aoi.isodistances %&gt;% 
+  sf::st_union() %&gt;% 
+  sf::st_cast(&quot;LINESTRING&quot;) %&gt;% 
+  sf::st_line_sample(density = 1/25) %&gt;% 
+  sf::st_cast(&quot;POINT&quot;) %&gt;% 
+  sf::st_as_sf()
+
+# Calculate network visibilty 
+output &lt;- all_points %&gt;% 
+  split(seq(nrow(.))) %&gt;% 
+  parallel::mclapply(networkVisibleGreenspace,
+                     isodistance = aoi.isodistances, greenspace = greenspace,
+                     dsm_data = filled_dsm, dtm_data = DTM, resolution = 2, 
+                     max_distance = 300, observer_height = 1.8, cores = 1, 
+                     plot = FALSE, mc.cores = 22, mc.preschedule = TRUE) %&gt;% 
+  do.call(rbind, .)</code></pre>
+</div>
+<div id="section-results" class="section level3">
+<h3>Results</h3>
+<p>The results of the <code>networkVisibilityGreenspace</code> is illustrated in the figure below.</p>
+<p><img src="/post/visible-greenness-exposure/index.en_files/figure-html/unnamed-chunk-31-1.svg" width="960" /></p>
+<p>To evaluate the mean GVI for the observer in the center, we need to summarize all measurements from the previous steps. I simply take the mean of all values, but one could also apply a linear or logistic weights function, such that the influence of a variable decreases with increasing distance, as demonstrated in our recent publication.</p>
+<pre class="r"><code>round(mean(output$GVI), 2)</code></pre>
+<pre><code>## [1] 0.5</code></pre>
+<p>A mean value of 0.5 indicates, that 50% of the visible area along the network is vegetated.</p>
+<p>One big limitation of the viewshed algorithm is, that it fails to calculate eye-level visibility if the observer is underneath a tree. This is because we use a LiDAR derived DSM and calculate visibility based on the height of pixels along the lines of sight.</p>
+<p><img src="/post/visible-greenness-exposure/index.en_files/figure-html/unnamed-chunk-33-1.svg" width="480" /></p>
+<p>The histogram above shows, that there are a lot of points with GVI = 1. I have plotted the DSM and the GVI points along the route network in QGIS.<img src="GVI_bad.png" style="width:7.13in" /></p>
+<p>The dark-green points are located underneath trees. Therefore, the viewshed algorithm can’t “see” beyond those trees and returns only one single visible cell, which is green. The proportion of green pixels to all visible pixels is therefore 1.</p>
+<p>As already mentioned, applying a distance function might simulate the potential activity space better, since a person will most likely use the road/path in front of his/her place of residence more often than the road 10 minutes away. I will talk about this issue in a different post and provide a solution using the <a href="https://cran.r-project.org/web/packages/mosaic/index.html">mosaic</a> R package.</p>
+<p>However, we can see a high diversity of GVI values in the example above, in that the northern half has higher visible greenness. Therefore, future research may also incorporate <em>actual</em> activity space measurements instead of <em>potential</em> activity space models, to further analyze where (and why) participants spend time and thus improve the understanding of greenspace related health effects.</p>
+</div>
+</div>
+<div id="section-conclusion" class="section level2">
+<h2>Conclusion</h2>
+<p>Data acquisition and processing with <code>lidR</code> and <code>terra</code> is simple and fast using R as the only tool. The implementation of a parallel viewshed algorithm has proven to be very light-weighted and fast. Using a lower resolution significantly reduces model runtime. However, even at highest resolution, the runtime is acceptable. The effect of multiprocessing is significant only with high resolution or very large values of <code>max_distance</code>. Using this algorithm in a large scale study at high resolution appears to be practical. Compared to model 1, model 4 has an increase in visible area from 11.9% to 14.6%. The results of the other models are closer to model 1. In my opinion the trade-off between loss of accuracy for an increase in speed is acceptable down to 2m. But reducing the resolution to 5m or even more might only be worth it, if a lot of observations need to be calculated or/and for large values of <em>max_distance</em>, since the computation time hardly differs from 2m resolution. I would suggest comparing a few points with 0.5m, 1m, 2m and 5m resolution.<br />
+One mayor limitation of this method is, that it fails to calculate eye-level visibility, if the observer is located underneath a tree.<br />
+A simple implementation of the viewshed analysis into a route network analysis served as a practical example for researching greenspace exposure.</p>
+</div>
+<div id="section-references" class="section level2 unnumbered">
+<h2>References</h2>
+<div id="section-refs" class="references csl-bib-body hanging-indent">
+<div id="section-ref-chamberlain2013" class="csl-entry">
+Chamberlain, Brent C., and Michael J. Meitner. 2013. <span>“A Route-Based Visibility Analysis for Landscape Management.”</span> <em>Landscape and Urban Planning</em> 111 (March): 13–24. <a href="https://doi.org/10.1016/j.landurbplan.2012.12.004">https://doi.org/10.1016/j.landurbplan.2012.12.004</a>.
+</div>
+<div id="section-ref-dzhambov2020" class="csl-entry">
+Dzhambov, Angel M., Matthew H.E.M. Browning, Iana Markevych, Terry Hartig, and Peter Lercher. 2020. <span>“Analytical Approaches to Testing Pathways Linking Greenspace to Health: A Scoping Review of the Empirical Literature.”</span> <em>Environmental Research</em> 186 (July): 109613. <a href="https://doi.org/10.1016/j.envres.2020.109613">https://doi.org/10.1016/j.envres.2020.109613</a>.
+</div>
+<div id="section-ref-khosravipour2014" class="csl-entry">
+Khosravipour, Anahita, Andrew K. Skidmore, Martin Isenburg, Tiejun Wang, and Yousif A. Hussin. 2014. <span>“Generating Pit-Free Canopy Height Models from Airborne Lidar.”</span> <em>Photogrammetric Engineering &amp; Remote Sensing</em> 80 (9): 863–72. <a href="https://doi.org/10.14358/pers.80.9.863">https://doi.org/10.14358/pers.80.9.863</a>.
+</div>
+<div id="section-ref-labib2021" class="csl-entry">
+Labib, S.M., Jonny J. Huck, and Sarah Lindley. 2021. <span>“Modelling and Mapping Eye-Level Greenness Visibility Exposure Using Multi-Source Data at High Spatial Resolutions.”</span> <em>Science of The Total Environment</em> 755 (February): 143050. <a href="https://doi.org/10.1016/j.scitotenv.2020.143050">https://doi.org/10.1016/j.scitotenv.2020.143050</a>.
+</div>
+<div id="section-ref-labib2020" class="csl-entry">
+Labib, S.M., Sarah Lindley, and Jonny J. Huck. 2020. <span>“Spatial Dimensions of the Influence of Urban Green-Blue Spaces on Human Health: A Systematic Review.”</span> <em>Environmental Research</em> 180 (January): 108869. <a href="https://doi.org/10.1016/j.envres.2019.108869">https://doi.org/10.1016/j.envres.2019.108869</a>.
+</div>
+<div id="section-ref-markevych2017" class="csl-entry">
+Markevych, Iana, Julia Schoierer, Terry Hartig, Alexandra Chudnovsky, Perry Hystad, Angel M. Dzhambov, Sjerp de Vries, et al. 2017. <span>“Exploring Pathways Linking Greenspace to Health: Theoretical and Methodological Guidance.”</span> <em>Environmental Research</em> 158 (October): 301–17. <a href="https://doi.org/10.1016/j.envres.2017.06.028">https://doi.org/10.1016/j.envres.2017.06.028</a>.
+</div>
+<div id="section-ref-roussel2020" class="csl-entry">
+Roussel, Jean-Romain, David Auty, Nicholas C. Coops, Piotr Tompalski, Tristan R.H. Goodbody, Andrew Sánchez Meador, Jean-François Bourdon, Florian de Boissieu, and Alexis Achim. 2020. <span>“lidR: An R Package for Analysis of Airborne Laser Scanning (ALS) Data.”</span> <em>Remote Sensing of Environment</em> 251 (December): 112061. <a href="https://doi.org/10.1016/j.rse.2020.112061">https://doi.org/10.1016/j.rse.2020.112061</a>.
+</div>
+<div id="section-ref-tabrizian2020" class="csl-entry">
+Tabrizian, Payam, Perver K. Baran, Derek Van Berkel, Helena Mitasova, and Ross Meentemeyer. 2020. <span>“Modeling Restorative Potential of Urban Environments by Coupling Viewscape Analysis of Lidar Data with Experiments in Immersive Virtual Environments.”</span> <em>Landscape and Urban Planning</em> 195 (March): 103704. <a href="https://doi.org/10.1016/j.landurbplan.2019.103704">https://doi.org/10.1016/j.landurbplan.2019.103704</a>.
+</div>
+</div>
+</div>
+
+    </div>
+
+    
+
+
+
+
+
+
+<div class="article-tags">
+  
+  <a class="badge badge-light" href="/tag/r/">R</a>
+  
+  <a class="badge badge-light" href="/tag/gis/">GIS</a>
+  
+  <a class="badge badge-light" href="/tag/greenspace/">Greenspace</a>
+  
+  <a class="badge badge-light" href="/tag/health-geography/">Health Geography</a>
+  
+  <a class="badge badge-light" href="/tag/lidar/">LiDAR</a>
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+
+
+  
+  
+  
+    
+  
+  
+  
+  <div class="media author-card content-widget-hr">
+    
+      
+      <img class="avatar mr-3 avatar-circle" src="/author/sebastian-brinkmann/avatar_hud31c4adb0e1cc755b24b80d2efa36a23_537176_270x270_fill_q75_lanczos_center.jpg" alt="Sebastian Brinkmann">
+    
+
+    <div class="media-body">
+      <h5 class="card-title">Sebastian Brinkmann</h5>
+      <h6 class="card-subtitle">BSc Student in Physical Geography</h6>
+      <p class="card-text">My research interests include spatial analysis, remote sensing, data science, urban forestry and epidemiology.</p>
+      <ul class="network-icon" aria-hidden="true">
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="/#contact" >
+        <i class="fas fa-envelope"></i>
+      </a>
+    </li>
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="https://github.com/STBrinkmann" target="_blank" rel="noopener">
+        <i class="fab fa-github"></i>
+      </a>
+    </li>
+  
+</ul>
+
+    </div>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <div class="article-widget content-widget-hr">
+    <h3>Related</h3>
+    <ul>
+      
+      <li><a href="/publication/gvi-greenness-visibility-index-r-package/">GVI: Greenness Visibility Index R package</a></li>
+      
+      <li><a href="/post/visible-greenness-exposure-index-an-example-workflow-for-the-city-of-vancouver/">Visible Greenness Exposure Index - An example workflow for the City of Vancouver</a></li>
+      
+      <li><a href="/post/visibility-sensitivity-analysis/">Visibility - Sensitivity Analysis</a></li>
+      
+      <li><a href="/post/covid-19-15km-radius-webapp/">COVID-19: 15km Radius WebApp</a></li>
+      
+      <li><a href="/post/bart-a-bayesian-machine-learning-workflow-for-complex-spatial-data/">BART - A Bayesian machine learning workflow for complex spatial data</a></li>
+      
+    </ul>
+  </div>
+  
+
+
+
+
+
+  </div>
+</article>
+  </div>
+
+  <div class="page-footer">
+    
+    
+    <div class="container">
+      <footer class="site-footer">
+  
+
+  <p class="powered-by">
+    
+  </p>
+
+  
+  
+
+
+
+
+
+
+  <p class="powered-by">
+    
+    
+    
+    Published with
+    <a href="https://wowchemy.com/?utm_campaign=poweredby" target="_blank" rel="noopener">Wowchemy</a>  —
+    the free, <a href="https://github.com/wowchemy/wowchemy-hugo-modules" target="_blank" rel="noopener">
+    open source</a> website builder that empowers creators.
+    
+  </p>
+</footer>
+
+    </div>
+    
+  </div>
+
+  
+<div id="modal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Cite</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <pre><code class="tex hljs"></code></pre>
+      </div>
+      <div class="modal-footer">
+        <a class="btn btn-outline-primary my-1 js-copy-cite" href="#" target="_blank">
+          <i class="fas fa-copy"></i> Copy
+        </a>
+        <a class="btn btn-outline-primary my-1 js-download-cite" href="#" target="_blank">
+          <i class="fas fa-download"></i> Download
+        </a>
+        <div id="modal-error"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+      
+
+    
+    
+    
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+
+      
+      
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/4.1.4/imagesloaded.pkgd.min.js" integrity="sha256-lqvxZrPLtfffUl2G/e7szqSvPBILGbwmsGE1MKlOi0Q=" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.isotope/3.0.6/isotope.pkgd.min.js" integrity="sha256-CBrpuqrMhXwcLLUd5tvQ4euBHCdh7wGlDfNz8vbu/iI=" crossorigin="anonymous"></script>
+      
+
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" integrity="sha256-yt2kYMy0w8AbtF89WXb2P1rfjcP/HTHLT7097U8Y5b8=" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/instant.page/5.1.0/instantpage.min.js" integrity="sha512-1+qUtKoh9XZW7j+6LhRMAyOrgSQKenQ4mluTR+cvxXjP1Z54RxZuzstR/H9kgPXQsVB8IW7DMDFUJpzLjvhGSQ==" crossorigin="anonymous"></script>
+
+      
+
+      
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.2.0/highlight.min.js" integrity="sha512-TDKKr+IvoqZnPzc3l35hdjpHD0m+b2EC2SrLEgKDRWpxf2rFCxemkgvJ5kfU48ip+Y+m2XVKyOCD85ybtlZDmw==" crossorigin="anonymous"></script>
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.2.0/languages/r.min.js"></script>
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.2.0/languages/latex.min.js"></script>
+        
+      
+
+    
+
+    
+    
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.min.js" integrity="sha512-SeiQaaDh73yrb56sTW/RgVdi/mMqNeM2oBwubFHagc5BkixSpP1fvqF47mKzPGWYSSy4RwbBunrJBQ4Co8fRWA==" crossorigin="anonymous"></script>
+    
+
+    
+    
+    <script>const code_highlighting = true;</script>
+    
+
+    
+    
+    
+    
+    
+    
+    <script>
+      const search_config = {"indexURI":"/index.json","minLength":1,"threshold":0.3};
+      const i18n = {"no_results":"No results found","placeholder":"Search...","results":"results found"};
+      const content_type = {
+        'post': "Posts",
+        'project': "Projects",
+        'publication' : "Publications",
+        'event' : "Events",
+        'slides' : "Slides"
+        };
+    </script>
+    
+
+    
+    
+
+    
+    
+    <script id="search-hit-fuse-template" type="text/x-template">
+      <div class="search-hit" id="summary-{{key}}">
+      <div class="search-hit-content">
+        <div class="search-hit-name">
+          <a href="{{relpermalink}}">{{title}}</a>
+          <div class="article-metadata search-hit-type">{{type}}</div>
+          <p class="search-hit-description">{{snippet}}</p>
+        </div>
+      </div>
+      </div>
+    </script>
+    
+
+    
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.2.1/fuse.min.js" integrity="sha256-VzgmKYmhsGNNN4Ph1kMW+BjoYJM2jV5i4IlFoeZA9XI=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script>
+    
+
+    
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+      
+      
+    
+    
+    <script src="/js/wowchemy.min.572b7caf7fe601716a0f74d67d754c21.js"></script>
+
+    
+
+
+
+
+
+
+</body>
+</html>

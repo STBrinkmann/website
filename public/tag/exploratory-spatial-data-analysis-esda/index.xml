@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Exploratory Spatial Data Analysis (ESDA) | GeoBrinkmann</title>
+    <link>/tag/exploratory-spatial-data-analysis-esda/</link>
+      <atom:link href="/tag/exploratory-spatial-data-analysis-esda/index.xml" rel="self" type="application/rss+xml" />
+    <description>Exploratory Spatial Data Analysis (ESDA)</description>
+    <generator>Wowchemy (https://wowchemy.com)</generator><language>en-us</language><lastBuildDate>Tue, 22 Jun 2021 00:00:00 +0000</lastBuildDate>
+    <image>
+      <url>/images/icon_hub8298344815fb61130442b7c2888b4e0_27889_512x512_fill_lanczos_center_2.png</url>
+      <title>Exploratory Spatial Data Analysis (ESDA)</title>
+      <link>/tag/exploratory-spatial-data-analysis-esda/</link>
+    </image>
+    
+    <item>
+      <title>Visibility - Sensitivity Analysis</title>
+      <link>/post/visibility-sensitivity-analysis/</link>
+      <pubDate>Tue, 22 Jun 2021 00:00:00 +0000</pubDate>
+      <guid>/post/visibility-sensitivity-analysis/</guid>
+      <description>
+&lt;script src=&#34;/post/visibility-sensitivity-analysis/index.en_files/header-attrs/header-attrs.js&#34;&gt;&lt;/script&gt;
+
+
+&lt;p&gt;As part of my Bachelor Thesis I am analyzing the effects of visible green- and bluespaces on mental health based on a medical study in Vancouver. The area of interest covers Vancouver City, Burnaby and Surrey.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/post/visibility-sensitivity-analysis/index.en_files/figure-html/unnamed-chunk-1-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;To analyze the effect of visible greenness I’ll be using the &lt;a href=&#34;https://doi.org/10.1016/j.scitotenv.2020.143050&#34;&gt;Viewshed Greenness Visibility Index (VGVI)&lt;/a&gt;. The VGVI expresses the proportion of visible greenness to the total visible area based on a viewshed. The estimated VGVI values range between 0 and 1, where 0 = no green cells are visible, and 1 = all of the visible cells are green. In a recent &lt;a href=&#34;https://geobrinkmann.com/post/visible-greenness-exposure/&#34;&gt;post&lt;/a&gt; I have demonstrated how to calculate the VGVI, and in my R package &lt;a href=&#34;https://github.com/STBrinkmann/GVI&#34;&gt;GVI&lt;/a&gt; (currently only available on GitHub) I have provided fast functions to compute the VGVI.&lt;/p&gt;
+&lt;p&gt;To calculate the VGVI for an observer, the viewshed of this point needs to be computed first - hence the name &lt;strong&gt;&lt;em&gt;Viewshed&lt;/em&gt;&lt;/strong&gt; Greenness Visibility Index. The &lt;a href=&#34;https://github.com/STBrinkmann/GVI#viewshed&#34;&gt;&lt;em&gt;viewshed&lt;/em&gt;&lt;/a&gt; function of the GVI package does exactly that. The basic idea is to apply a buffer on the observer position. Now we can “simply” check every point in this area, whether it is visible or not.&lt;br /&gt;
+To do so, we need a Digital Surface Model (DSM), Digital Terrain Model (DTM) and the observer location as input data for the &lt;em&gt;viewshed&lt;/em&gt; function.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Load libraries
+library(dplyr)
+library(sf)
+library(GVI)
+library(terra)
+
+workdir &amp;lt;- &amp;quot;H:/Vancouver/Vancouver_RS_Data/&amp;quot;
+
+# Load DSM and DEM
+dsm &amp;lt;- rast(file.path(workdir, &amp;quot;DSM.tif&amp;quot;))
+dtm &amp;lt;- rast(file.path(workdir, &amp;quot;DTM.tif&amp;quot;))
+
+# Sample observer location
+st_observer &amp;lt;- sfheaders::sf_point(c(487616.2, 5455970)) %&amp;gt;% 
+    st_sf(crs = st_crs(26910))
+
+# Compute Viewshed
+viewshed_1 &amp;lt;- GVI::viewshed(observer = st_observer,
+                            dsm_rast = dsm, dtm_rast = dtm,
+                            max_distance = 250, resolution = 1,
+                            observer_height = 1.7, plot = TRUE)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;/post/visibility-sensitivity-analysis/index.en_files/figure-html/unnamed-chunk-2-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;In the plot above, the Digital Surface Model (DSM) is visualized on the left. The viewshed is shown on the right, where green = visible and yellow = no-visible area. The observer in the example - visualized as the red dot - can see far over the sports field to the west and has little visibility to the east.&lt;/p&gt;
+&lt;p&gt;Next, we would compute the VGVI based on the viewshed and a greenspace mask. However, in this post I would like to focus on the two parameters &lt;em&gt;distance&lt;/em&gt; and &lt;em&gt;resolution&lt;/em&gt;. Distance describes the radius of the buffer around the observer location. The resolution parameter describes the resolution that the rasters should be aggregated to. High resolution yields the most realistic results, but on cost of computation time.&lt;/p&gt;
+&lt;div id=&#34;sensitivity-analysis&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Sensitivity Analysis&lt;/h2&gt;
+&lt;p&gt;When computing the VGVI for a single, or few points, you wouldn’t need to consider using a lower resolution or adjusting the maximum distance. The computation time is rather low even at high resolution with a high maximum distance (e.g. 800m with 1m resolution: 5.5 secs). However, when computing the VGVI for a larger area - like the whole City of Vancouver - it is very important to consider these parameters. In the following I conduct a sensitivity analysis for the two parameters.&lt;/p&gt;
+&lt;div id=&#34;samples&#34; class=&#34;section level3&#34;&gt;
+&lt;h3&gt;Samples&lt;/h3&gt;
+&lt;p&gt;For the sensitivity analysis of the two parameters I’ll use a representative sample of 4000 observer locations.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;set.seed(1234)
+
+# Grab 4000 random points. The Van_2m_xy.gpkg file has 108.320.000 points
+fid_sample &amp;lt;- sample(1:108320000, 4000)
+
+# Read the shapefile using an SQL statement
+my_query = paste(&amp;quot;SELECT * FROM \&amp;quot;Van_2m_xy\&amp;quot; WHERE fid IN (&amp;quot;, toString(fid_sample), &amp;quot;)&amp;quot;)
+sf_sample &amp;lt;- st_read(file.path(workdir, &amp;quot;Van_2m_xy.gpkg&amp;quot;),
+                 query = my_query,
+                 quiet = TRUE)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;/post/visibility-sensitivity-analysis/index.en_files/figure-html/unnamed-chunk-4-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;distance&#34; class=&#34;section level3&#34;&gt;
+&lt;h3&gt;Distance&lt;/h3&gt;
+&lt;p&gt;In the example above I have used a distance of only 250 meters. Below I have computed the VGVI for the same observer location, but with a 800 meter radius.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Compute Viewshed
+viewshed_2 &amp;lt;- GVI::viewshed(observer = st_observer,
+                            dsm_rast = dsm, dtm_rast = dtm,
+                            max_distance = 800, resolution = 1,
+                            observer_height = 1.7, plot = TRUE)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;/post/visibility-sensitivity-analysis/index.en_files/figure-html/unnamed-chunk-5-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;Increasing the distance to 800 meters doesn’t really affect the visible area. Most of what can be seen at this specific observer location, is withing the smaller 250 m radius. But the computation time decreases from 5.5 to 0.3 seconds!&lt;/p&gt;
+&lt;p&gt;Therefore, it’s important to investigate if the relationship between distance and visible area. The function below calculates the proportion of visible area for each distance value of the viewshed raster.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;visibleDistance &amp;lt;- function(x) {
+  # Get XY coordinates of cells
+  xy &amp;lt;- terra::xyFromCell(x, which(!is.na(x[])))
+  
+  # Calculate euclidean distance from observer to cells
+  centroid &amp;lt;- colMeans(terra::xyFromCell(x, which(!is.na(x[]))))
+  dxy = round(sqrt((centroid[1] - xy[,1])^2 + (centroid[2] - xy[,2])^2))
+  dxy[dxy==0] = min(dxy[dxy!=0])
+  
+  # Combine distance and value
+  cbind(dxy, unlist(terra::extract(x, xy), use.names = FALSE)) %&amp;gt;%
+    as_tibble() %&amp;gt;% 
+    rename(visible = V2) %&amp;gt;% 
+    arrange(dxy) %&amp;gt;% 
+    group_by(dxy) %&amp;gt;% 
+    # Mean visible area for each distinct distance value
+    summarise(visible = mean(visible)) %&amp;gt;% 
+    ungroup() %&amp;gt;% 
+    return()
+}&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Let’s apply it on the second viewshed:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr class=&#34;header&#34;&gt;
+&lt;th align=&#34;left&#34;&gt;Distance&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;Visibility&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;1&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;100.0%&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;2&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;100.0%&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;3&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;100.0%&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;4&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;100.0%&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;5&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;100.0%&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;796&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.2%&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;797&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.1%&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;798&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.1%&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;799&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.1%&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;800&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.2%&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;To find the specific distance threshold of my area of interest, I’ll use the sample of 4000 points and compute the viewshed and proportion of visible area for each distance value.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;for(i in 1:nrow(sf_sample)) {
+  # Viewshed
+  this_dist &amp;lt;- viewshed(observer = sf_sample[i, ], max_distance = 1000,
+                        dsm_rast = dsm, dtm_rast = dtm) %&amp;gt;%
+    # Costum function 
+    visibleDistance()
+  
+  # Add to &amp;quot;out&amp;quot;
+  if (i == 1) {
+    out &amp;lt;- this_dist
+  } else {
+    out &amp;lt;- rbind(out, this_dist)
+  }
+}&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The plot below indicates, that visibility decreases with increasing distance. Interestingly, there are two distance levels where visibility increases locally, at 250 m and 500 m. This might be due to city planning effects. Most points are located at streets, maybe parks are planned to be evenly distributed in the Vancouver Metropolitan area for close, equal access.&lt;/p&gt;
+&lt;p&gt;Based on this analysis I set the distance parameter to 550 meters.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/post/visibility-sensitivity-analysis/index.en_files/figure-html/unnamed-chunk-10-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;resolution&#34; class=&#34;section level3&#34;&gt;
+&lt;h3&gt;Resolution&lt;/h3&gt;
+&lt;p&gt;The resolution parameter describes the resolution that the rasters should be aggregated to. Using the distance value of 550 meters, the viewshed with a 1 m resolution has 1.210.000 cells and takes 1 second. A viewshed with 5 meter resolution has 48.400 cells and takes only 0.5 seconds to compute. However, higher resolution yields in more accurate results. Below I have provided an example for comparison.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/post/visibility-sensitivity-analysis/index.en_files/figure-html/unnamed-chunk-11-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;The function below calculates the similarity of visibility for each resolution compared to the 1 meter resolution.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;compare_resolution &amp;lt;- function(observer, dsm_path, dtm_path) {
+  viewshed_tbl &amp;lt;- lapply(c(1, 2, 5, 10), FUN = function(x) {
+    # Get values of viewshed with resolution x
+    time_a &amp;lt;- Sys.time()
+    all_value &amp;lt;- viewshed(observer = observer, dsm_rast = rast(dsm_path), dtm_rast = rast(dtm_path),
+                          max_distance = 550, observer_height = 1.7, resolution = x) %&amp;gt;%
+      values() %&amp;gt;%
+      na.omit()
+    time_b &amp;lt;- Sys.time()
+    
+    # Return Distance, proportion of visible area and computation time
+    return(tibble(
+      Resolution = x,
+      Similarity = length(which(all_value == 1)) / length(all_value),
+      Time = as.numeric(difftime(time_b, time_a, units = &amp;quot;secs&amp;quot;))
+    ))
+  }) %&amp;gt;% 
+    do.call(rbind, .)
+  
+  viewshed_tbl %&amp;gt;% 
+    rowwise() %&amp;gt;% 
+    mutate(Similarity = min(viewshed_tbl[1,2], Similarity) / max(viewshed_tbl[1,2], Similarity)) %&amp;gt;% 
+    return()
+}&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The boxplots below confirm the assumption, that similarity decreases with increasing resolution. Mean computation time for 1 m, 2 m, 5 m and 10 m resolution was 4.80 seconds, 1.05 seconds, 0.85 seconds and 0.75 seconds, respectively. A resolution of 2 meters seems to be a optimal compromise, as it has a ~75% similarity, but the computation time decreases to about &lt;span class=&#34;math inline&#34;&gt;\(\frac{1}{5}\)&lt;/span&gt;, too.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/post/visibility-sensitivity-analysis/index.en_files/figure-html/unnamed-chunk-15-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id=&#34;conclusion&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Conclusion&lt;/h2&gt;
+&lt;p&gt;In this post I have conducted a sensitivity analysis on the parameters distance and resolution for the viewshed function in the Vancouver Metropolitan Area. The thresholds for the distance and resolution is 550 meters and 2 meters, respectively.&lt;br /&gt;
+The complete study area contains 108.320.000 points, computation time on a high performance server is ~20 days. Therefore, it is important to critically think about these parameters beforehand.&lt;/p&gt;
+&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>A multimethod approach for county-scale geospatial analysis of emerging infectious diseases. A cross-sectional case study of COVID-19 incidence in Germany</title>
+      <link>/publication/scarpone2020/</link>
+      <pubDate>Thu, 13 Aug 2020 00:00:00 +0000</pubDate>
+      <guid>/publication/scarpone2020/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>

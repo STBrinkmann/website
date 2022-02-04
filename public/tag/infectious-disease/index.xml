@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Infectious disease | GeoBrinkmann</title>
+    <link>/tag/infectious-disease/</link>
+      <atom:link href="/tag/infectious-disease/index.xml" rel="self" type="application/rss+xml" />
+    <description>Infectious disease</description>
+    <generator>Wowchemy (https://wowchemy.com)</generator><language>en-us</language><lastBuildDate>Thu, 13 Aug 2020 00:00:00 +0000</lastBuildDate>
+    <image>
+      <url>/images/icon_hub8298344815fb61130442b7c2888b4e0_27889_512x512_fill_lanczos_center_2.png</url>
+      <title>Infectious disease</title>
+      <link>/tag/infectious-disease/</link>
+    </image>
+    
+    <item>
+      <title>A multimethod approach for county-scale geospatial analysis of emerging infectious diseases. A cross-sectional case study of COVID-19 incidence in Germany</title>
+      <link>/publication/scarpone2020/</link>
+      <pubDate>Thu, 13 Aug 2020 00:00:00 +0000</pubDate>
+      <guid>/publication/scarpone2020/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>

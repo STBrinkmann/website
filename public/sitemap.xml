@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  
+  <url>
+    <loc>/authors/</loc>
+    <lastmod>2021-07-05T11:14:11+02:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/</loc>
+    <lastmod>2021-07-05T11:14:11+02:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/tag/greenspace/</loc>
+    <lastmod>2021-07-05T11:14:11+02:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/publication/gvi-greenness-visibility-index-r-package/</loc>
+    <lastmod>2021-07-05T11:14:11+02:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/tag/health-geography/</loc>
+    <lastmod>2021-07-05T11:14:11+02:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/publication/</loc>
+    <lastmod>2021-07-05T11:14:11+02:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/tag/r/</loc>
+    <lastmod>2021-07-05T11:14:11+02:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/author/s.m.-labib/</loc>
+    <lastmod>2021-07-05T11:14:11+02:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/author/sebastian-brinkmann/</loc>
+    <lastmod>2021-07-05T11:14:11+02:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/tags/</loc>
+    <lastmod>2021-07-05T11:14:11+02:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/</loc>
+    <lastmod>2021-07-02T15:16:27+02:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/visible-greenness-exposure-index-an-example-workflow-for-the-city-of-vancouver/</loc>
+    <lastmod>2021-07-02T15:16:27+02:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/tag/exploratory-spatial-data-analysis-esda/</loc>
+    <lastmod>2021-06-22T18:06:03+02:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/visibility-sensitivity-analysis/</loc>
+    <lastmod>2021-06-22T18:06:03+02:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/bart-a-bayesian-machine-learning-workflow-for-complex-spatial-data/</loc>
+    <lastmod>2021-04-20T15:54:53+02:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/tag/bayesian/</loc>
+    <lastmod>2021-04-20T15:54:53+02:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/tag/covid-19/</loc>
+    <lastmod>2021-04-20T15:54:53+02:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/tag/machine-learning/</loc>
+    <lastmod>2021-04-20T15:54:53+02:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/tag/gis/</loc>
+    <lastmod>2021-03-15T18:43:26+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/tag/lidar/</loc>
+    <lastmod>2021-03-15T18:43:26+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/visible-greenness-exposure/</loc>
+    <lastmod>2021-03-15T18:43:26+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/covid-19-15km-radius-webapp/</loc>
+    <lastmod>2021-01-15T18:43:26+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/tag/shiny/</loc>
+    <lastmod>2021-01-15T18:43:26+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/publication-type/2/</loc>
+    <lastmod>2020-08-13T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/publication/scarpone2020/</loc>
+    <lastmod>2020-08-13T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/author/blake-byron-walker/</loc>
+    <lastmod>2020-08-13T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/tag/built-environment/</loc>
+    <lastmod>2020-08-13T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/author/christopher-scarpone/</loc>
+    <lastmod>2020-08-13T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/author/daniel-sonnenwald/</loc>
+    <lastmod>2020-08-13T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/tag/infectious-disease/</loc>
+    <lastmod>2020-08-13T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/author/martin-fuchs/</loc>
+    <lastmod>2020-08-13T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/publication_types/</loc>
+    <lastmod>2020-08-13T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/tag/sars-cov-2/</loc>
+    <lastmod>2020-08-13T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/tag/socioeconomic-status/</loc>
+    <lastmod>2020-08-13T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/author/tim-gro%C3%9Fe/</loc>
+    <lastmod>2020-08-13T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/tag/stm/</loc>
+    <lastmod>2020-05-07T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/tag/text-mining/</loc>
+    <lastmod>2020-05-07T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/text-mining-belval/</loc>
+    <lastmod>2020-05-07T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/tag/tidyverse/</loc>
+    <lastmod>2020-05-07T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/categories/</loc>
+  </url>
+  
+  <url>
+    <loc>/courses/</loc>
+  </url>
+  
+</urlset>

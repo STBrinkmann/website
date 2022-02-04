@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Shiny | GeoBrinkmann</title>
+    <link>/tag/shiny/</link>
+      <atom:link href="/tag/shiny/index.xml" rel="self" type="application/rss+xml" />
+    <description>Shiny</description>
+    <generator>Wowchemy (https://wowchemy.com)</generator><language>en-us</language><lastBuildDate>Fri, 15 Jan 2021 00:00:00 +0000</lastBuildDate>
+    <image>
+      <url>/images/icon_hub8298344815fb61130442b7c2888b4e0_27889_512x512_fill_lanczos_center_2.png</url>
+      <title>Shiny</title>
+      <link>/tag/shiny/</link>
+    </image>
+    
+    <item>
+      <title>COVID-19: 15km Radius WebApp</title>
+      <link>/post/covid-19-15km-radius-webapp/</link>
+      <pubDate>Fri, 15 Jan 2021 00:00:00 +0000</pubDate>
+      <guid>/post/covid-19-15km-radius-webapp/</guid>
+      <description>&lt;p&gt;Klicke &lt;a href=&#34;https://datageobrinkmann.be/bewegungsradius/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;hier&lt;/a&gt; für die mobilfreundliche Version 📱&lt;br /&gt;&lt;/p&gt;
+&lt;iframe frameborder=&#34;0&#34; scrolling=&#34;no&#34; seamless=&#34;seamless&#34; style=&#34;display:block; width:95%; height:85vh;&#34; src=&#34;https://datageobrinkmann.be/bewegungsradius/&#34;&gt;&lt;/iframe&gt;
+&lt;br /&gt;
+&lt;h1 id=&#34;covid-19-bewegungsradius&#34;&gt;COVID-19 Bewegungsradius&lt;/h1&gt;
+&lt;h3 id=&#34;stand-1512020&#34;&gt;Stand: 15.1.2020&lt;/h3&gt;
+&lt;p&gt;Die 15-Kilomenter Regel, nachdem sich Bewohner mit einer 7-Tage Inzidenz
+von über 200 nur noch 15 km um ihren Wohnort bewegen dürfen, sorgt für
+Verwirrung. Diese App soll dabei helfen, den individuellen
+Bewegungsradius zu ermitteln.&lt;br&gt;
+Zunächst wird die aktuelle 7-Tage-Inzidenz für jeden Landkreis
+gedownloaded und in zwei Kategorien eingeteilt: &amp;lt; 200 und &amp;gt;= 200.
+Anschließend wird die Adresse georeferenziert und ein 15 km Buffer wird
+um die Gemeinde, bzw. den Landkreis der Adresse, oder auch die Adresse
+selbst gelegt.&lt;br&gt;
+Der genaue Wert der 7-Tage-Inzidenz, sowie die Verfügbarkeiten von
+Intensivstationbetten (ITS) kann durch Anklicken eines Landkreisen
+ausgelesen werden.&lt;/p&gt;
+&lt;h2 id=&#34;die-corona-regeln-in-den-bundesländern&#34;&gt;Die Corona-Regeln in den Bundesländern&lt;/h2&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th style=&#34;text-align:left&#34;&gt;Bundesland&lt;/th&gt;
+&lt;th style=&#34;text-align:left&#34;&gt;15-km Regel&lt;/th&gt;
+&lt;th style=&#34;text-align:left&#34;&gt;Mehr Infos&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Baden-Württemberg&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Wird aktuell nicht umgesetzt&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;&lt;a href=&#34;https://www.baden-wuerttemberg.de/de/service/aktuelle-infos-zu-corona/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;url&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Bayern&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Ab der Gemeindegrenze&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;&lt;a href=&#34;https://www.corona-katastrophenschutz.bayern.de/faq/index.php&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;url&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Berlin&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Ab der Stadtgrenze&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;&lt;a href=&#34;https://www.rbb24.de/politik/thema/2020/coronavirus/beitraege_neu/2020/04/berlin-corona-massnahmen-lockerung-ausgang-kontakt-erlaubt.html&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;url&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Brandenburg&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Für touristische Ausflüge, Sport und Bewegung im Freien, um den jeweiligen Landkreis bzw. die kreisfreie Stadt&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;&lt;a href=&#34;https://kkm.brandenburg.de/kkm/de/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;url&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Bremen&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Wird aktuell nicht umgesetzt&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;&lt;a href=&#34;https://www.bremen.de/corona&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;url&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Hamburg&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Wird aktuell nicht umgesetzt&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;&lt;a href=&#34;https://www.hamburg.de/coronavirus/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;url&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Hessen&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Ab der Gemeindegrenze; betroffene Landkreise: Gießen, Limburg-Weilburg, Fulda, Vogelsbergkreis&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;&lt;a href=&#34;https://www.faz.net/aktuell/rhein-main/corona-weitere-kreise-in-hessen-fuehren-15-kilometer-regel-ein-17143539.html&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;url&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Mecklenburg-Vorpommern&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Ab der Wohnadresse&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;&lt;a href=&#34;https://www.regierung-mv.de/corona/Corona-Regeln-seit-10.01.2021/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;url&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Niedersachsen&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Ab der Wohnadresse, durch Kommunen geregelt&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;&lt;a href=&#34;https://www.niedersachsen.de/Coronavirus&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;url&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Nordrhein-Westfalen&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Ab der Gemeindegrenze; betroffene Landkreise: Höxter, Minden-Lübbecke, Oberbergischer Kreis, Recklinghausen&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;&lt;a href=&#34;https://www.land.nrw/corona&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;url&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Rheinland-Pfalz&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Ab der Gemeindegrenze, durch Kommunen geregelt&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;&lt;a href=&#34;https://corona.rlp.de/index.php?id=34836&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;url&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Saarland&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Für touristische Ausflüge, um die Wohnadresse&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;&lt;a href=&#34;https://www.saarland.de/DE/portale/corona/home/home_node.html&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;url&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Sachsen&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Ab der Wohnadresse&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;&lt;a href=&#34;https://www.coronavirus.sachsen.de/index.html&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;url&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Sachsen-Anhalt&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Ab der Gemeindegrenze&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;&lt;a href=&#34;https://coronavirus.sachsen-anhalt.de/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;url&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Schleswig-Holstein&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Ab der Gemeindegrenze, durch Kommunen geregelt&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;&lt;a href=&#34;https://www.schleswig-holstein.de/DE/Schwerpunkte/Coronavirus/FAQ/Dossier/Allgemeines_Verwaltung.html&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;url&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Thüringen&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Ab der Gemeindegrenze, nicht verpflichtend&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;&lt;a href=&#34;https://corona.thueringen.de/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;url&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h2 id=&#34;credits&#34;&gt;Credits&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Geocoding &lt;a href=&#34;https://datascienceplus.com/osm-nominatim-with-r-getting-locations-geo-coordinates-by-its-address/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;D.
+Kisler&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;GPS locater via Dr. Tom August’s &lt;a href=&#34;https://github.com/AugustT/shiny_geolocation&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;shiny geolocation Javascript
+script&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;API Aufrufe zu den aktuellen &lt;a href=&#34;https://services7.arcgis.com/mOBPykOjAyBO2ZKk/ArcGIS/rest/services/Covid19_RKI_Sums/FeatureServer/0/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;COVID-19
+Fallzahlen&lt;/a&gt;
+und &lt;a href=&#34;https://www.divi.de/register/tagesreport&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;ITS-Betten&lt;/a&gt; via
+&lt;a href=&#34;https://github.com/entorb/COVID-19-Coronavirus-German-Regions&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;entorb’s GitHub
+Seite&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;disclaimer&#34;&gt;Disclaimer&lt;/h2&gt;
+&lt;p&gt;Dieses Tool dient nur zu Unterhaltungszwecken und stellt keine
+medizinische, rechtliche oder sonstige Form der Beratung dar. Benutzer
+sollten sich auf die offiziellen Richtlinien und Empfehlungen ihrer
+nationalen, staatlichen und lokalen Behörden beziehen. Es werden
+keinerlei personenbezogener Daten gespeichert.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

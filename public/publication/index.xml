@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Publications &amp; Packages | GeoBrinkmann</title>
+    <link>/publication/</link>
+      <atom:link href="/publication/index.xml" rel="self" type="application/rss+xml" />
+    <description>Publications &amp; Packages</description>
+    <generator>Wowchemy (https://wowchemy.com)</generator><language>en-us</language><lastBuildDate>Mon, 05 Jul 2021 00:00:00 +0000</lastBuildDate>
+    <image>
+      <url>/images/icon_hub8298344815fb61130442b7c2888b4e0_27889_512x512_fill_lanczos_center_2.png</url>
+      <title>Publications &amp; Packages</title>
+      <link>/publication/</link>
+    </image>
+    
+    <item>
+      <title>GVI: Greenness Visibility Index R package</title>
+      <link>/publication/gvi-greenness-visibility-index-r-package/</link>
+      <pubDate>Mon, 05 Jul 2021 00:00:00 +0000</pubDate>
+      <guid>/publication/gvi-greenness-visibility-index-r-package/</guid>
+      <description>&lt;p&gt;The GVI R package helps researchers compute the Greenness Visibility Index (GVI) presented by &lt;a href=&#34;https://doi.org/10.1016/j.scitotenv.2020.143050&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Labib, Huck and Lindley (2021)&lt;/a&gt;. The GVI is calculated using a Digital Surface Model (DSM), Digital Terrain Model (DTM) and Greenness Raster. GVI is written in C++ to provide fast and light weighted functionality.&lt;/p&gt;
+&lt;p&gt;Go on &lt;a href=&#34;https://github.com/STBrinkmann/GVI&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;GitHub&lt;/a&gt; for more information.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>A multimethod approach for county-scale geospatial analysis of emerging infectious diseases. A cross-sectional case study of COVID-19 incidence in Germany</title>
+      <link>/publication/scarpone2020/</link>
+      <pubDate>Thu, 13 Aug 2020 00:00:00 +0000</pubDate>
+      <guid>/publication/scarpone2020/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>

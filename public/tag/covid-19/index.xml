@@ -1,0 +1,7105 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>COVID-19 | GeoBrinkmann</title>
+    <link>/tag/covid-19/</link>
+      <atom:link href="/tag/covid-19/index.xml" rel="self" type="application/rss+xml" />
+    <description>COVID-19</description>
+    <generator>Wowchemy (https://wowchemy.com)</generator><language>en-us</language><lastBuildDate>Tue, 20 Apr 2021 00:00:00 +0000</lastBuildDate>
+    <image>
+      <url>/images/icon_hub8298344815fb61130442b7c2888b4e0_27889_512x512_fill_lanczos_center_2.png</url>
+      <title>COVID-19</title>
+      <link>/tag/covid-19/</link>
+    </image>
+    
+    <item>
+      <title>BART - A Bayesian machine learning workflow for complex spatial data</title>
+      <link>/post/bart-a-bayesian-machine-learning-workflow-for-complex-spatial-data/</link>
+      <pubDate>Tue, 20 Apr 2021 00:00:00 +0000</pubDate>
+      <guid>/post/bart-a-bayesian-machine-learning-workflow-for-complex-spatial-data/</guid>
+      <description>
+&lt;script src=&#34;/post/bart-a-bayesian-machine-learning-workflow-for-complex-spatial-data/index.en_files/header-attrs/header-attrs.js&#34;&gt;&lt;/script&gt;
+&lt;script src=&#34;/post/bart-a-bayesian-machine-learning-workflow-for-complex-spatial-data/index.en_files/kePrint/kePrint.js&#34;&gt;&lt;/script&gt;
+&lt;link href=&#34;/post/bart-a-bayesian-machine-learning-workflow-for-complex-spatial-data/index.en_files/lightable/lightable.css&#34; rel=&#34;stylesheet&#34; /&gt;
+
+
+&lt;style&gt;
+body {
+text-align: justify}
+&lt;/style&gt;
+&lt;p&gt;In our &lt;a href=&#34;https://geobrinkmann.com/publication/scarpone2020/&#34;&gt;recent publication from 2020&lt;/a&gt; we analyzed COVID-19 incidence and socioeconomic, infrastructural, and built environment characteristics using a multimethod approach. There are 401 counties in Germany; as shown in the figure below, these vary in size, such that the counties in Southern Germany are generally smaller with higher population densities. Natural log-transformed age-adjusted incidence rates of COVID-19 as of April 1st are shown, indicating spatial variation between the northeast and south-southwest of the study area. &lt;img src=&#34;Incidence_rates_map.svg&#34; style=&#34;width:60.0%&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;After conducting a throughout spatial exploratory analysis, we used a Bayesian Additive Regression Trees (BART; &lt;span class=&#34;citation&#34;&gt;&lt;a href=&#34;#ref-Chipman2010&#34; role=&#34;doc-biblioref&#34;&gt;Chipman, George, and McCulloch&lt;/a&gt; (&lt;a href=&#34;#ref-Chipman2010&#34; role=&#34;doc-biblioref&#34;&gt;2010&lt;/a&gt;)&lt;/span&gt;) model, to identify important socioeconomic and built environment covariates with COVID-19 incidence rate. BART is a ensemble-of-trees method, such as random forests &lt;span class=&#34;citation&#34;&gt;(&lt;a href=&#34;#ref-breiman2001&#34; role=&#34;doc-biblioref&#34;&gt;Breiman 2001&lt;/a&gt;)&lt;/span&gt; and stochastic gradient boosting &lt;span class=&#34;citation&#34;&gt;(&lt;a href=&#34;#ref-friedman2002&#34; role=&#34;doc-biblioref&#34;&gt;Friedman 2002&lt;/a&gt;)&lt;/span&gt;.&lt;br /&gt;
+Tree-based regression models have an advantage, as they can flexibly fit interactions and non-linearities. A sum-of-trees model - such as BART or random forest - has an even greater ability than a single-tree model. However, BART differs from these two examples, as it uses a underlying Bayesian probability model rather than a pure algorithm &lt;span class=&#34;citation&#34;&gt;(&lt;a href=&#34;#ref-kapelner2016&#34; role=&#34;doc-biblioref&#34;&gt;Kapelner and Bleich 2016&lt;/a&gt;)&lt;/span&gt;. One of the advantages of using a Bayesian approach is, that it computes Bayesian posterior distributions to approximate the nonparametric model parameters. The priors aim to prevent a single regression from dominating, thus reducing the risk of overfitting &lt;span class=&#34;citation&#34;&gt;(&lt;a href=&#34;#ref-kapelner2016&#34; role=&#34;doc-biblioref&#34;&gt;Kapelner and Bleich 2016&lt;/a&gt;; &lt;a href=&#34;#ref-scarpone2020&#34; role=&#34;doc-biblioref&#34;&gt;Scarpone et al. 2020&lt;/a&gt;)&lt;/span&gt;.&lt;/p&gt;
+&lt;p&gt;For our analysis we have used the R package &lt;code&gt;bartMachine&lt;/code&gt; &lt;span class=&#34;citation&#34;&gt;(&lt;a href=&#34;#ref-kapelner2016&#34; role=&#34;doc-biblioref&#34;&gt;Kapelner and Bleich 2016&lt;/a&gt;)&lt;/span&gt;. Unfortunately &lt;code&gt;bartMachine&lt;/code&gt; does not support tibble objects as input features, but apart from that it’s intuitive and simple to use.&lt;br /&gt;
+In this post I will use the data we have used in our COVID-19 paper, to analyze age-adjusted incidence rates of COVID-19 for German counties. Even though the BART model has great predictive power, we will not use it to predict new cases of COVID-19, but rather use it as a exploratory tool to understand, what factors contribute to the spreading of COVID-19 and how they interact with the incidence rate.&lt;/p&gt;
+&lt;p&gt;I want to make it clear, that I will use data of one specific date. We have chosen the 1st April 2020, to analyze only the first wave of COVID-19 in Germany. A friend of mine currently analyses what effects contributed to the second and third waves. Even though there are many factors, that kept being important, many features gained or lost importance and some even showed a inverted effect.&lt;/p&gt;
+&lt;p&gt;Therefore, BART is used as an exploratory tool and with the help of Partial Dependence Plots we will gain insight of the marginal effects of the important predictors of COVID-19.&lt;/p&gt;
+&lt;p&gt;I will not focus on pre-modelling exploratory data analysis, nor explain the data engineering here. But feel free to read the &lt;a href=&#34;https://geobrinkmann.com/publication/scarpone2020/&#34;&gt;paper&lt;/a&gt; or &lt;a href=&#34;https://geobrinkmann.com/#contact&#34;&gt;contact me&lt;/a&gt;.&lt;/p&gt;
+&lt;div id=&#34;data-download-and-pre-processing&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Data download and pre-processing&lt;/h2&gt;
+&lt;p&gt;First, we need to load the packages and set the memory size and number of cores that &lt;code&gt;bartMachine&lt;/code&gt; should be using.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Set to use 45 GB memory - adjust this to your resources
+options(java.parameters = &amp;quot;-Xmx45g&amp;quot;)
+
+# Load packages
+library(bartMachine)
+library(dplyr)
+
+# Set to run on 20 threads - adjust this to your resources
+set_bart_machine_num_cores(20)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## bartMachine now using 20 cores.&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;I would suggest, that you double check if the correct amount of RAM has been made available, when loading &lt;code&gt;bartMachine&lt;/code&gt;. If the message states a completely different amount of memory, try to manually write the java.parameters string, instead of copy&amp;amp;pasting.&lt;/p&gt;
+&lt;p&gt;Next, we need to download the data and normalize the church density (&lt;em&gt;Rch_den&lt;/em&gt;) variable.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Function for linear stretching. New range: 0-1
+range0_1 &amp;lt;- function(x){(x-min(x))/(max(x)-min(x))}
+
+# Download data
+data &amp;lt;- read.csv(&amp;quot;https://github.com/CHEST-Lab/BART_Covid-19/raw/master/Data/GermanyTraining.csv&amp;quot;,
+                 stringsAsFactors = F) %&amp;gt;%
+  mutate(Rch_den = range0_1(Rch_den),
+         NUTS2_Fact = as.factor(NUTS2_Fact), 
+         BL_ID = as.factor(BL),
+         S_109 = as.factor(S_109))
+
+# Select variables: Lat/ Long, BL, NUTS2, socioeconomic, build environment and age adjusted case rate
+data &amp;lt;- data[c(374, 3, 4, 5, 38, 28, 65:372)]&lt;/code&gt;&lt;/pre&gt;
+&lt;table style=&#34;width:90%; font-family: &amp;quot;Arial Narrow&amp;quot;, &amp;quot;Source Sans Pro&amp;quot;, sans-serif; width: auto !important; margin-left: auto; margin-right: auto;&#34; class=&#34; lightable-classic lightable-striped&#34;&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+AdjRate
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+X
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+Y
+&lt;/th&gt;
+&lt;th style=&#34;text-align:left;font-weight: bold;&#34;&gt;
+NUTS2_Fact
+&lt;/th&gt;
+&lt;th style=&#34;text-align:left;font-weight: bold;&#34;&gt;
+BL_ID
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+EWZ
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_001
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_002
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_003
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_004
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_005
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_006
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_007
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_008
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_009
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_010
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_011
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_012
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_013
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_014
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_015
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_016
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_017
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_018
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_019
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_020
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_021
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_022
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_023
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_024
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_025
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_026
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_027
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_028
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_029
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_030
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_031
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_032
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_033
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_034
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_035
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_036
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_037
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_038
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_039
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_040
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_041
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_042
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_043
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_044
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_045
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_046
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_047
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_048
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_049
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_050
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_051
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_052
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_053
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_054
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_055
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_056
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_057
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_058
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_059
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_060
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_061
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_062
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_063
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_064
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_065
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_066
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_067
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_068
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_069
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_070
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_071
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_072
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_073
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_074
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_075
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_076
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_077
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_078
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_079
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_080
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_081
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_082
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_083
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_084
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_085
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_086
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_087
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_088
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_089
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_090
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_091
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_092
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_093
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_094
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_095
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_096
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_097
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_098
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_099
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_100
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_101
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_102
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_103
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_104
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_105
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_106
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_107
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_108
+&lt;/th&gt;
+&lt;th style=&#34;text-align:left;font-weight: bold;&#34;&gt;
+S_109
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_110
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_111
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_112
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_113
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_114
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_115
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_116
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_117
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_118
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_119
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_120
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_121
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_122
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_123
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_124
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_125
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_126
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_127
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_128
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_129
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_130
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_131
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_132
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_133
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_134
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_135
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_136
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_137
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_138
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_139
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_140
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_141
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_142
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_143
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_144
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_145
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_146
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_147
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_148
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_149
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_150
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_151
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_152
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_153
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_154
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_155
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_156
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_157
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_158
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_159
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_160
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_161
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_162
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_163
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_164
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_165
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_166
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_167
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_168
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_169
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_170
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_171
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_172
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_173
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_174
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_175
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_176
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+M_km2
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+T_km2
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+P_km2
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_km2
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+T_km2_1
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+All_R_2
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+M_pop
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+T_pop
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+P_pop
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+S_pop
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+T_pop_1
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+All_R_p
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+tot_R
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+lib_km2
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+uni_km2
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+sch_km2
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+cll_km2
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+kid_km2
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+ply_km2
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+the_km2
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+ngh_km2
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+cin_km2
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+pub_km2
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+bar_km2
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+std_km2
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+sc_km2
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+hsp_km2
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+doc_km2
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+mll_km2
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+dc_km2
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+con_km2
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+sup_km2
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+pst_km2
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+th_km2
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+cc_km2
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+nh_km2
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+ac_km2
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+phr_km2
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+rst_km2
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+ff_km2
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+caf_km2
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+fc_km2
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+bir_km2
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+bak_km2
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+chm_km2
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+dot_km2
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+har_km2
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+prk_km2
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+Rch_km2
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+Rmu_km2
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+Rth_km2
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+All_P_2
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+lib_pop
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+uni_pop
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+sch_pop
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+coll_pp
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+kid_pop
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+play_pp
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+thea_pp
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+nigh_pp
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+cin_pop
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+pub_pop
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+bar_pop
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+stad_pp
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+sc_pop
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+hosp_pp
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+doc_pop
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+mall_pp
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+dc_pop
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+con_pop
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+sup_pop
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+post_pp
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+th_pop
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+cc_pop
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+nh_pop
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+ac_pop
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+phar_pp
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+rest_pp
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+ff_pop
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+cafe_pp
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+fc_pop
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+bier_pp
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+bake_pp
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+chem_pp
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+doit_pp
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+hair_pp
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+park_pp
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+Rch_pop
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+Rmu_pop
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+Roth_pp
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+All_P_p
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+tot_P
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+lib_den
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+uni_den
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+sch_den
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+coll_dn
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+kid_den
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+play_dn
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+thea_dn
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+nigh_dn
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+cin_den
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+pub_den
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+bar_den
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+stad_dn
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+sc_den
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+hosp_dn
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+doc_den
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+mall_dn
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+dc_den
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+con_den
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+sup_den
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+post_dn
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+th_den
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+cc_den
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+nh_den
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+ac_den
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+phar_dn
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+rest_dn
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+ff_den
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+cafe_dn
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+fc_den
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+bier_dn
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+bake_dn
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+chem_dn
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+doit_dn
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+hair_dn
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+park_dn
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+Rch_den
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+Rmu_den
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+Roth_dn
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+All_P_d
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+Pop_Den
+&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+27.37
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+9.44
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+54.78
+&lt;/td&gt;
+&lt;td style=&#34;text-align:left;&#34;&gt;
+108
+&lt;/td&gt;
+&lt;td style=&#34;text-align:left;&#34;&gt;
+Schleswig-Holstein
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+89504
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+8.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+76.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+19.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+7.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+12.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+43.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+14.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+60.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+8.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+31.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+94.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+24.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+-10.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+72.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+27.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+44.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+51.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+18.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+48.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+22.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+39.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+17.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+32.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+85.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+74.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+5.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+9.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+11.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+9.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+23.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+19.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+9.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+20.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+10.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+8.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+42.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+6.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+6.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+3.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+19.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+30.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+14.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+10.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+11.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.75
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+78.80
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+70.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+48.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+34.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+92.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+109.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+44.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+13.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+91.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+9.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+29.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+6.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+8.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+15.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+14.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.91
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1527
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2333
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1278.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2986
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+16.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+17.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+24258
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+11.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+3375
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2992
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+3373
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2965.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+3.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+52.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+24.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+6.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+40.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+14.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+4568.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+444.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+50.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+15.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+27.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+-2.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+9.47
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+369.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+29.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+30.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+100.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+55.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+123.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+35.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+15.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+92.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+45.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+69.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+7.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+371.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1282.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+767.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:left;&#34;&gt;
+2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+156
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2309
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+13725
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+16.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+23.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+19.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+26.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+7.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+19.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+7.41
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+25.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+134.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+6.24
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.80
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+5.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+98
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+500
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+92
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+543
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+90
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+602
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+89
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+180
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+100
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+478
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+52.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+34.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+27.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+14.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+7.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+3.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+3.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+19.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+3.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+40.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+131.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+30.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+6.23
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+42.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+62.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+18.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+25.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+5.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+67.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+8.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+35.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+92.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+100.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+42826.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+4.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+51.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+24.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+97.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+34.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+48.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+16.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.62
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.44
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.44
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.95
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.45
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+33.81
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+24.40
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+24.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+52.45
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+134.66
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+120.52
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.08
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.08
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.06
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.30
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.67
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.10
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.12
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.04
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.91
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.08
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.08
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.91
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.04
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.30
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.41
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.20
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.12
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.06
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.37
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.71
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.24
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.85
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.02
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.22
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.04
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.26
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.02
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.04
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.04
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.06
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+12.46
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+4.47
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+4.47
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+3.35
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+16.76
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+91.62
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+5.59
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+6.70
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.23
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+50.28
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+4.47
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+4.47
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+50.28
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.23
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+16.76
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+22.35
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+11.17
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+6.70
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+3.35
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+20.11
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+93.85
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+68.15
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+46.93
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+55.86
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+12.29
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.23
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+69.27
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.12
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.23
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.23
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+3.35
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+684.89
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+613
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.16
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.27
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.26
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.03
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.03
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.02
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.40
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.29
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.18
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.23
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.32
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.03
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.33
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+4566
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+49.54
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+10.13
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+54.32
+&lt;/td&gt;
+&lt;td style=&#34;text-align:left;&#34;&gt;
+108
+&lt;/td&gt;
+&lt;td style=&#34;text-align:left;&#34;&gt;
+Schleswig-Holstein
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+247548
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+9.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+72.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+22.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+6.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+8.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+33.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+14.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+63.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+8.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+37.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+310.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+3.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+136.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+67.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+32.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+38.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+51.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+19.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+48.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+21.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+39.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+17.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+32.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+79.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+67.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+5.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+9.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+11.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+10.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+26.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+19.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+8.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+18.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+9.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+7.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+41.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+3.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+4.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+17.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+26.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+10.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+10.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.64
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+80.05
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+5.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+73.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+31.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+41.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+90.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+140.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+31.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+13.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+127.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+9.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+30.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+5.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+7.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+13.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+20.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+4.56
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1564
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+27
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1293.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+3304
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+12.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+14.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+35
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+18.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+4015
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+3296
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+3693
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+3844.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+6.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+54.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+28.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+5.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+27.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+5.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+886.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+383.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+51.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+17.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+31.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+7.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+9.84
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+295.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+30.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+26.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+74.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+67.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+88.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+34.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+30.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+91.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+67.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+39.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+7.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+399.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2269.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+74.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+755.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+53.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:left;&#34;&gt;
+1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+209
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+3112
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+22801
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+16.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+17.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+17.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+26.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+9.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+12.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+5.25
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+30.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+146.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+7.31
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.91
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+6.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+64
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+460
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+92
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+415
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+94
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+590
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+89
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+193
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+100
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+436
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+49.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+30.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+27.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+13.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+4.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+3.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+17.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+21.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+120.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+30.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+6.96
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+45.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+66.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+18.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+30.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+5.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+108.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+7.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+34.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+91.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+45821.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+4.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+51.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+26.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+97.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+38.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+48.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+13.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.20
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.69
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.14
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.68
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.66
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.37
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+9.06
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+31.13
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+6.29
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+30.83
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+30.10
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+107.42
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+265.92
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.11
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.06
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.04
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.33
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.53
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.04
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.11
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.06
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.51
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.33
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.21
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.67
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.05
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.17
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.56
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.25
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.02
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.04
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.02
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.61
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.34
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.35
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.81
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.93
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.17
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.08
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.10
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.16
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.06
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.04
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+10.75
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+4.85
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.83
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.62
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+14.95
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+23.83
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.02
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+4.85
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.83
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+23.03
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+14.95
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+9.70
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+30.30
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.42
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+7.68
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+25.45
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+11.31
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.81
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.62
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.81
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+27.47
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+60.59
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+61.40
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+36.76
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+42.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+7.68
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+3.64
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+49.69
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.40
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+7.27
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.83
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.62
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+487.18
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1206
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.02
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.04
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.05
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.04
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.09
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.05
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.06
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.21
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.29
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.13
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.10
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.20
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.10
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.30
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+6862
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+43.20
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+10.73
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+53.87
+&lt;/td&gt;
+&lt;td style=&#34;text-align:left;&#34;&gt;
+108
+&lt;/td&gt;
+&lt;td style=&#34;text-align:left;&#34;&gt;
+Schleswig-Holstein
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+217198
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+8.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+69.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+26.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+7.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+8.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+35.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+17.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+58.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+8.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+36.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+176.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+18.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+52.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+75.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+24.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+40.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+56.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+18.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+48.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+21.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+46.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+17.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+31.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+81.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+85.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+5.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+10.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+8.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+7.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+25.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+21.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+10.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+23.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+12.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+9.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+3.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+44.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+6.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+3.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+19.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+36.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+9.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+12.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.72
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+79.62
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+70.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+54.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+43.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+104.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+49.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+22.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+16.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+60.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+10.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+25.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+4.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+11.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+12.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+14.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.81
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+163
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2593
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1298.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+3036
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+15.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+17.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+26859
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+23.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+3784
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+3055
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+3324
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2718.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+5.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+37.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+56.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+15.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+152.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+16.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2028.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+442.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+52.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+19.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+27.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+16.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+9.15
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+393.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+20.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+36.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+120.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+44.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+156.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+34.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+22.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+92.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+61.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+35.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+6.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+375.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+3039.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+106.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+724.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+36.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:left;&#34;&gt;
+1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+101
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1454
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+22491
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+16.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+25.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+16.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+31.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+9.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+20.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+6.82
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+26.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+132.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+6.25
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.89
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+5.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+532
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+90
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+707
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+82
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+705
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+88
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+276
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+99
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+444
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+43.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+31.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+17.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+15.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+3.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+3.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+43.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+7.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+19.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+109.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+27.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+5.13
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+38.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+65.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+17.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+26.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+5.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+87.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+11.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+34.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+92.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+100.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+38078.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+4.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+56.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+29.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+95.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+37.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+48.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+14.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.25
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.18
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.23
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.44
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.45
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.54
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+24.51
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+17.43
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+22.51
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+42.43
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+43.38
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+150.27
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+326.38
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.02
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.31
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.75
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.62
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.07
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.03
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.44
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.09
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.16
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.02
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.35
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.02
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.17
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.46
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.51
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.05
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.07
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.04
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.26
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.23
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.88
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.48
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.05
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.50
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.11
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.06
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.79
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.02
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+8.62
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.30
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.92
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+30.39
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.46
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+73.21
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+60.77
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+6.91
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+3.22
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.38
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+42.82
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+9.21
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+15.65
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.84
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+34.53
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.30
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+16.11
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+45.12
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+49.26
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+4.60
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+6.45
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+3.68
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+25.78
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+120.17
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+86.10
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+46.96
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+4.60
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+48.80
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+10.59
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+5.52
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+77.35
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.46
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.92
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.84
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+840.25
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1825
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.02
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.04
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.04
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.06
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.03
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.03
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.04
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.23
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.10
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.08
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.04
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.14
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.13
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+6487
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+31.48
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+9.98
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+54.08
+&lt;/td&gt;
+&lt;td style=&#34;text-align:left;&#34;&gt;
+108
+&lt;/td&gt;
+&lt;td style=&#34;text-align:left;&#34;&gt;
+Schleswig-Holstein
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+79487
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+9.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+75.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+25.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+9.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+11.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+48.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+17.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+63.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+8.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+38.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+100.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+12.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+9.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+81.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+18.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+43.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+56.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+19.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+50.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+21.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+46.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+16.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+27.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+82.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+78.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+5.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+11.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+8.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+6.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+24.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+21.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+10.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+22.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+12.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+9.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+44.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+3.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+5.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+4.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+21.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+35.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+8.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+14.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.71
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+78.65
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+4.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+66.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+62.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+39.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+99.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+16.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+11.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+29.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+6.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+7.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+15.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+6.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.92
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1572
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2464
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1316.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2842
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+17.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+21.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+42238
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+14.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+3433
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2872
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+3012
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2184.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+5.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+50.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+48.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+4.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+40.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+6.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+7671.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+563.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+55.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+23.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+32.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+7.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+8.62
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+448.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+23.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+30.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+126.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+51.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+158.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+29.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+13.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+85.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+40.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+62.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+7.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+337.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1650.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+35.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+775.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+3.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:left;&#34;&gt;
+2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1108
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1645
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+26087
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+15.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+21.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+17.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+22.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+8.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+16.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+8.62
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+25.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+133.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+7.76
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.99
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+6.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+47
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+588
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+85
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+645
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+82
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+682
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+81
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+187
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+100
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+514
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+54.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+38.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+25.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+14.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+4.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+3.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+13.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+26.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+129.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+31.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+5.06
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+39.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+61.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+17.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+25.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+4.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+70.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+7.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+29.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+85.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+100.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+39620.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+4.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+56.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+27.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+97.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+34.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+48.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+17.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.13
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.11
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.30
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.43
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.56
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.52
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+11.25
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+9.52
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+26.65
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+38.50
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+50.19
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+136.11
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+108.19
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.03
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.27
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.03
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.13
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.06
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.10
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.03
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.25
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.06
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.32
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.56
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.24
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.21
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.32
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.03
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.13
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.03
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.03
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.03
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.96
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.26
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.52
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+23.90
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.52
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.26
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.26
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+11.32
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+5.03
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.26
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+8.81
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.26
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.52
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.26
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+22.65
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+5.03
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.26
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.26
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+28.94
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+50.32
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+21.39
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+18.87
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+28.94
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.52
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.26
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+11.32
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.52
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.52
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.52
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+265.45
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+211
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.05
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.05
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.02
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.05
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.13
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.16
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.08
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.09
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.17
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.04
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.04
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.10
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+3521
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+19.75
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+9.11
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+54.13
+&lt;/td&gt;
+&lt;td style=&#34;text-align:left;&#34;&gt;
+108
+&lt;/td&gt;
+&lt;td style=&#34;text-align:left;&#34;&gt;
+Schleswig-Holstein
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+133210
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+6.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+55.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+19.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+7.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+13.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+43.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+17.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+41.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+6.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+30.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+52.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+9.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+16.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+94.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+5.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+54.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+55.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+19.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+45.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+23.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+50.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+16.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+30.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+81.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+130.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+4.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+11.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+7.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+5.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+22.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+23.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+11.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+24.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+12.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+9.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+45.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+6.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+20.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+39.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+4.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+8.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+13.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.77
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+79.28
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+3.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+72.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+23.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+38.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+99.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+13.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+13.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+19.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+17.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+11.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+27.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+3.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+8.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+12.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+6.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.96
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1793
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2317
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1260.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2914
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+12.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+17.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+36985
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+13.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+3343
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2924
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+3248
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+844.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+11.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+58.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+3.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+402.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+10.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+9.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1607.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+518.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+46.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+25.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+21.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+5.26
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+411.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+23.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+28.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+125.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+43.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+130.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+20.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+85.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+7.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+54.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+8.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+366.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1831.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+53.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+824.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+7.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:left;&#34;&gt;
+2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+74
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+93
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+122
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+11103
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+11.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+13.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+19.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+20.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+6.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+24.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+5.35
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+19.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+94.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+7.64
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.91
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+6.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+14
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+71
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+19
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+65
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+14
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1864
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+51
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+248
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+41
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1823
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+50
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+576
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+87
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+583
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+70.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+73.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+-15.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+16.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+4.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+3.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+-0.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+84.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+11.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+4.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+91.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+16.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.77
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+31.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+70.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+11.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+18.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+47.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+8.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+20.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+85.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+63.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+31456.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+55.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+26.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+71.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+32.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+47.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+19.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.04
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.08
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.28
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.25
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.65
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+41.70
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+6.89
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+90.28
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+297.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+262.48
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+698.35
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+930.27
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.02
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.03
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.02
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.06
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.02
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.02
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.07
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.04
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.03
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.05
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.04
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.45
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+4.50
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+6.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.75
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+18.77
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+28.53
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.50
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.75
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.50
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+25.52
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+4.50
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+6.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+60.06
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+12.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+9.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+19.52
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.75
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+7.51
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.75
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.50
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+20.27
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+78.82
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+37.53
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+27.78
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+52.55
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+6.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+4.50
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+38.29
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+6.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+481.20
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+641
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.02
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.03
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+4041
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+54.83
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+10.60
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+53.59
+&lt;/td&gt;
+&lt;td style=&#34;text-align:left;&#34;&gt;
+108
+&lt;/td&gt;
+&lt;td style=&#34;text-align:left;&#34;&gt;
+Schleswig-Holstein
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+197264
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+5.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+44.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+22.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+6.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+11.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+32.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+22.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+44.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+6.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+35.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+114.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+22.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+19.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+90.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+9.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+47.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+58.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+20.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+51.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+19.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+45.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+17.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+32.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+82.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+136.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+5.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+11.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+6.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+4.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+24.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+23.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+10.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+22.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+12.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+9.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+44.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+4.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+6.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+22.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+35.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+8.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+9.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+12.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.87
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+80.58
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+3.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+76.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+10.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+36.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+100.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+16.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+11.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+22.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+4.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+9.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+10.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+10.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.11
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1903
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2404
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1257.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2832
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+10.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+11.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+54979
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+20.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+3404
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+287
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+3031
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1344.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+11.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+59.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+26.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1673.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+3.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+5.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2476.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+490.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+47.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+23.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+19.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+12.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+3.14
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+406.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+25.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+28.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+111.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+56.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+126.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+31.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+19.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+83.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+38.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+40.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+7.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+474.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1251.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+52.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+791.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:left;&#34;&gt;
+2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+36
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+155
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+193
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+35799
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+8.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+10.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+27.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+13.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+7.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+14.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+4.62
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+13.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+71.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+7.77
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.02
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+6.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+10
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+30
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+20
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+31
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+13
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1545
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+63
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2042
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+49
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1804
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+48
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+343
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+94
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+572
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+71.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+79.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+-52.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+15.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+4.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+-0.5
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+23.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+3.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+4.9
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+3.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+94.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+15.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.85
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+21.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+61.0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+9.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+13.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+41.8
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+9.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+31.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+83.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+71.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+21795.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+58.2
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+27.4
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+92.6
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+27.3
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+47.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+25.1
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.09
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.14
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.24
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.30
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.78
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+58.77
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+5.10
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+90.62
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+153.91
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+193.65
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+502.04
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+990.34
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.04
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.10
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.03
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.03
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.02
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.03
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.11
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.05
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.05
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.06
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.04
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.69
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+3.55
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+9.12
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+24.33
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+64.38
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.52
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.51
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.52
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+8.11
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.53
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+4.06
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.51
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+18.76
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+8.62
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+19.77
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+14.70
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+6.08
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+7.60
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.51
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+20.78
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+70.97
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+32.95
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+31.94
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+2.03
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+39.03
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+8.11
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+3.04
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+27.37
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.51
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+3.55
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+439.51
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+867
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.02
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.02
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.00
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.01
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+4296
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;The first column (&lt;em&gt;AdjRate&lt;/em&gt;) contains age-adjusted incidence rates. The X and Y coordinates (longitude and latitude) contain the spatial information. The NUTS2 code represents the government regions (Regierungsbezirke) ID, &lt;em&gt;BL_ID&lt;/em&gt; contains the name of the federal state (Bundesland) and EWZ refers to the population count. After that follows a ton of socioeconomic, infrastructural, and built environment characteristics. We will thin out the important features later and talk about their meaning, so don’t worry about the coding of the variables.&lt;/p&gt;
+&lt;p&gt;BART needs a data.frame of predictors and a vector of the response variable.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;psych::skew(data$AdjRate)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## [1] 3.64179&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Response variable
+y &amp;lt;- log(data$AdjRate)
+
+# Data.frame of predictors
+data_bm &amp;lt;- select(data, -c(AdjRate))&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;AdjRate is highly skewed (skewness = 3.64) and was therefore log-transformed. The results from the BART machine won’t differ with the highly skewed data, since it is non-parametric. However, to improve visual interpretability, we will use the log-rate in all the figures.&lt;br /&gt;
+Below I have printed the summary statistics of the AdjRate (log), to understand the model outputs.&lt;/p&gt;
+&lt;table class=&#34; lightable-classic lightable-striped&#34; style=&#34;font-family: &amp;quot;Arial Narrow&amp;quot;, &amp;quot;Source Sans Pro&amp;quot;, sans-serif; width: auto !important; margin-left: auto; margin-right: auto;&#34;&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+Mean
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+SD
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+Min
+&lt;/th&gt;
+&lt;th style=&#34;text-align:right;font-weight: bold;&#34;&gt;
+Max
+&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+4.13
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+0.7
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+1.75
+&lt;/td&gt;
+&lt;td style=&#34;text-align:right;&#34;&gt;
+6.51
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;/div&gt;
+&lt;div id=&#34;first-bart-model&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;First BART model&lt;/h2&gt;
+&lt;p&gt;It would be fine to use the default values for the hyperparameter (e.g. number of trees), however &lt;code&gt;bartMachine&lt;/code&gt; comes with a simple function to compute optimal hyperparameters, called &lt;code&gt;bartMachineCV&lt;/code&gt;. This will take quite some time to run! Therefore I have excluded this function from the script and just build a bartMachine with the optimal parameters.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;bm_All &amp;lt;- bartMachine(X = data_bm, y = y, 
+                      k=2, nu=3, q=0.9, num_trees=100, 
+                      num_iterations_after_burn_in=2000, 
+                      num_burn_in = 300, 
+                      seed = 1234, verbose = FALSE)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## Warning in build_bart_machine(X, y, Xy, num_trees, num_burn_in, num_iterations_after_burn_in, : Setting the seed when using parallelization does not result in deterministic output.
+## If you need deterministic output, you must run &amp;quot;set_bart_machine_num_cores(1)&amp;quot; and then build the BART model with the set seed.&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;summary(bm_All)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## bartMachine v1.2.6 for regression
+## 
+## training data n = 401 and p = 366 
+## built in 7.3 secs on 20 cores, 100 trees, 300 burn-in and 2000 post. samples
+## 
+## sigsq est for y beforehand: 0.024 
+## avg sigsq estimate after burn-in: 0.08411 
+## 
+## in-sample statistics:
+##  L1 = 56.04 
+##  L2 = 13.1 
+##  rmse = 0.18 
+##  Pseudo-Rsq = 0.9323
+## p-val for shapiro-wilk test of normality of residuals: 0.00087 
+## p-val for zero-mean noise: 0.96076&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The Pseudo-R² of 0.93 and RMSE of 0.18 look quiet promising, but let’s check for error assumptions.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;check_bart_error_assumptions(bm_All)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;errorAssumption.png&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;Both plots look good. In the second one (Assessment of Heteroskedasticity) we can detect a visible pattern - however not a prominent one! From both plots I would assume that the overall performance of the model is good, however it might struggle with extreme values.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;plot_y_vs_yhat(bm_All, credible_intervals = TRUE)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;yVSyhat.png&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;The “Fitted vs. Actual Values” plot above indicates overall good model performance. Again, we can see that the model struggles with extreme values. Low values will be over-predicted and high values will be under-predicted. We could also map the residuals geographically and see, if there is spatial clustering. But first, we will reduce the model complexity by removing non-important variables.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;variable-selection&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Variable Selection&lt;/h2&gt;
+&lt;p&gt;BART is quiet a powerful machine learning tool, but there is more to it than amazing R² values! If you are dealing with a high dimensional data set (like our data with 313 predictors), often only a relatively small subset of predictor variables truly influences the response variable. Occam’s razor describes this philosophy, that simpler models should be preferred to unnecessarily complex ones.&lt;br /&gt;
+The &lt;code&gt;var_selection_by_permute&lt;/code&gt; function performs variable selection introduced by &lt;span class=&#34;citation&#34;&gt;&lt;a href=&#34;#ref-bleich2014&#34; role=&#34;doc-biblioref&#34;&gt;Bleich et al.&lt;/a&gt; (&lt;a href=&#34;#ref-bleich2014&#34; role=&#34;doc-biblioref&#34;&gt;2014&lt;/a&gt;)&lt;/span&gt;, to reduce model complexity. Let’s run the next chunk and investigate the most important variables. You may skip this step and just use my results, as this will take quiet long to run…&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Leave the num_trees_for_permute small, to force variables to compete for entry into the model!
+var_sel &amp;lt;- bartMachine::var_selection_by_permute_cv(bm_All, num_trees_for_permute = 20)
+
+# Look at the most important variables
+var_sel$important_vars_cv&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##  [1] &amp;quot;BL_ID_Baden-Württemberg&amp;quot; &amp;quot;BL_ID_Bayern&amp;quot;           
+##  [3] &amp;quot;BL_ID_Hessen&amp;quot;            &amp;quot;ff_pop&amp;quot;                 
+##  [5] &amp;quot;hair_pp&amp;quot;                 &amp;quot;thea_pp&amp;quot;                
+##  [7] &amp;quot;NUTS2_Fact_11&amp;quot;           &amp;quot;NUTS2_Fact_27&amp;quot;          
+##  [9] &amp;quot;NUTS2_Fact_40&amp;quot;           &amp;quot;NUTS2_Fact_71&amp;quot;          
+## [11] &amp;quot;S_170&amp;quot;                   &amp;quot;play_dn&amp;quot;                
+## [13] &amp;quot;bir_km2&amp;quot;                 &amp;quot;cc_pop&amp;quot;                 
+## [15] &amp;quot;sch_den&amp;quot;                 &amp;quot;kid_den&amp;quot;                
+## [17] &amp;quot;Rch_den&amp;quot;                 &amp;quot;S_109_2&amp;quot;                
+## [19] &amp;quot;EWZ&amp;quot;                     &amp;quot;Pop_Den&amp;quot;                
+## [21] &amp;quot;S_004&amp;quot;                   &amp;quot;S_006&amp;quot;                  
+## [23] &amp;quot;S_020&amp;quot;                   &amp;quot;S_051&amp;quot;                  
+## [25] &amp;quot;S_054&amp;quot;                   &amp;quot;S_066&amp;quot;                  
+## [27] &amp;quot;S_070&amp;quot;                   &amp;quot;S_080&amp;quot;                  
+## [29] &amp;quot;S_104&amp;quot;                   &amp;quot;S_107&amp;quot;                  
+## [31] &amp;quot;S_115&amp;quot;                   &amp;quot;S_123&amp;quot;                  
+## [33] &amp;quot;S_130&amp;quot;                   &amp;quot;S_146&amp;quot;                  
+## [35] &amp;quot;S_153&amp;quot;                   &amp;quot;X&amp;quot;                      
+## [37] &amp;quot;Y&amp;quot;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Below I have categorized the important variables, that will be used for the second BART model. Also I have removed the &lt;em&gt;NUTS2_Fact&lt;/em&gt; and &lt;em&gt;BL_ID&lt;/em&gt; variables.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;data_subset &amp;lt;- data_bm %&amp;gt;%
+  select(c(
+    # Geographical Units
+    X, #Longitude
+    Y, #Latitude
+    
+    # Political units
+    S_109, #Rural/Urban
+    
+    # Socioeconomic
+    EWZ, #Population
+    Pop_Den, #Population density
+    S_004, #Unemployment rate under 25
+    S_006, #Household income per capita 
+    S_020, #Employment rate 15-&amp;lt;30
+    S_051, #Voter participation
+    S_054, #Apprenticeship positions
+    S_066, #Household income
+    S_070, #Deptors rate
+    S_080, #Recreationl Space
+    S_104, #Income tax
+    S_107, #Steuerkraft
+    S_115, #Regional population potential
+    S_123, #Child poverty
+    S_130, #IC train station access
+    S_146, #Commuters &amp;gt;150km
+    S_153, #Foreign guests in tourist establishments
+    S_170, #Longterm unemployment rate
+    
+    # Built environment
+    Rch_den, #Church density
+    play_dn, #Playground density
+    bir_km2, #Biergarten per km²
+    ff_pop, #Fast food places per capita
+    hair_pp, #Hairdresser per capita
+    thea_pp, #Theatre per capita
+    cc_pop, #Community centre density
+    sch_den, #School density
+    kid_den #Kindergarten density
+  ))&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;div id=&#34;second-bart-model&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Second BART model&lt;/h2&gt;
+&lt;p&gt;With the subset of important predictors, we will build a second BART model. Again, I have already computed the optimal hyperparameters using the &lt;code&gt;bartMachineCV&lt;/code&gt; function.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;bm_final &amp;lt;- bartMachine(X = data_subset, y = y, 
+                        k=3, nu=3, q=0.99, num_trees=225,
+                        seed = 1234, verbose = FALSE)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## Warning in build_bart_machine(X, y, Xy, num_trees, num_burn_in, num_iterations_after_burn_in, : Setting the seed when using parallelization does not result in deterministic output.
+## If you need deterministic output, you must run &amp;quot;set_bart_machine_num_cores(1)&amp;quot; and then build the BART model with the set seed.&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;summary(bm_final)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## bartMachine v1.2.6 for regression
+## 
+## training data n = 401 and p = 31 
+## built in 5 secs on 20 cores, 225 trees, 250 burn-in and 1000 post. samples
+## 
+## sigsq est for y beforehand: 0.185 
+## avg sigsq estimate after burn-in: 0.12811 
+## 
+## in-sample statistics:
+##  L1 = 89.74 
+##  L2 = 34.06 
+##  rmse = 0.29 
+##  Pseudo-Rsq = 0.824
+## p-val for shapiro-wilk test of normality of residuals: 0.00122 
+## p-val for zero-mean noise: 0.94939&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Compared to the first BART model, the second one saw a reduction in Pseudo-R² from 0.93 to 0.82, equating to a 12% reduction in explained variability. The RMSE increased from 0.18 to 0.29, indicating that the final model predicted age-adjusted incidence rates of COVID-19 for German counties with an accuracy of +/− 1.3 cases per 100,000. Again we need to check error assumptions and fitted vs. actual values.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;check_bart_error_assumptions(bm_final)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;errorAssumption2.png&#34; /&gt; The new model is expected to perform worse compared to the first model, but the Q-Q and Fitted vs. Residuals plots both look good. Again, the BART model struggles with extreme (high) values.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;plot_y_vs_yhat(bm_final, credible_intervals = TRUE)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;yVSyhat2.png&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;The “Fitted vs. Actual Values” plot above indicates overall OK model performance. This time however, a larger amount of values are outside of the confidence interval. We will also map the residuals, to test for spatial clustering.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;spatial-autocorrelation&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Spatial autocorrelation&lt;/h2&gt;
+&lt;p&gt;Spatial autocorrelation can be tested by mapping the residuals. I have provided a cleaned shapefile of the NUTS3 (federal states) regions in Germany. The mapped residuals allow us to visualize under- and overpredictions and check for spatial clustering of residuals. From this map I could not detect a discernible pattern of clustering - the residuals are randomly distributed.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;library(sf)
+library(RColorBrewer)
+library(tmap)
+
+# Download shapefile
+shp &amp;lt;- read_sf(&amp;quot;https://github.com/STBrinkmann/data/raw/main/RKI_sf.gpkg&amp;quot;)
+
+# Sort shapefile, that it has the same order as the data_subset
+shp &amp;lt;- shp[order(match(shp$EWZ, data_subset$EWZ)),]
+
+# Join residuals to shapefile, then map residuals
+shp$resid &amp;lt;- bm_final$residuals
+tm_shape(shp) + 
+  tm_polygons(col=&amp;quot;resid&amp;quot;, 
+              title=&amp;quot;BART Machine Residuals\n(log incidence rate)&amp;quot;, 
+              breaks=seq(-1.75, 1.75, 0.5), midpoint=NA, palette=&amp;quot;RdBu&amp;quot;) + 
+  tm_layout(frame = FALSE,
+            inner.margins=c(0.02, 0.02, 0.02, 0.20),
+            legend.position = c(0.7, 0.22),
+            legend.frame = TRUE,
+            legend.outside = FALSE, 
+            bg.color = &amp;quot;white&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;/post/bart-a-bayesian-machine-learning-workflow-for-complex-spatial-data/index.en_files/figure-html/unnamed-chunk-15-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;To determine whether the spatial autocorrelation of residuals is statistically significant or not, one could compute Moran’s I. I will not explain Moran’s I in this post, but I would highly recommend these posts: &lt;a href=&#34;https://mgimond.github.io/Spatial/spatial-autocorrelation-in-r.html#app8_3&#34;&gt;Intro to GIS and Spatial Analysis&lt;/a&gt; and &lt;a href=&#34;https://rpubs.com/quarcs-lab/spatial-autocorrelation&#34;&gt;Spatial autocorrelation analysis in R&lt;/a&gt;.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;library(spdep)
+# Define neighboring polygons
+nb &amp;lt;- poly2nb(shp, queen=TRUE)
+
+# Assign weights to each neighboring polygon
+lw &amp;lt;- nb2listw(nb, style=&amp;quot;B&amp;quot;, zero.policy=TRUE)
+
+# Compute Moran&amp;#39;s I statistic using a Monte-Carlo simulation 
+MC &amp;lt;- moran.mc(shp$resid, lw, nsim=99)
+MC&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## 
+##  Monte-Carlo simulation of Moran I
+## 
+## data:  shp$resid 
+## weights: lw  
+## number of simulations + 1: 100 
+## 
+## statistic = 0.059486, observed rank = 99, p-value = 0.01
+## alternative hypothesis: greater&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The Moran’s I score is between -1 and 1, where high (low) values determine positive (negative) spatial autocorrelation and 0 identifies the data is randomly distributed. The Morans’s I statistic of 0.06 (p=0.01) further confirms, that there is no spatial autocorrelation.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;partial-dependence-plots&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Partial Dependence Plots&lt;/h2&gt;
+&lt;p&gt;In the previous steps we have build a robust BART machine to predict age-adjusted incidence rates of COVID-19 for German counties. However, as already mentioned in the beginning, I am interested in using BART as a exploratory tool. The high R² indicates, that the model did understand the non-linear relationships of the covariates with the COVID-19 incidence rate. To visualize and explore these relationships, Partial Dependence Plots (PDPs) are a great tool. PDPs are graphical outputs that illustrate the marginal effect of each independent variable on the response variable &lt;span class=&#34;citation&#34;&gt;(&lt;a href=&#34;#ref-friedman2002&#34; role=&#34;doc-biblioref&#34;&gt;Friedman 2002&lt;/a&gt;; &lt;a href=&#34;#ref-scarpone2017&#34; role=&#34;doc-biblioref&#34;&gt;Scarpone et al. 2017&lt;/a&gt;, &lt;a href=&#34;#ref-scarpone2020&#34; role=&#34;doc-biblioref&#34;&gt;2020&lt;/a&gt;)&lt;/span&gt;.&lt;/p&gt;
+&lt;p&gt;The R package &lt;a href=&#34;https://cran.r-project.org/web/packages/pdp/index.html&#34;&gt;pdp&lt;/a&gt; provides great tools for computing partial dependence. However it does not support &lt;code&gt;bartMachine&lt;/code&gt;. But that’s no problem, as &lt;code&gt;bartMachine&lt;/code&gt; also comes with a build in function to generate PDPs. The function in the &lt;code&gt;bartMachine&lt;/code&gt; package is called &lt;code&gt;pd_plot&lt;/code&gt;. I will demonstrate a PDP and it’s corresponding histogram on the example of &lt;em&gt;S_115&lt;/em&gt; (Regional Population Potential). The values of &lt;em&gt;S_115&lt;/em&gt; are plotted on the x-axis and its marginal effect in incidence rate (log-adjusted) on the y-axis.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Set parameters to plot PDP top and histogram bottom
+par(mfrow = c(2,1))
+
+pd_plot(bm_final, &amp;quot;S_115&amp;quot;, levs = c(0.0, seq(0, 1, 0.1), 1))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## ...........&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;hist(bm_final$X$S_115, 20, 
+     main = &amp;quot;Histogram of the Regional Population Potential&amp;quot;,
+     xlab = &amp;quot;Regional Population Potential&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;/post/bart-a-bayesian-machine-learning-workflow-for-complex-spatial-data/index.en_files/figure-html/unnamed-chunk-17-1.png&#34; width=&#34;768&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;The regional population potential measures the likelihood of direct interactions to occur between inhabitants. The PDP indicates small marginal changes in incidence rates for low values of regional population potential, which can be interpreted as evidence that in counties with a lower probability of human interaction, there is a lower probability of viral contagion. The greatest increase in partial dependence is observed between the 20th and 80th percentiles of regional population potential index scores (14,016 to 47,067), indicating a strong non-linear effect of this variable on incidence rates.&lt;/p&gt;
+&lt;p&gt;To improve visual interpretability in the plot above it would make sense to log-transform the data. However, this is not possible using the build in &lt;code&gt;pd_plot&lt;/code&gt; function. Therefore I have slightly rewritten this function to generate a ggplot output instead of a simple base R plot (I have provided the edited function on &lt;a href=&#34;https://github.com/CHEST-Lab/BART_Covid-19/blob/master/pdPlotGG.R&#34;&gt;GitHub&lt;/a&gt;). Now we can treat the result as an ggplot2 object, scale the axis, adjust the theme, combine the histogram and PDP in one plot,…&lt;/p&gt;
+&lt;p&gt;Below, I have included the PDPs from our paper, visualizing the partial dependence of the 10 most prevalent variables. The variable importance can be computed using the &lt;code&gt;investigate_var_importance&lt;/code&gt; function. Based on the spatial exploratory data analysis, we have separated Germany into a low rate region (LLR) and high rate region (HHR). You can read the description and interpretation of the PDPs &lt;a href=&#34;https://ij-healthgeographics.biomedcentral.com/articles/10.1186/s12942-020-00225-1#Sec18&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://ij-healthgeographics.biomedcentral.com/articles/10.1186/s12942-020-00225-1/figures/6&#34;&gt;&lt;img src=&#34;WallOfShame.svg&#34; alt=&#34;Partial Dependence Plots (PDP) of the 10 most prevalent variables in the final Bayesian Additive Regression Tree (BART) model. Histograms are shown for the entire country (green), for only the low rates region (LRR, teal), and for only the high rates region (HRR, purple). The PDPs indicate marginal changes in the predicted (log-transformed, age-adjusted) incidence rate per 100,000 residents (upper y-axis) for different values of each independent variable (x-axis)&#34; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;conclusion&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Conclusion&lt;/h2&gt;
+&lt;p&gt;In this post I have demonstrated that BART is a powerful machine learning tool for modelling high-dimensional, non-linear data. The BART modelling demonstrated that although many variables can be used as inputs, the majority of variability explained will largely be determined from a small subset of all variables. Opening these black-box models and exploring and interpreting the results is easy and intuitive, by computing PDPs. The PDPs help us to understand the non-linear relationships between the covariates and the response variable.&lt;/p&gt;
+&lt;p&gt;In future posts I will further explore the effectiveness of the variable selection function and demonstrate out-of-sample validation to test for overfitting.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;references&#34; class=&#34;section level2 unnumbered&#34;&gt;
+&lt;h2&gt;References&lt;/h2&gt;
+&lt;div id=&#34;refs&#34; class=&#34;references csl-bib-body hanging-indent&#34;&gt;
+&lt;div id=&#34;ref-bleich2014&#34; class=&#34;csl-entry&#34;&gt;
+Bleich, Justin, Adam Kapelner, Edward I. George, and Shane T. Jensen. 2014. &lt;span&gt;“Variable Selection for BART: An Application to Gene Regulation.”&lt;/span&gt; &lt;em&gt;The Annals of Applied Statistics&lt;/em&gt; 8 (3). &lt;a href=&#34;https://doi.org/10.1214/14-aoas755&#34;&gt;https://doi.org/10.1214/14-aoas755&lt;/a&gt;.
+&lt;/div&gt;
+&lt;div id=&#34;ref-breiman2001&#34; class=&#34;csl-entry&#34;&gt;
+Breiman, Leo. 2001. &lt;span&gt;“Statistical Modeling: The Two Cultures (with Comments and a Rejoinder by the Author).”&lt;/span&gt; &lt;em&gt;Statistical Science&lt;/em&gt; 16 (3). &lt;a href=&#34;https://doi.org/10.1214/ss/1009213726&#34;&gt;https://doi.org/10.1214/ss/1009213726&lt;/a&gt;.
+&lt;/div&gt;
+&lt;div id=&#34;ref-Chipman2010&#34; class=&#34;csl-entry&#34;&gt;
+Chipman, Hugh A., Edward I. George, and Robert E. McCulloch. 2010. &lt;span&gt;“&lt;span class=&#34;nocase&#34;&gt;BART: Bayesian additive regressiontrees&lt;/span&gt;.”&lt;/span&gt; &lt;em&gt;The Annals of Applied Statistics&lt;/em&gt; 4 (1): 266–98. &lt;a href=&#34;https://doi.org/10.1214/09-AOAS285&#34;&gt;https://doi.org/10.1214/09-AOAS285&lt;/a&gt;.
+&lt;/div&gt;
+&lt;div id=&#34;ref-friedman2002&#34; class=&#34;csl-entry&#34;&gt;
+Friedman, Jerome H. 2002. &lt;span&gt;“Stochastic Gradient Boosting.”&lt;/span&gt; &lt;em&gt;Computational Statistics &amp;amp; Data Analysis&lt;/em&gt; 38 (4): 367–78. &lt;a href=&#34;https://doi.org/10.1016/s0167-9473(01)00065-2&#34;&gt;https://doi.org/10.1016/s0167-9473(01)00065-2&lt;/a&gt;.
+&lt;/div&gt;
+&lt;div id=&#34;ref-kapelner2016&#34; class=&#34;csl-entry&#34;&gt;
+Kapelner, Adam, and Justin Bleich. 2016. &lt;span&gt;“bartMachine: Machine Learning with Bayesian Additive Regression Trees.”&lt;/span&gt; &lt;em&gt;Journal of Statistical Software&lt;/em&gt; 70 (4). &lt;a href=&#34;https://doi.org/10.18637/jss.v070.i04&#34;&gt;https://doi.org/10.18637/jss.v070.i04&lt;/a&gt;.
+&lt;/div&gt;
+&lt;div id=&#34;ref-scarpone2020&#34; class=&#34;csl-entry&#34;&gt;
+Scarpone, Christopher, Sebastian T. Brinkmann, Tim Große, Daniel Sonnenwald, Martin Fuchs, and Blake Byron Walker. 2020. &lt;span&gt;“A Multimethod Approach for County-Scale Geospatial Analysis of Emerging Infectious Diseases: A Cross-Sectional Case Study of COVID-19 Incidence in Germany.”&lt;/span&gt; &lt;em&gt;International Journal of Health Geographics&lt;/em&gt; 19 (1). &lt;a href=&#34;https://doi.org/10.1186/s12942-020-00225-1&#34;&gt;https://doi.org/10.1186/s12942-020-00225-1&lt;/a&gt;.
+&lt;/div&gt;
+&lt;div id=&#34;ref-scarpone2017&#34; class=&#34;csl-entry&#34;&gt;
+Scarpone, Christopher, Margaret G. Schmidt, Chuck E. Bulmer, and Anders Knudby. 2017. &lt;span&gt;“Semi-Automated Classification of Exposed Bedrock Cover in British Columbia’s Southern Mountains Using a Random Forest Approach.”&lt;/span&gt; &lt;em&gt;Geomorphology&lt;/em&gt; 285 (May): 214–24. &lt;a href=&#34;https://doi.org/10.1016/j.geomorph.2017.02.013&#34;&gt;https://doi.org/10.1016/j.geomorph.2017.02.013&lt;/a&gt;.
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>COVID-19: 15km Radius WebApp</title>
+      <link>/post/covid-19-15km-radius-webapp/</link>
+      <pubDate>Fri, 15 Jan 2021 00:00:00 +0000</pubDate>
+      <guid>/post/covid-19-15km-radius-webapp/</guid>
+      <description>&lt;p&gt;Klicke &lt;a href=&#34;https://datageobrinkmann.be/bewegungsradius/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;hier&lt;/a&gt; für die mobilfreundliche Version 📱&lt;br /&gt;&lt;/p&gt;
+&lt;iframe frameborder=&#34;0&#34; scrolling=&#34;no&#34; seamless=&#34;seamless&#34; style=&#34;display:block; width:95%; height:85vh;&#34; src=&#34;https://datageobrinkmann.be/bewegungsradius/&#34;&gt;&lt;/iframe&gt;
+&lt;br /&gt;
+&lt;h1 id=&#34;covid-19-bewegungsradius&#34;&gt;COVID-19 Bewegungsradius&lt;/h1&gt;
+&lt;h3 id=&#34;stand-1512020&#34;&gt;Stand: 15.1.2020&lt;/h3&gt;
+&lt;p&gt;Die 15-Kilomenter Regel, nachdem sich Bewohner mit einer 7-Tage Inzidenz
+von über 200 nur noch 15 km um ihren Wohnort bewegen dürfen, sorgt für
+Verwirrung. Diese App soll dabei helfen, den individuellen
+Bewegungsradius zu ermitteln.&lt;br&gt;
+Zunächst wird die aktuelle 7-Tage-Inzidenz für jeden Landkreis
+gedownloaded und in zwei Kategorien eingeteilt: &amp;lt; 200 und &amp;gt;= 200.
+Anschließend wird die Adresse georeferenziert und ein 15 km Buffer wird
+um die Gemeinde, bzw. den Landkreis der Adresse, oder auch die Adresse
+selbst gelegt.&lt;br&gt;
+Der genaue Wert der 7-Tage-Inzidenz, sowie die Verfügbarkeiten von
+Intensivstationbetten (ITS) kann durch Anklicken eines Landkreisen
+ausgelesen werden.&lt;/p&gt;
+&lt;h2 id=&#34;die-corona-regeln-in-den-bundesländern&#34;&gt;Die Corona-Regeln in den Bundesländern&lt;/h2&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th style=&#34;text-align:left&#34;&gt;Bundesland&lt;/th&gt;
+&lt;th style=&#34;text-align:left&#34;&gt;15-km Regel&lt;/th&gt;
+&lt;th style=&#34;text-align:left&#34;&gt;Mehr Infos&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Baden-Württemberg&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Wird aktuell nicht umgesetzt&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;&lt;a href=&#34;https://www.baden-wuerttemberg.de/de/service/aktuelle-infos-zu-corona/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;url&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Bayern&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Ab der Gemeindegrenze&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;&lt;a href=&#34;https://www.corona-katastrophenschutz.bayern.de/faq/index.php&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;url&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Berlin&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Ab der Stadtgrenze&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;&lt;a href=&#34;https://www.rbb24.de/politik/thema/2020/coronavirus/beitraege_neu/2020/04/berlin-corona-massnahmen-lockerung-ausgang-kontakt-erlaubt.html&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;url&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Brandenburg&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Für touristische Ausflüge, Sport und Bewegung im Freien, um den jeweiligen Landkreis bzw. die kreisfreie Stadt&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;&lt;a href=&#34;https://kkm.brandenburg.de/kkm/de/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;url&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Bremen&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Wird aktuell nicht umgesetzt&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;&lt;a href=&#34;https://www.bremen.de/corona&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;url&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Hamburg&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Wird aktuell nicht umgesetzt&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;&lt;a href=&#34;https://www.hamburg.de/coronavirus/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;url&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Hessen&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Ab der Gemeindegrenze; betroffene Landkreise: Gießen, Limburg-Weilburg, Fulda, Vogelsbergkreis&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;&lt;a href=&#34;https://www.faz.net/aktuell/rhein-main/corona-weitere-kreise-in-hessen-fuehren-15-kilometer-regel-ein-17143539.html&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;url&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Mecklenburg-Vorpommern&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Ab der Wohnadresse&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;&lt;a href=&#34;https://www.regierung-mv.de/corona/Corona-Regeln-seit-10.01.2021/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;url&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Niedersachsen&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Ab der Wohnadresse, durch Kommunen geregelt&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;&lt;a href=&#34;https://www.niedersachsen.de/Coronavirus&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;url&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Nordrhein-Westfalen&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Ab der Gemeindegrenze; betroffene Landkreise: Höxter, Minden-Lübbecke, Oberbergischer Kreis, Recklinghausen&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;&lt;a href=&#34;https://www.land.nrw/corona&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;url&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Rheinland-Pfalz&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Ab der Gemeindegrenze, durch Kommunen geregelt&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;&lt;a href=&#34;https://corona.rlp.de/index.php?id=34836&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;url&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Saarland&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Für touristische Ausflüge, um die Wohnadresse&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;&lt;a href=&#34;https://www.saarland.de/DE/portale/corona/home/home_node.html&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;url&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Sachsen&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Ab der Wohnadresse&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;&lt;a href=&#34;https://www.coronavirus.sachsen.de/index.html&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;url&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Sachsen-Anhalt&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Ab der Gemeindegrenze&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;&lt;a href=&#34;https://coronavirus.sachsen-anhalt.de/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;url&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Schleswig-Holstein&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Ab der Gemeindegrenze, durch Kommunen geregelt&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;&lt;a href=&#34;https://www.schleswig-holstein.de/DE/Schwerpunkte/Coronavirus/FAQ/Dossier/Allgemeines_Verwaltung.html&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;url&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Thüringen&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;Ab der Gemeindegrenze, nicht verpflichtend&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;&lt;a href=&#34;https://corona.thueringen.de/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;url&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h2 id=&#34;credits&#34;&gt;Credits&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Geocoding &lt;a href=&#34;https://datascienceplus.com/osm-nominatim-with-r-getting-locations-geo-coordinates-by-its-address/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;D.
+Kisler&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;GPS locater via Dr. Tom August’s &lt;a href=&#34;https://github.com/AugustT/shiny_geolocation&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;shiny geolocation Javascript
+script&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;API Aufrufe zu den aktuellen &lt;a href=&#34;https://services7.arcgis.com/mOBPykOjAyBO2ZKk/ArcGIS/rest/services/Covid19_RKI_Sums/FeatureServer/0/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;COVID-19
+Fallzahlen&lt;/a&gt;
+und &lt;a href=&#34;https://www.divi.de/register/tagesreport&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;ITS-Betten&lt;/a&gt; via
+&lt;a href=&#34;https://github.com/entorb/COVID-19-Coronavirus-German-Regions&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;entorb’s GitHub
+Seite&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;disclaimer&#34;&gt;Disclaimer&lt;/h2&gt;
+&lt;p&gt;Dieses Tool dient nur zu Unterhaltungszwecken und stellt keine
+medizinische, rechtliche oder sonstige Form der Beratung dar. Benutzer
+sollten sich auf die offiziellen Richtlinien und Empfehlungen ihrer
+nationalen, staatlichen und lokalen Behörden beziehen. Es werden
+keinerlei personenbezogener Daten gespeichert.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>A multimethod approach for county-scale geospatial analysis of emerging infectious diseases. A cross-sectional case study of COVID-19 incidence in Germany</title>
+      <link>/publication/scarpone2020/</link>
+      <pubDate>Thu, 13 Aug 2020 00:00:00 +0000</pubDate>
+      <guid>/publication/scarpone2020/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>
