@@ -1,0 +1,1437 @@
+<!DOCTYPE html><html lang="en-us" >
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  
+  
+  
+  <meta name="generator" content="Wowchemy 5.0.0-beta.1 for Hugo">
+  
+
+  
+
+  
+  
+
+  
+  
+  
+  
+  
+    
+    
+    
+  
+  
+
+  <meta name="author" content="Sebastian Brinkmann">
+
+  
+  
+  
+    
+  
+  <meta name="description" content="A fast implementation of the IDW algorithm using Rcpp. I compare the results to the well established gstat R package.">
+
+  
+  <link rel="alternate" hreflang="en-us" href="/post/iwd/">
+
+  
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  
+
+  
+  
+  
+  <meta name="theme-color" content="rgb(255, 0, 60)">
+  
+
+  
+  
+  
+  <script src="/js/mathjax-config.js"></script>
+  
+
+  
+  
+  
+  
+    
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha256-FMvZuGapsJLjouA6k7Eo2lusoAX9i0ShlWFG6qt7SLc=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" integrity="sha256-Vzbj7sDDS/woiFS3uNKo8eIuni59rjyNGtXfstRzStA=" crossorigin="anonymous">
+
+    
+    
+    
+      
+    
+    
+      
+      
+        
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.2.0/styles/github.min.css" crossorigin="anonymous" title="hl-light">
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.2.0/styles/dracula.min.css" crossorigin="anonymous" title="hl-dark" disabled>
+        
+      
+    
+
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.min.css" integrity="sha512-1xoFisiGdy9nvho8EgXuXvnpR5GAMSjFwp40gSRE3NwdUdIMIKuPa7bqoUhLD0O/5tPNhteAsE5XyyMi5reQVA==" crossorigin="anonymous">
+    
+
+    
+
+    
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/lazysizes/5.2.2/lazysizes.min.js" integrity="sha512-TmDwFLhg3UA4ZG0Eb4MIyT1O1Mb+Oww5kFG0uHqXsdbyZz9DcvYQhKpGgNkamAI6h2lGGZq2X8ftOJvF/XjTUg==" crossorigin="anonymous" async></script>
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" integrity="" crossorigin="anonymous" async></script>
+      
+    
+      
+
+      
+      
+
+      
+    
+      
+
+      
+      
+
+      
+    
+
+  
+
+  
+  
+  
+    
+      
+      
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,700%7CRoboto:400,400italic,700%7CRoboto+Mono&display=swap">
+    
+  
+
+  
+  
+  
+  
+  
+  <link rel="stylesheet" href="/css/wowchemy.503c3c3f31e06bfd8fee8e66b8a83451.css">
+
+  
+
+
+
+
+  
+
+  
+
+
+  
+  
+
+  
+
+  <link rel="manifest" href="/index.webmanifest">
+  <link rel="icon" type="image/png" href="/images/icon_hub8298344815fb61130442b7c2888b4e0_27889_32x32_fill_lanczos_center_2.png">
+  <link rel="apple-touch-icon" type="image/png" href="/images/icon_hub8298344815fb61130442b7c2888b4e0_27889_192x192_fill_lanczos_center_2.png">
+
+  <link rel="canonical" href="/post/iwd/">
+
+  
+  
+  
+  
+  
+  
+  
+    
+    
+  
+  
+  <meta property="twitter:card" content="summary">
+  
+  <meta property="og:site_name" content="GeoBrinkmann">
+  <meta property="og:url" content="/post/iwd/">
+  <meta property="og:title" content="Fast Inverse Distance Weighting (IDW) Interpolation with Rcpp | GeoBrinkmann">
+  <meta property="og:description" content="A fast implementation of the IDW algorithm using Rcpp. I compare the results to the well established gstat R package."><meta property="og:image" content="/images/icon_hub8298344815fb61130442b7c2888b4e0_27889_512x512_fill_lanczos_center_2.png">
+  <meta property="twitter:image" content="/images/icon_hub8298344815fb61130442b7c2888b4e0_27889_512x512_fill_lanczos_center_2.png"><meta property="og:locale" content="en-us">
+  
+    
+      <meta property="article:published_time" content="2022-02-03T00:00:00&#43;00:00">
+    
+    <meta property="article:modified_time" content="2022-02-03T15:51:44&#43;01:00">
+  
+
+  
+
+
+    
+
+
+
+
+
+
+  
+
+
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "/post/iwd/"
+  },
+  "headline": "Fast Inverse Distance Weighting (IDW) Interpolation with Rcpp",
+  
+  "datePublished": "2022-02-03T00:00:00Z",
+  "dateModified": "2022-02-03T15:51:44+01:00",
+  
+  "author": {
+    "@type": "Person",
+    "name": "Sebastian Brinkmann"
+  },
+  
+  "publisher": {
+    "@type": "Organization",
+    "name": "GeoBrinkmann",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "/images/icon_hub8298344815fb61130442b7c2888b4e0_27889_192x192_fill_lanczos_center_2.png"
+    }
+  },
+  "description": "A fast implementation of the IDW algorithm using Rcpp. I compare the results to the well established gstat R package."
+}
+</script>
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+
+  <title>Fast Inverse Distance Weighting (IDW) Interpolation with Rcpp | GeoBrinkmann</title>
+
+</head>
+
+
+<body id="top" data-spy="scroll" data-offset="70" data-target="#TableOfContents" class="page-wrapper  ">
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <script src="/js/wowchemy-init.min.1df0392aab543464b23a85146803aaf2.js"></script>
+
+  
+
+<aside class="search-results" id="search">
+  <div class="container">
+    <section class="search-header">
+
+      <div class="row no-gutters justify-content-between mb-3">
+        <div class="col-6">
+          <h1>Search</h1>
+        </div>
+        <div class="col-6 col-search-close">
+          <a class="js-search" href="#"><i class="fas fa-times-circle text-muted" aria-hidden="true"></i></a>
+        </div>
+      </div>
+
+      <div id="search-box">
+        
+        <input name="q" id="search-query" placeholder="Search..." autocapitalize="off"
+        autocomplete="off" autocorrect="off" spellcheck="false" type="search" class="form-control">
+        
+      </div>
+
+      
+
+    </section>
+    <section class="section-search-results">
+
+      <div id="search-hits">
+        
+      </div>
+
+    </section>
+  </div>
+</aside>
+
+
+
+  <div class="page-header">
+    
+
+
+
+
+
+
+
+
+
+
+
+
+<nav class="navbar navbar-expand-lg navbar-light compensate-for-scrollbar" id="navbar-main">
+  <div class="container">
+
+    
+
+    
+    <button type="button" class="navbar-toggler" data-toggle="collapse"
+            data-target="#navbar-content" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+    <span><i class="fas fa-bars"></i></span>
+    </button>
+    
+
+    
+
+    
+    
+    <div class="navbar-collapse main-menu-item collapse justify-content-start" id="navbar-content">
+
+      
+      <ul class="navbar-nav d-md-inline-flex">
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        
+
+        
+        
+        
+        
+
+        
+          
+            
+            
+          
+          
+            
+            
+            
+              
+            
+            
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link " href="/#hero"><span>Start</span></a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        
+
+        
+        
+        
+        
+
+        
+          
+            
+            
+          
+          
+            
+            
+            
+              
+            
+            
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link " href="/#posts"><span>Posts</span></a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        
+
+        
+        
+        
+        
+
+        
+          
+            
+            
+          
+          
+            
+            
+            
+              
+            
+            
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link " href="/#featured"><span>Publications & Packages</span></a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        
+
+        
+        
+        
+        
+
+        
+          
+            
+            
+          
+          
+            
+            
+            
+              
+            
+            
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link " href="/#contact"><span>Contact</span></a>
+        </li>
+
+        
+        
+
+      
+
+        
+      </ul>
+    </div>
+
+    <ul class="nav-icons navbar-nav flex-row ml-auto d-flex pl-md-2">
+
+      
+      
+        
+      
+
+      
+      
+
+      
+      
+      <li class="nav-item dropdown theme-dropdown">
+        <a href="#" class="nav-link" data-toggle="dropdown" aria-haspopup="true" aria-label="Display preferences">
+          <i class="fas fa-moon" aria-hidden="true"></i>
+        </a>
+        <div class="dropdown-menu">
+          <a href="#" class="dropdown-item js-set-theme-light">
+            <span>Light</span>
+          </a>
+          <a href="#" class="dropdown-item js-set-theme-dark">
+            <span>Dark</span>
+          </a>
+          <a href="#" class="dropdown-item js-set-theme-auto">
+            <span>Automatic</span>
+          </a>
+        </div>
+      </li>
+      
+
+      
+
+    </ul>
+
+  </div>
+</nav>
+
+
+  </div>
+
+  <div class="page-body">
+    <article class="article">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+  
+  
+<div class="article-container pt-3">
+  <h1>Fast Inverse Distance Weighting (IDW) Interpolation with Rcpp</h1>
+
+  
+
+  
+    
+
+
+<div class="article-metadata">
+
+  
+  
+
+  
+  <span class="article-date">
+    
+    
+      
+          Last updated on
+      
+    
+    Feb 3, 2022
+  </span>
+  
+
+  
+
+  
+  <span class="middot-divider"></span>
+  <span class="article-reading-time">
+    10 min read
+  </span>
+  
+
+  
+  
+  
+  
+  
+
+  
+  
+
+</div>
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+</div>
+
+
+
+  <div class="article-container">
+
+    <div class="article-style">
+      
+<script src="/post/iwd/index.en_files/header-attrs/header-attrs.js"></script>
+
+
+<p>A common task in the field of geostatistics is interpolation. According to the first law of Geography, “<em>Everything is related to everything else. But near things are more related than distant things.</em>” <span class="citation">(<a href="#ref-tobler1970" role="doc-biblioref">Tobler 1970</a>)</span>. We can make use of this to interpolate values over a spatial region from a finite set of observations. There are already a number of great sources that describe geospatial interpolation methods <span class="citation">(<a href="#ref-gisgeography" role="doc-biblioref">GISGeography 2016</a>; <a href="#ref-berlin" role="doc-biblioref">Hartmann, Krois, and Waske 2018</a>; <a href="#ref-dunnington" role="doc-biblioref">Dunnington 2019</a>; <a href="#ref-wilke" role="doc-biblioref">Wilke 2020</a>)</span>. So in this post I don’t want to explain these methods again, but instead give a practical example on how to implement Inverse Distance Weighting (IDW) in C++ with Rcpp. I will explain the Rcpp code step by step, the finished result is available in the GVI R package on <a href="https://github.com/STBrinkmann/GVI">GitHub</a>.<br />
+<span class="citation"><a href="#ref-gisgeography" role="doc-biblioref">GISGeography</a> (<a href="#ref-gisgeography" role="doc-biblioref">2016</a>)</span> provides an excellent explanation of the maths behind IDW. In short, the interpolated value of any location is based on the values of known locations, assuming closer values are more related than further values.</p>
+<p><span class="math display">\[
+z = \frac{\sum_{i}^{n}\frac{z_i}{{d_i}^\beta}}{\sum_{i}^{n}\frac{1}{{d_i}^\beta}}
+\]</span></p>
+<p>where <span class="math inline">\(z\)</span> is the value to be interpolated, <span class="math inline">\(n\)</span> the number of surrounding known locations, and <span class="math inline">\(z_i\)</span> and <span class="math inline">\(d_i\)</span> their corresponding value and distance, respectively. <span class="math inline">\(\beta\)</span> describes the distance power, that determines the degree to which nearer points are preferred over more distant points.</p>
+<p>Below is a small example visualized using the <a href="https://www.rayshader.com/">rayshader</a> R package:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Distance</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>300</td>
+<td>12</td>
+</tr>
+<tr class="even">
+<td>800</td>
+<td>8</td>
+</tr>
+<tr class="odd">
+<td>850</td>
+<td>10</td>
+</tr>
+<tr class="even">
+<td>1300</td>
+<td>9</td>
+</tr>
+</tbody>
+</table>
+<p><img src="Plots/ray1.png" style="width:70.0%" /></p>
+<p>Using the equation we can manually calculate the value <span class="math inline">\(z\)</span> for the point in the middle with <span class="math inline">\(\beta = 2\)</span> as:</p>
+<p><span class="math inline">\(z = (\frac{12}{300^2} + \frac{8}{800^2} + \frac{10}{850^2} + \frac{9}{1300^2}) / (\frac{1}{300^2} + \frac{1}{800^2} + \frac{1}{850^2} + \frac{1}{1300^2})\approx 11.3\)</span></p>
+<div id="computing-idw-with-rcpp" class="section level1">
+<h1>Computing IDW with Rcpp</h1>
+<div id="data" class="section level2">
+<h2>Data</h2>
+<p>First of all we need some data to interpolate. For that we will follow along the example of the FU-Berlin <span class="citation">(<a href="#ref-berlin" role="doc-biblioref">Hartmann, Krois, and Waske 2018</a>)</span> and use weather station data provided by the <a href="http://www.dwd.de/EN/Home/home_node.html">Deutscher Wetterdienst (DWD)</a> (German Weather Service).</p>
+<pre class="r"><code>library(dplyr)
+library(sf)
+
+# Retrieve Federal States by the the getData() function from the raster package
+east_germany &lt;- c(&#39;Sachsen&#39;, &#39;Sachsen-Anhalt&#39;, &#39;Berlin&#39;,
+                  &#39;Mecklenburg-Vorpommern&#39;,&#39;Brandenburg&#39;, &#39;Thüringen&#39;)
+
+aoi &lt;- raster::getData(country = &quot;Germany&quot;, level = 1) %&gt;%
+  st_as_sf() %&gt;% 
+  filter(NAME_1 %in% east_germany) %&gt;% 
+  st_transform(3035) %&gt;%
+  st_union()
+
+
+# Download DWD data
+dwd &lt;- read.csv2(&quot;https://userpage.fu-berlin.de/soga/300/30100_data_sets/DWD.csv&quot;,
+                 stringsAsFactors = FALSE) %&gt;% 
+  as_tibble() %&gt;% 
+  select(&#39;LAT&#39;,&#39;LON&#39;, &quot;MEAN.ANNUAL.RAINFALL&quot;, &quot;ALTITUDE&quot;) %&gt;%
+  rename(rain = &quot;MEAN.ANNUAL.RAINFALL&quot;) %&gt;% 
+  na.omit()
+
+# Convert to SF and transform to ETRS89/LAEA Europe
+dwd.sf &lt;- st_as_sf(dwd, coords = c(&quot;LON&quot;,&quot;LAT&quot;), crs = 4326) %&gt;% 
+  st_transform(3035) %&gt;% 
+  st_intersection(aoi)</code></pre>
+<p><img src="/post/iwd/index.en_files/figure-html/unnamed-chunk-4-1.png" width="384" /></p>
+<p>For the Rcpp algorithm, we need to convert the shapefile to a raster first and extract the raster values.</p>
+<pre class="r"><code>library(raster)
+dwd.rast &lt;- raster(xmn = st_bbox(dwd.sf)[1],
+                   xmx = st_bbox(dwd.sf)[3],
+                   ymn = st_bbox(dwd.sf)[2],
+                   ymx = st_bbox(dwd.sf)[4],
+                   crs = st_crs(dwd.sf)$proj4string,
+                   resolution = 10000) %&gt;% 
+  rasterize(dwd.sf, ., &quot;rain&quot;, background = NA)
+
+dwd.rast_values &lt;- getValues(dwd.rast)</code></pre>
+</div>
+<div id="rcpp-code" class="section level2">
+<h2>Rcpp code</h2>
+<p>We use the <code>S4</code> structure of raster objects to read basic raster information (e.g. resolution, nrow, …) from the input raster. For that I’ll include the RasterInfo structure that you can find <a href="https://github.com/STBrinkmann/GVI/blob/main/src/rsinfo.h">here</a>. The Rcpp implementation of the IDW algorithm has the following general structure:</p>
+<pre class="cpp"><code>#include &lt;Rcpp.h&gt;
+#include &quot;rsinfo.h&quot;
+
+using namespace Rcpp;
+
+// [[Rcpp::export]]
+NumericVector IDW_Rcpp(S4 &amp;rast, const NumericVector &amp;x,
+                       const int n, const double b, const double radius)
+{
+  // Basic raster information
+  RasterInfo rast_info(rast);
+  
+  // Convert radius to pixel
+  const int r_pxl = (int)(radius/rast_info.res);
+  
+  
+  // Output
+  NumericVector out(x.size(), NA_REAL);
+  
+  
+  // Main loop: Loop over all values of the raster x
+  for(int j = 0; j &lt; x.size(); j++){
+    
+    // 1. Convert j to row/col and X/Y coordinates
+    
+    // 2. Calculate distance to all cells and store their values
+    
+    // 3. Sort by distance and select top n
+    
+    // 4. Compute IDW
+  }
+  
+  return out;
+}</code></pre>
+<p>Below I will explain all four sections in detail, you can find the final source code on <a href="https://github.com/STBrinkmann/GVI/blob/main/src/IDW_cpp.cpp">GitHub</a>. Also, if you would like to support multithreading, it is really simple using <a href="https://www.openmp.org/">OpenMP</a>. We’ll come back to that later.</p>
+<div id="convert-j-to-rowcol-and-xy-coordinates" class="section level4">
+<h4>1. Convert j to row/col and X/Y coordinates</h4>
+<p>We can use simple math to obtain the row/col and X/Y coordinates from the current cell <span class="math inline">\(j\)</span>.</p>
+<pre class="cpp"><code>// row col from cell
+const int row_j = j / rast_info.ncol;
+const int col_j = j - (row_j * rast_info.ncol);
+
+// XY from cell
+const double y_j = rast_info.ymax - (row_j + 0.5) * rast_info.res;
+const double x_j = rast_info.xmin + (col_j + 0.5) * rast_info.res;</code></pre>
+</div>
+<div id="calculate-distance-to-all-cells-and-store-their-values" class="section level4">
+<h4>2. Calculate distance to all cells and store their values</h4>
+<p>To calculate the distance to the current cell <span class="math inline">\(j\)</span> and the corresponding value we need to iterate over all cells that are within the radius. For that we take the row (or column) $row_j$ and loop over all rows (or columns) <span class="math inline">\(row_i\)</span>, where <span class="math inline">\(row_j-radius &lt;= row_i &lt;= row_j+radius\)</span>.</p>
+<p>Again, the cell <span class="math inline">\(i\)</span> and X/Y coordinates can be calculated using simple math. The distance from <span class="math inline">\(j\)</span> to <span class="math inline">\(i\)</span> is calculated using simple euclidean distance. Of course one could take the earths curvature into account, but let’s keep it simple for now. Finally, the distance and value of cell <span class="math inline">\(i\)</span> will be stored. Note, that the cells <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span> can be identical. In this case <span class="math inline">\(d\)</span> would be <span class="math inline">\(0\)</span> and result in a math error due to division by zero. Therefore, we simply store a fraction of the raster resolution in this case. One could also store a very small number or even the true value of <span class="math inline">\(i\)</span>. However, while testing different values, this led to very pointy interpolation maps.</p>
+<pre class="cpp"><code>// Distance (d) and value (z) vector
+std::vector&lt;double&gt; d;
+std::vector&lt;double&gt; z;
+
+// Iterate over all cells that are within the radius
+for(int row_i = row_j-r_pxl; row_i &lt;= row_j+r_pxl; row_i++){
+  if(row_i &gt; 0 &amp;&amp; row_i &lt; rast_info.nrow){
+    
+    for(int col_i = col_j-r_pxl; col_i &lt;= col_j+r_pxl; col_i++){
+      if(col_i &gt; 0 &amp;&amp; col_i &lt; rast_info.ncol){
+        
+        // Cell from row/col
+        const int i = row_i * rast_info.ncol + col_i;
+        const double i_value = x[i];
+        
+        if(!NumericVector::is_na(i_value)) {
+          // XY from cell
+          const double y_i = rast_info.ymax - (row_i + 0.5) * rast_info.res;
+          const double x_i = rast_info.xmin + (col_i + 0.5) * rast_info.res;
+          
+          // Distance
+          const double dist = sqrt((x_j-x_i)*(x_j-x_i) + (y_j-y_i)*(y_j-y_i));
+          
+          // Save distance and value
+          if(i == j){
+            d.push_back(rast_info.res/4);
+            z.push_back(i_value);
+          } else if(dist &lt;= radius) {
+            d.push_back(dist);
+            z.push_back(i_value);
+          }
+        }
+      }
+    }
+  }
+}</code></pre>
+</div>
+<div id="sort-by-distance-and-select-top-n" class="section level4">
+<h4>3. Sort by distance and select top n</h4>
+<p>To efficiently select only the top <span class="math inline">\(n\)</span> values I have created a little helper function <code>findBestIndices</code>. It takes a distance vector <code>d</code> and the number of values <code>N</code> that should be returned, and returns <code>N</code> indices of <code>d</code> sorted by distance. So for example if we have a vector <code>d = c(4,1,6,0)</code> and <code>N = 3</code>, the function returns <code>c(3, 1, 0)</code> (C++ starts indexing from 0).</p>
+<pre class="cpp"><code>std::vector&lt;int&gt; findBestIndices(std::vector&lt;double&gt; &amp;d, const int &amp;N)
+{   
+    std::vector&lt;int&gt; indices(d.size());
+    std::iota(indices.begin(), indices.end(), 0); // fill with 0,1,2,...
+
+    std::partial_sort(indices.begin(), indices.begin()+N, indices.end(),
+                     [&amp;d](int i,int j) {return d[i]&lt;d[j];});
+
+    return std::vector&lt;int&gt;(indices.begin(), indices.begin()+N);
+}</code></pre>
+<p>Now we can apply this function in our main loop:</p>
+<pre class="cpp"><code>// 3. Sort by distance and select top n
+int nn = (d.size() &lt; n) ? d.size() : n;
+
+// Index of n shortest distances
+std::vector&lt;int&gt; idx = findBestIndices(d, nn);
+
+// And select value (z) and distance (d) in that order
+std::vector&lt;double&gt; z_top_n;
+std::vector&lt;double&gt; d_top_n;
+for(auto t=idx.begin(); t!=idx.end(); ++t){
+  z_top_n.push_back(z[*t]);
+  d_top_n.push_back(d[*t]);
+}</code></pre>
+</div>
+<div id="compute-idw" class="section level4">
+<h4>4. Compute IDW</h4>
+<p>Finally, we have everything to interpolate the value for cell <span class="math inline">\(j\)</span>. Again, I’ve created a small helper function <code>calc_idw</code> that applies the equation from the beginning of this post.</p>
+<pre class="cpp"><code>double calc_idw(std::vector&lt;double&gt; &amp;d, std::vector&lt;double&gt; &amp;v, const double b){
+    double numerator = 0.0;
+    double denominator = 0.0;
+    
+    // Sum from i to n
+    for(std::size_t i = 0; i &lt; d.size(); i++){
+        numerator += v[i] / pow(d[i], b);
+        denominator += 1 / pow(d[i], b);
+    }
+    
+    return numerator/denominator;
+}</code></pre>
+<p>And include it into the main loop:</p>
+<pre class="cpp"><code>// Compute IDW
+out[j] = calc_idw(d_top_n, z_top_n, b);</code></pre>
+</div>
+</div>
+<div id="comparison-with-gstat" class="section level2">
+<h2>Comparison with gstat</h2>
+<p>The <code>gstat</code> R package provides a large set of functions useful for geostatistical modelling, prediction and simulation. I followed the instruction provided by the FU Berlin <span class="citation">(<a href="#ref-berlin" role="doc-biblioref">Hartmann, Krois, and Waske 2018</a>)</span> and compared the results and computation time to the Rcpp method. Conveniently they have also conducted a <a href="https://www.geo.fu-berlin.de/en/v/soga/Geodata-analysis/geostatistics/Inverse-Distance-Weighting/Model-selection/index.html">cross validation</a> to select the parameters <span class="math inline">\(n = 43\)</span> and <span class="math inline">\(\beta = 1.5\)</span> to reduce RMSE.</p>
+<p>I have packed all steps for the two approaches into the helper functions <code>dwd_rcpp</code> and <code>dwd_gstat</code>, you can view them <a href="dwd_helper_funs.R">here</a>.</p>
+<p>Let’s look at the visual comparison first.</p>
+<p><img src="/post/iwd/index.en_files/figure-html/unnamed-chunk-15-1.png" width="864" /></p>
+<p>On the first glance, both maps look very similar. Apparently the raster generartion using <code>rasterize</code> results in a small spatial offset compared to the <code>gstat</code> raster. However, the differences are marginal.</p>
+<p>Now that we know the algorithm works fine, let’s compare computation time.</p>
+<pre class="r"><code>load(url(&quot;https://userpage.fu-berlin.de/soga/300/30100_data_sets/East_Germany.RData&quot;))
+
+library(microbenchmark)
+microbenchmark(
+  rcpp = dwd_rcpp(aoi = east.germany.states.sp, data = dwd.east.sp, 
+                  n = 43, b = 1.5, resolution = 10000),
+  gstat = dwd_gstat(aoi = east.germany.states.sp, data = dwd.east.sp, 
+                    n = 43, b = 1.5, resolution = 10000)
+)</code></pre>
+<pre><code>## Unit: milliseconds
+##   expr      min       lq     mean   median       uq      max neval cld
+##   rcpp 215.3333 225.7391 233.3985 229.0763 233.6078 410.7200   100  a 
+##  gstat 223.4818 232.3571 251.1311 237.3653 243.8096 421.1824   100   b</code></pre>
+<p>Again, both methods show very similar results. However, when we reduce the resolution (more cells) we clearly see the advantage of using Rcpp.</p>
+<pre class="r"><code>microbenchmark(
+  rcpp = dwd_rcpp(aoi = east.germany.states.sp, data = dwd.east.sp,
+                  n = 43, b = 1.5, resolution = 1000),
+  gstat = dwd_gstat(aoi = east.germany.states.sp, data = dwd.east.sp, 
+                    n = 43, b = 1.5, resolution = 1000)
+)</code></pre>
+<pre><code>## Unit: seconds
+##   expr      min       lq     mean   median       uq      max neval cld
+##   rcpp 1.888486 1.918858 1.968413 1.962389 1.971613 2.202879   100  a 
+##  gstat 2.358264 2.423042 2.533372 2.516033 2.656117 2.845171   100   b</code></pre>
+<p>As mentioned previously, supporting multithreading with Rcpp is simple, too. The <code>dwd_rcpp</code> function supports multithreading, which enables us to compute rainfall interpolation for whole Germany quickly!</p>
+<pre class="r"><code>aoi &lt;- raster::getData(country = &quot;Germany&quot;, level = 1) %&gt;%
+  st_as_sf() %&gt;% 
+  st_transform(3035) %&gt;%
+  st_union() %&gt;% 
+  st_as_sf()
+
+dwd.sf &lt;- st_as_sf(dwd, coords = c(&quot;LON&quot;,&quot;LAT&quot;), crs = 4326) %&gt;% 
+  st_transform(3035) %&gt;% 
+  st_intersection(aoi) %&gt;% 
+  rename(Rainfall = rain)</code></pre>
+<p>Rcpp:</p>
+<pre class="r"><code>time_start &lt;- Sys.time()
+germany_rcpp &lt;- dwd_rcpp(aoi = aoi, data = dwd.sf,
+                         resolution = 500, ncores = 24)
+round(difftime(Sys.time(), time_start),1)</code></pre>
+<pre><code>## Time difference of 3.4 secs</code></pre>
+<p>gstat:</p>
+<pre class="r"><code>time_start &lt;- Sys.time()
+germany_gstat &lt;- dwd_gstat(aoi = aoi, data = dwd.sf,
+                           resolution = 500)
+round(difftime(Sys.time(), time_start),1)</code></pre>
+<pre><code>## Time difference of 43.1 secs</code></pre>
+</div>
+</div>
+<div id="conclusion" class="section level1">
+<h1>Conclusion</h1>
+<p>In this post I’ve demonstrated how the IDW algorithm can be implemented in C++ using Rcpp. The results match the output of the well established <code>gstat</code> R package. Single core computation time is lower using the Rcpp version, especially for more complex tasks (large number of observations; low raster resolution). But where the Rcpp function really stands out is the capability of multithreading. In my research of <a href="https://geobrinkmann.com/post/visible-greenness-exposure/">Greenspace Visibility</a> I analyse millions of observer locations over a very large area of interest. Using the <code>gstat</code> function would take a long time, but utilizing all of my cores reduces computation time significantly. However, <code>gstat</code> also supports more complex interpolation methods (e.g. kriging).<br />
+As a next step I will try to include barriers as demonstrated by <span class="citation"><a href="#ref-gisgeography" role="doc-biblioref">GISGeography</a> (<a href="#ref-gisgeography" role="doc-biblioref">2016</a>)</span> to simulate the effect of noise barriers or visible obstacles.</p>
+<p>I have included the IDW interpolation algorithm in the <a href="https://github.com/STBrinkmann/GVI">GVI</a> R package that also supports <em>LINE</em> and <em>POLYGON</em> features as the observer input:</p>
+<pre class="r"><code>library(GVI)
+germany_rcpp &lt;- sf_to_rast(observer = dwd.sf, v = &quot;Rainfall&quot;, aoi = aoi,
+                           beta = 1.5, raster_res = 1000, cores = 22)</code></pre>
+</div>
+<div id="references" class="section level1 unnumbered">
+<h1>References</h1>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-dunnington" class="csl-entry">
+Dunnington, Dewey. 2019. <span>“Bathymetry &amp; Lake Volume Estimation Using r.”</span> <a href="https://fishandwhistle.net/post/2019/bathymetry-lake-volume-estimation-using-r/">https://fishandwhistle.net/post/2019/bathymetry-lake-volume-estimation-using-r/</a>.
+</div>
+<div id="ref-gisgeography" class="csl-entry">
+GISGeography. 2016. <span>“Inverse Distance Weighting (IDW) Interpolation.”</span> <a href="https://gisgeography.com/inverse-distance-weighting-idw-interpolation/">https://gisgeography.com/inverse-distance-weighting-idw-interpolation/</a>.
+</div>
+<div id="ref-berlin" class="csl-entry">
+Hartmann, K., J. Krois, and B. Waske. 2018. <span>“E-Learning Project SOGA: Statistics and Geospatial Data Analysis. Department of Earth Sciences, Freie Universitaet Berlin.”</span> <a href="https://www.geo.fu-berlin.de/en/v/soga/Geodata-analysis/geostatistics/index.html">https://www.geo.fu-berlin.de/en/v/soga/Geodata-analysis/geostatistics/index.html</a>.
+</div>
+<div id="ref-tobler1970" class="csl-entry">
+Tobler, W. R. 1970. <span>“A Computer Movie Simulating Urban Growth in the Detroit Region.”</span> <em>Economic Geography</em> 46 (June): 234. <a href="https://doi.org/10.2307/143141">https://doi.org/10.2307/143141</a>.
+</div>
+<div id="ref-wilke" class="csl-entry">
+Wilke, Sören. 2020. <span>“A Practical Guide to Geospatial Interpolation with r.”</span> <a href="https://swilke-geoscience.net/post/spatial_interpolation/">https://swilke-geoscience.net/post/spatial_interpolation/</a>.
+</div>
+</div>
+</div>
+
+    </div>
+
+    
+
+
+
+
+
+
+<div class="article-tags">
+  
+  <a class="badge badge-light" href="/tag/r/">R</a>
+  
+  <a class="badge badge-light" href="/tag/rcpp/">Rcpp</a>
+  
+  <a class="badge badge-light" href="/tag/gis/">GIS</a>
+  
+</div>
+
+
+
+<div class="share-box" aria-hidden="true">
+  <ul class="share">
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="https://twitter.com/intent/tweet?url=/post/iwd/&amp;text=Fast%20Inverse%20Distance%20Weighting%20%28IDW%29%20Interpolation%20with%20Rcpp" target="_blank" rel="noopener" class="share-btn-twitter">
+          <i class="fab fa-twitter"></i>
+        </a>
+      </li>
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="https://www.facebook.com/sharer.php?u=/post/iwd/&amp;t=Fast%20Inverse%20Distance%20Weighting%20%28IDW%29%20Interpolation%20with%20Rcpp" target="_blank" rel="noopener" class="share-btn-facebook">
+          <i class="fab fa-facebook"></i>
+        </a>
+      </li>
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="mailto:?subject=Fast%20Inverse%20Distance%20Weighting%20%28IDW%29%20Interpolation%20with%20Rcpp&amp;body=/post/iwd/" target="_blank" rel="noopener" class="share-btn-email">
+          <i class="fas fa-envelope"></i>
+        </a>
+      </li>
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="https://www.linkedin.com/shareArticle?url=/post/iwd/&amp;title=Fast%20Inverse%20Distance%20Weighting%20%28IDW%29%20Interpolation%20with%20Rcpp" target="_blank" rel="noopener" class="share-btn-linkedin">
+          <i class="fab fa-linkedin-in"></i>
+        </a>
+      </li>
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="whatsapp://send?text=Fast%20Inverse%20Distance%20Weighting%20%28IDW%29%20Interpolation%20with%20Rcpp%20/post/iwd/" target="_blank" rel="noopener" class="share-btn-whatsapp">
+          <i class="fab fa-whatsapp"></i>
+        </a>
+      </li>
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="https://service.weibo.com/share/share.php?url=/post/iwd/&amp;title=Fast%20Inverse%20Distance%20Weighting%20%28IDW%29%20Interpolation%20with%20Rcpp" target="_blank" rel="noopener" class="share-btn-weibo">
+          <i class="fab fa-weibo"></i>
+        </a>
+      </li>
+    
+  </ul>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+
+
+  
+  
+  
+    
+  
+  
+  
+  <div class="media author-card content-widget-hr">
+    
+      
+      <img class="avatar mr-3 avatar-circle" src="/author/sebastian-brinkmann/avatar_huf65170c82686b243c078fb899ffe0d6d_504103_270x270_fill_q75_lanczos_center.jpg" alt="Sebastian Brinkmann">
+    
+
+    <div class="media-body">
+      <h5 class="card-title">Sebastian Brinkmann</h5>
+      <h6 class="card-subtitle">BSc Student in Physical Geography</h6>
+      <p class="card-text">My research interests include spatial analysis, remote sensing, data science, urban forestry and epidemiology.</p>
+      <ul class="network-icon" aria-hidden="true">
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="/#contact" >
+        <i class="fas fa-envelope"></i>
+      </a>
+    </li>
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="https://github.com/STBrinkmann" target="_blank" rel="noopener">
+        <i class="fab fa-github"></i>
+      </a>
+    </li>
+  
+</ul>
+
+    </div>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <div class="article-widget content-widget-hr">
+    <h3>Related</h3>
+    <ul>
+      
+      <li><a href="/post/visible-greenness-exposure/">Visible Greenness Exposure</a></li>
+      
+      <li><a href="/post/covid-19-15km-radius-webapp/">COVID-19: 15km Radius WebApp</a></li>
+      
+      <li><a href="/publication/gvi-greenness-visibility-index-r-package/">GVI: Greenness Visibility Index R package</a></li>
+      
+      <li><a href="/post/visible-greenness-exposure-index-an-example-workflow-for-the-city-of-vancouver/">Visible Greenness Exposure Index - An example workflow for the City of Vancouver</a></li>
+      
+      <li><a href="/post/visibility-sensitivity-analysis/">Visibility - Sensitivity Analysis</a></li>
+      
+    </ul>
+  </div>
+  
+
+
+
+
+
+  </div>
+</article>
+  </div>
+
+  <div class="page-footer">
+    
+    
+    <div class="container">
+      <footer class="site-footer">
+  
+
+  <p class="powered-by">
+    
+  </p>
+
+  
+  
+
+
+
+
+
+
+  <p class="powered-by">
+    
+    
+    
+    Published with
+    <a href="https://wowchemy.com/?utm_campaign=poweredby" target="_blank" rel="noopener">Wowchemy</a>  —
+    the free, <a href="https://github.com/wowchemy/wowchemy-hugo-modules" target="_blank" rel="noopener">
+    open source</a> website builder that empowers creators.
+    
+  </p>
+</footer>
+
+    </div>
+    
+  </div>
+
+  
+<div id="modal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Cite</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <pre><code class="tex hljs"></code></pre>
+      </div>
+      <div class="modal-footer">
+        <a class="btn btn-outline-primary my-1 js-copy-cite" href="#" target="_blank">
+          <i class="fas fa-copy"></i> Copy
+        </a>
+        <a class="btn btn-outline-primary my-1 js-download-cite" href="#" target="_blank">
+          <i class="fas fa-download"></i> Download
+        </a>
+        <div id="modal-error"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+      
+
+    
+    
+    
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+
+      
+      
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/4.1.4/imagesloaded.pkgd.min.js" integrity="sha256-lqvxZrPLtfffUl2G/e7szqSvPBILGbwmsGE1MKlOi0Q=" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.isotope/3.0.6/isotope.pkgd.min.js" integrity="sha256-CBrpuqrMhXwcLLUd5tvQ4euBHCdh7wGlDfNz8vbu/iI=" crossorigin="anonymous"></script>
+      
+
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" integrity="sha256-yt2kYMy0w8AbtF89WXb2P1rfjcP/HTHLT7097U8Y5b8=" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/instant.page/5.1.0/instantpage.min.js" integrity="sha512-1+qUtKoh9XZW7j+6LhRMAyOrgSQKenQ4mluTR+cvxXjP1Z54RxZuzstR/H9kgPXQsVB8IW7DMDFUJpzLjvhGSQ==" crossorigin="anonymous"></script>
+
+      
+
+      
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.2.0/highlight.min.js" integrity="sha512-TDKKr+IvoqZnPzc3l35hdjpHD0m+b2EC2SrLEgKDRWpxf2rFCxemkgvJ5kfU48ip+Y+m2XVKyOCD85ybtlZDmw==" crossorigin="anonymous"></script>
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.2.0/languages/r.min.js"></script>
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.2.0/languages/latex.min.js"></script>
+        
+      
+
+    
+
+    
+    
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.min.js" integrity="sha512-SeiQaaDh73yrb56sTW/RgVdi/mMqNeM2oBwubFHagc5BkixSpP1fvqF47mKzPGWYSSy4RwbBunrJBQ4Co8fRWA==" crossorigin="anonymous"></script>
+    
+
+    
+    
+    <script>const code_highlighting = true;</script>
+    
+
+    
+    
+    
+    
+    
+    
+    <script>
+      const search_config = {"indexURI":"/index.json","minLength":1,"threshold":0.3};
+      const i18n = {"no_results":"No results found","placeholder":"Search...","results":"results found"};
+      const content_type = {
+        'post': "Posts",
+        'project': "Projects",
+        'publication' : "Publications",
+        'event' : "Events",
+        'slides' : "Slides"
+        };
+    </script>
+    
+
+    
+    
+
+    
+    
+    <script id="search-hit-fuse-template" type="text/x-template">
+      <div class="search-hit" id="summary-{{key}}">
+      <div class="search-hit-content">
+        <div class="search-hit-name">
+          <a href="{{relpermalink}}">{{title}}</a>
+          <div class="article-metadata search-hit-type">{{type}}</div>
+          <p class="search-hit-description">{{snippet}}</p>
+        </div>
+      </div>
+      </div>
+    </script>
+    
+
+    
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.2.1/fuse.min.js" integrity="sha256-VzgmKYmhsGNNN4Ph1kMW+BjoYJM2jV5i4IlFoeZA9XI=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script>
+    
+
+    
+    
+
+    
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+      
+      
+    
+    
+    <script src="/js/wowchemy.min.572b7caf7fe601716a0f74d67d754c21.js"></script>
+
+    
+
+
+
+
+
+
+</body>
+</html>

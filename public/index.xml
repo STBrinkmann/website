@@ -5,12 +5,328 @@
     <link>/</link>
       <atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     <description>GeoBrinkmann</description>
-    <generator>Wowchemy (https://wowchemy.com)</generator><language>en-us</language><lastBuildDate>Mon, 05 Jul 2021 00:00:00 +0000</lastBuildDate>
+    <generator>Wowchemy (https://wowchemy.com)</generator><language>en-us</language><lastBuildDate>Thu, 03 Feb 2022 00:00:00 +0000</lastBuildDate>
     <image>
       <url>/images/icon_hub8298344815fb61130442b7c2888b4e0_27889_512x512_fill_lanczos_center_2.png</url>
       <title>GeoBrinkmann</title>
       <link>/</link>
     </image>
+    
+    <item>
+      <title>Fast Inverse Distance Weighting (IDW) Interpolation with Rcpp</title>
+      <link>/post/iwd/</link>
+      <pubDate>Thu, 03 Feb 2022 00:00:00 +0000</pubDate>
+      <guid>/post/iwd/</guid>
+      <description>
+&lt;script src=&#34;/post/iwd/index.en_files/header-attrs/header-attrs.js&#34;&gt;&lt;/script&gt;
+
+
+&lt;p&gt;A common task in the field of geostatistics is interpolation. According to the first law of Geography, “&lt;em&gt;Everything is related to everything else. But near things are more related than distant things.&lt;/em&gt;” &lt;span class=&#34;citation&#34;&gt;(&lt;a href=&#34;#ref-tobler1970&#34; role=&#34;doc-biblioref&#34;&gt;Tobler 1970&lt;/a&gt;)&lt;/span&gt;. We can make use of this to interpolate values over a spatial region from a finite set of observations. There are already a number of great sources that describe geospatial interpolation methods &lt;span class=&#34;citation&#34;&gt;(&lt;a href=&#34;#ref-gisgeography&#34; role=&#34;doc-biblioref&#34;&gt;GISGeography 2016&lt;/a&gt;; &lt;a href=&#34;#ref-berlin&#34; role=&#34;doc-biblioref&#34;&gt;Hartmann, Krois, and Waske 2018&lt;/a&gt;; &lt;a href=&#34;#ref-dunnington&#34; role=&#34;doc-biblioref&#34;&gt;Dunnington 2019&lt;/a&gt;; &lt;a href=&#34;#ref-wilke&#34; role=&#34;doc-biblioref&#34;&gt;Wilke 2020&lt;/a&gt;)&lt;/span&gt;. So in this post I don’t want to explain these methods again, but instead give a practical example on how to implement Inverse Distance Weighting (IDW) in C++ with Rcpp. I will explain the Rcpp code step by step, the finished result is available in the GVI R package on &lt;a href=&#34;https://github.com/STBrinkmann/GVI&#34;&gt;GitHub&lt;/a&gt;.&lt;br /&gt;
+&lt;span class=&#34;citation&#34;&gt;&lt;a href=&#34;#ref-gisgeography&#34; role=&#34;doc-biblioref&#34;&gt;GISGeography&lt;/a&gt; (&lt;a href=&#34;#ref-gisgeography&#34; role=&#34;doc-biblioref&#34;&gt;2016&lt;/a&gt;)&lt;/span&gt; provides an excellent explanation of the maths behind IDW. In short, the interpolated value of any location is based on the values of known locations, assuming closer values are more related than further values.&lt;/p&gt;
+&lt;p&gt;&lt;span class=&#34;math display&#34;&gt;\[
+z = \frac{\sum_{i}^{n}\frac{z_i}{{d_i}^\beta}}{\sum_{i}^{n}\frac{1}{{d_i}^\beta}}
+\]&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;where &lt;span class=&#34;math inline&#34;&gt;\(z\)&lt;/span&gt; is the value to be interpolated, &lt;span class=&#34;math inline&#34;&gt;\(n\)&lt;/span&gt; the number of surrounding known locations, and &lt;span class=&#34;math inline&#34;&gt;\(z_i\)&lt;/span&gt; and &lt;span class=&#34;math inline&#34;&gt;\(d_i\)&lt;/span&gt; their corresponding value and distance, respectively. &lt;span class=&#34;math inline&#34;&gt;\(\beta\)&lt;/span&gt; describes the distance power, that determines the degree to which nearer points are preferred over more distant points.&lt;/p&gt;
+&lt;p&gt;Below is a small example visualized using the &lt;a href=&#34;https://www.rayshader.com/&#34;&gt;rayshader&lt;/a&gt; R package:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr class=&#34;header&#34;&gt;
+&lt;th&gt;Distance&lt;/th&gt;
+&lt;th&gt;Value&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td&gt;300&lt;/td&gt;
+&lt;td&gt;12&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td&gt;800&lt;/td&gt;
+&lt;td&gt;8&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td&gt;850&lt;/td&gt;
+&lt;td&gt;10&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td&gt;1300&lt;/td&gt;
+&lt;td&gt;9&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;&lt;img src=&#34;Plots/ray1.png&#34; style=&#34;width:70.0%&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;Using the equation we can manually calculate the value &lt;span class=&#34;math inline&#34;&gt;\(z\)&lt;/span&gt; for the point in the middle with &lt;span class=&#34;math inline&#34;&gt;\(\beta = 2\)&lt;/span&gt; as:&lt;/p&gt;
+&lt;p&gt;&lt;span class=&#34;math inline&#34;&gt;\(z = (\frac{12}{300^2} + \frac{8}{800^2} + \frac{10}{850^2} + \frac{9}{1300^2}) / (\frac{1}{300^2} + \frac{1}{800^2} + \frac{1}{850^2} + \frac{1}{1300^2})\approx 11.3\)&lt;/span&gt;&lt;/p&gt;
+&lt;div id=&#34;computing-idw-with-rcpp&#34; class=&#34;section level1&#34;&gt;
+&lt;h1&gt;Computing IDW with Rcpp&lt;/h1&gt;
+&lt;div id=&#34;data&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Data&lt;/h2&gt;
+&lt;p&gt;First of all we need some data to interpolate. For that we will follow along the example of the FU-Berlin &lt;span class=&#34;citation&#34;&gt;(&lt;a href=&#34;#ref-berlin&#34; role=&#34;doc-biblioref&#34;&gt;Hartmann, Krois, and Waske 2018&lt;/a&gt;)&lt;/span&gt; and use weather station data provided by the &lt;a href=&#34;http://www.dwd.de/EN/Home/home_node.html&#34;&gt;Deutscher Wetterdienst (DWD)&lt;/a&gt; (German Weather Service).&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;library(dplyr)
+library(sf)
+
+# Retrieve Federal States by the the getData() function from the raster package
+east_germany &amp;lt;- c(&amp;#39;Sachsen&amp;#39;, &amp;#39;Sachsen-Anhalt&amp;#39;, &amp;#39;Berlin&amp;#39;,
+                  &amp;#39;Mecklenburg-Vorpommern&amp;#39;,&amp;#39;Brandenburg&amp;#39;, &amp;#39;Thüringen&amp;#39;)
+
+aoi &amp;lt;- raster::getData(country = &amp;quot;Germany&amp;quot;, level = 1) %&amp;gt;%
+  st_as_sf() %&amp;gt;% 
+  filter(NAME_1 %in% east_germany) %&amp;gt;% 
+  st_transform(3035) %&amp;gt;%
+  st_union()
+
+
+# Download DWD data
+dwd &amp;lt;- read.csv2(&amp;quot;https://userpage.fu-berlin.de/soga/300/30100_data_sets/DWD.csv&amp;quot;,
+                 stringsAsFactors = FALSE) %&amp;gt;% 
+  as_tibble() %&amp;gt;% 
+  select(&amp;#39;LAT&amp;#39;,&amp;#39;LON&amp;#39;, &amp;quot;MEAN.ANNUAL.RAINFALL&amp;quot;, &amp;quot;ALTITUDE&amp;quot;) %&amp;gt;%
+  rename(rain = &amp;quot;MEAN.ANNUAL.RAINFALL&amp;quot;) %&amp;gt;% 
+  na.omit()
+
+# Convert to SF and transform to ETRS89/LAEA Europe
+dwd.sf &amp;lt;- st_as_sf(dwd, coords = c(&amp;quot;LON&amp;quot;,&amp;quot;LAT&amp;quot;), crs = 4326) %&amp;gt;% 
+  st_transform(3035) %&amp;gt;% 
+  st_intersection(aoi)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;/post/iwd/index.en_files/figure-html/unnamed-chunk-4-1.png&#34; width=&#34;384&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;For the Rcpp algorithm, we need to convert the shapefile to a raster first and extract the raster values.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;library(raster)
+dwd.rast &amp;lt;- raster(xmn = st_bbox(dwd.sf)[1],
+                   xmx = st_bbox(dwd.sf)[3],
+                   ymn = st_bbox(dwd.sf)[2],
+                   ymx = st_bbox(dwd.sf)[4],
+                   crs = st_crs(dwd.sf)$proj4string,
+                   resolution = 10000) %&amp;gt;% 
+  rasterize(dwd.sf, ., &amp;quot;rain&amp;quot;, background = NA)
+
+dwd.rast_values &amp;lt;- getValues(dwd.rast)&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;div id=&#34;rcpp-code&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Rcpp code&lt;/h2&gt;
+&lt;p&gt;We use the &lt;code&gt;S4&lt;/code&gt; structure of raster objects to read basic raster information (e.g. resolution, nrow, …) from the input raster. For that I’ll include the RasterInfo structure that you can find &lt;a href=&#34;https://github.com/STBrinkmann/GVI/blob/main/src/rsinfo.h&#34;&gt;here&lt;/a&gt;. The Rcpp implementation of the IDW algorithm has the following general structure:&lt;/p&gt;
+&lt;pre class=&#34;cpp&#34;&gt;&lt;code&gt;#include &amp;lt;Rcpp.h&amp;gt;
+#include &amp;quot;rsinfo.h&amp;quot;
+
+using namespace Rcpp;
+
+// [[Rcpp::export]]
+NumericVector IDW_Rcpp(S4 &amp;amp;rast, const NumericVector &amp;amp;x,
+                       const int n, const double b, const double radius)
+{
+  // Basic raster information
+  RasterInfo rast_info(rast);
+  
+  // Convert radius to pixel
+  const int r_pxl = (int)(radius/rast_info.res);
+  
+  
+  // Output
+  NumericVector out(x.size(), NA_REAL);
+  
+  
+  // Main loop: Loop over all values of the raster x
+  for(int j = 0; j &amp;lt; x.size(); j++){
+    
+    // 1. Convert j to row/col and X/Y coordinates
+    
+    // 2. Calculate distance to all cells and store their values
+    
+    // 3. Sort by distance and select top n
+    
+    // 4. Compute IDW
+  }
+  
+  return out;
+}&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Below I will explain all four sections in detail, you can find the final source code on &lt;a href=&#34;https://github.com/STBrinkmann/GVI/blob/main/src/IDW_cpp.cpp&#34;&gt;GitHub&lt;/a&gt;. Also, if you would like to support multithreading, it is really simple using &lt;a href=&#34;https://www.openmp.org/&#34;&gt;OpenMP&lt;/a&gt;. We’ll come back to that later.&lt;/p&gt;
+&lt;div id=&#34;convert-j-to-rowcol-and-xy-coordinates&#34; class=&#34;section level4&#34;&gt;
+&lt;h4&gt;1. Convert j to row/col and X/Y coordinates&lt;/h4&gt;
+&lt;p&gt;We can use simple math to obtain the row/col and X/Y coordinates from the current cell &lt;span class=&#34;math inline&#34;&gt;\(j\)&lt;/span&gt;.&lt;/p&gt;
+&lt;pre class=&#34;cpp&#34;&gt;&lt;code&gt;// row col from cell
+const int row_j = j / rast_info.ncol;
+const int col_j = j - (row_j * rast_info.ncol);
+
+// XY from cell
+const double y_j = rast_info.ymax - (row_j + 0.5) * rast_info.res;
+const double x_j = rast_info.xmin + (col_j + 0.5) * rast_info.res;&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;div id=&#34;calculate-distance-to-all-cells-and-store-their-values&#34; class=&#34;section level4&#34;&gt;
+&lt;h4&gt;2. Calculate distance to all cells and store their values&lt;/h4&gt;
+&lt;p&gt;To calculate the distance to the current cell &lt;span class=&#34;math inline&#34;&gt;\(j\)&lt;/span&gt; and the corresponding value we need to iterate over all cells that are within the radius. For that we take the row (or column) $row_j$ and loop over all rows (or columns) &lt;span class=&#34;math inline&#34;&gt;\(row_i\)&lt;/span&gt;, where &lt;span class=&#34;math inline&#34;&gt;\(row_j-radius &amp;lt;= row_i &amp;lt;= row_j+radius\)&lt;/span&gt;.&lt;/p&gt;
+&lt;p&gt;Again, the cell &lt;span class=&#34;math inline&#34;&gt;\(i\)&lt;/span&gt; and X/Y coordinates can be calculated using simple math. The distance from &lt;span class=&#34;math inline&#34;&gt;\(j\)&lt;/span&gt; to &lt;span class=&#34;math inline&#34;&gt;\(i\)&lt;/span&gt; is calculated using simple euclidean distance. Of course one could take the earths curvature into account, but let’s keep it simple for now. Finally, the distance and value of cell &lt;span class=&#34;math inline&#34;&gt;\(i\)&lt;/span&gt; will be stored. Note, that the cells &lt;span class=&#34;math inline&#34;&gt;\(i\)&lt;/span&gt; and &lt;span class=&#34;math inline&#34;&gt;\(j\)&lt;/span&gt; can be identical. In this case &lt;span class=&#34;math inline&#34;&gt;\(d\)&lt;/span&gt; would be &lt;span class=&#34;math inline&#34;&gt;\(0\)&lt;/span&gt; and result in a math error due to division by zero. Therefore, we simply store a fraction of the raster resolution in this case. One could also store a very small number or even the true value of &lt;span class=&#34;math inline&#34;&gt;\(i\)&lt;/span&gt;. However, while testing different values, this led to very pointy interpolation maps.&lt;/p&gt;
+&lt;pre class=&#34;cpp&#34;&gt;&lt;code&gt;// Distance (d) and value (z) vector
+std::vector&amp;lt;double&amp;gt; d;
+std::vector&amp;lt;double&amp;gt; z;
+
+// Iterate over all cells that are within the radius
+for(int row_i = row_j-r_pxl; row_i &amp;lt;= row_j+r_pxl; row_i++){
+  if(row_i &amp;gt; 0 &amp;amp;&amp;amp; row_i &amp;lt; rast_info.nrow){
+    
+    for(int col_i = col_j-r_pxl; col_i &amp;lt;= col_j+r_pxl; col_i++){
+      if(col_i &amp;gt; 0 &amp;amp;&amp;amp; col_i &amp;lt; rast_info.ncol){
+        
+        // Cell from row/col
+        const int i = row_i * rast_info.ncol + col_i;
+        const double i_value = x[i];
+        
+        if(!NumericVector::is_na(i_value)) {
+          // XY from cell
+          const double y_i = rast_info.ymax - (row_i + 0.5) * rast_info.res;
+          const double x_i = rast_info.xmin + (col_i + 0.5) * rast_info.res;
+          
+          // Distance
+          const double dist = sqrt((x_j-x_i)*(x_j-x_i) + (y_j-y_i)*(y_j-y_i));
+          
+          // Save distance and value
+          if(i == j){
+            d.push_back(rast_info.res/4);
+            z.push_back(i_value);
+          } else if(dist &amp;lt;= radius) {
+            d.push_back(dist);
+            z.push_back(i_value);
+          }
+        }
+      }
+    }
+  }
+}&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;div id=&#34;sort-by-distance-and-select-top-n&#34; class=&#34;section level4&#34;&gt;
+&lt;h4&gt;3. Sort by distance and select top n&lt;/h4&gt;
+&lt;p&gt;To efficiently select only the top &lt;span class=&#34;math inline&#34;&gt;\(n\)&lt;/span&gt; values I have created a little helper function &lt;code&gt;findBestIndices&lt;/code&gt;. It takes a distance vector &lt;code&gt;d&lt;/code&gt; and the number of values &lt;code&gt;N&lt;/code&gt; that should be returned, and returns &lt;code&gt;N&lt;/code&gt; indices of &lt;code&gt;d&lt;/code&gt; sorted by distance. So for example if we have a vector &lt;code&gt;d = c(4,1,6,0)&lt;/code&gt; and &lt;code&gt;N = 3&lt;/code&gt;, the function returns &lt;code&gt;c(3, 1, 0)&lt;/code&gt; (C++ starts indexing from 0).&lt;/p&gt;
+&lt;pre class=&#34;cpp&#34;&gt;&lt;code&gt;std::vector&amp;lt;int&amp;gt; findBestIndices(std::vector&amp;lt;double&amp;gt; &amp;amp;d, const int &amp;amp;N)
+{   
+    std::vector&amp;lt;int&amp;gt; indices(d.size());
+    std::iota(indices.begin(), indices.end(), 0); // fill with 0,1,2,...
+
+    std::partial_sort(indices.begin(), indices.begin()+N, indices.end(),
+                     [&amp;amp;d](int i,int j) {return d[i]&amp;lt;d[j];});
+
+    return std::vector&amp;lt;int&amp;gt;(indices.begin(), indices.begin()+N);
+}&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Now we can apply this function in our main loop:&lt;/p&gt;
+&lt;pre class=&#34;cpp&#34;&gt;&lt;code&gt;// 3. Sort by distance and select top n
+int nn = (d.size() &amp;lt; n) ? d.size() : n;
+
+// Index of n shortest distances
+std::vector&amp;lt;int&amp;gt; idx = findBestIndices(d, nn);
+
+// And select value (z) and distance (d) in that order
+std::vector&amp;lt;double&amp;gt; z_top_n;
+std::vector&amp;lt;double&amp;gt; d_top_n;
+for(auto t=idx.begin(); t!=idx.end(); ++t){
+  z_top_n.push_back(z[*t]);
+  d_top_n.push_back(d[*t]);
+}&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;div id=&#34;compute-idw&#34; class=&#34;section level4&#34;&gt;
+&lt;h4&gt;4. Compute IDW&lt;/h4&gt;
+&lt;p&gt;Finally, we have everything to interpolate the value for cell &lt;span class=&#34;math inline&#34;&gt;\(j\)&lt;/span&gt;. Again, I’ve created a small helper function &lt;code&gt;calc_idw&lt;/code&gt; that applies the equation from the beginning of this post.&lt;/p&gt;
+&lt;pre class=&#34;cpp&#34;&gt;&lt;code&gt;double calc_idw(std::vector&amp;lt;double&amp;gt; &amp;amp;d, std::vector&amp;lt;double&amp;gt; &amp;amp;v, const double b){
+    double numerator = 0.0;
+    double denominator = 0.0;
+    
+    // Sum from i to n
+    for(std::size_t i = 0; i &amp;lt; d.size(); i++){
+        numerator += v[i] / pow(d[i], b);
+        denominator += 1 / pow(d[i], b);
+    }
+    
+    return numerator/denominator;
+}&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;And include it into the main loop:&lt;/p&gt;
+&lt;pre class=&#34;cpp&#34;&gt;&lt;code&gt;// Compute IDW
+out[j] = calc_idw(d_top_n, z_top_n, b);&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id=&#34;comparison-with-gstat&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Comparison with gstat&lt;/h2&gt;
+&lt;p&gt;The &lt;code&gt;gstat&lt;/code&gt; R package provides a large set of functions useful for geostatistical modelling, prediction and simulation. I followed the instruction provided by the FU Berlin &lt;span class=&#34;citation&#34;&gt;(&lt;a href=&#34;#ref-berlin&#34; role=&#34;doc-biblioref&#34;&gt;Hartmann, Krois, and Waske 2018&lt;/a&gt;)&lt;/span&gt; and compared the results and computation time to the Rcpp method. Conveniently they have also conducted a &lt;a href=&#34;https://www.geo.fu-berlin.de/en/v/soga/Geodata-analysis/geostatistics/Inverse-Distance-Weighting/Model-selection/index.html&#34;&gt;cross validation&lt;/a&gt; to select the parameters &lt;span class=&#34;math inline&#34;&gt;\(n = 43\)&lt;/span&gt; and &lt;span class=&#34;math inline&#34;&gt;\(\beta = 1.5\)&lt;/span&gt; to reduce RMSE.&lt;/p&gt;
+&lt;p&gt;I have packed all steps for the two approaches into the helper functions &lt;code&gt;dwd_rcpp&lt;/code&gt; and &lt;code&gt;dwd_gstat&lt;/code&gt;, you can view them &lt;a href=&#34;dwd_helper_funs.R&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Let’s look at the visual comparison first.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/post/iwd/index.en_files/figure-html/unnamed-chunk-15-1.png&#34; width=&#34;864&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;On the first glance, both maps look very similar. Apparently the raster generartion using &lt;code&gt;rasterize&lt;/code&gt; results in a small spatial offset compared to the &lt;code&gt;gstat&lt;/code&gt; raster. However, the differences are marginal.&lt;/p&gt;
+&lt;p&gt;Now that we know the algorithm works fine, let’s compare computation time.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;load(url(&amp;quot;https://userpage.fu-berlin.de/soga/300/30100_data_sets/East_Germany.RData&amp;quot;))
+
+library(microbenchmark)
+microbenchmark(
+  rcpp = dwd_rcpp(aoi = east.germany.states.sp, data = dwd.east.sp, 
+                  n = 43, b = 1.5, resolution = 10000),
+  gstat = dwd_gstat(aoi = east.germany.states.sp, data = dwd.east.sp, 
+                    n = 43, b = 1.5, resolution = 10000)
+)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## Unit: milliseconds
+##   expr      min       lq     mean   median       uq      max neval cld
+##   rcpp 215.3333 225.7391 233.3985 229.0763 233.6078 410.7200   100  a 
+##  gstat 223.4818 232.3571 251.1311 237.3653 243.8096 421.1824   100   b&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Again, both methods show very similar results. However, when we reduce the resolution (more cells) we clearly see the advantage of using Rcpp.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;microbenchmark(
+  rcpp = dwd_rcpp(aoi = east.germany.states.sp, data = dwd.east.sp,
+                  n = 43, b = 1.5, resolution = 1000),
+  gstat = dwd_gstat(aoi = east.germany.states.sp, data = dwd.east.sp, 
+                    n = 43, b = 1.5, resolution = 1000)
+)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## Unit: seconds
+##   expr      min       lq     mean   median       uq      max neval cld
+##   rcpp 1.888486 1.918858 1.968413 1.962389 1.971613 2.202879   100  a 
+##  gstat 2.358264 2.423042 2.533372 2.516033 2.656117 2.845171   100   b&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;As mentioned previously, supporting multithreading with Rcpp is simple, too. The &lt;code&gt;dwd_rcpp&lt;/code&gt; function supports multithreading, which enables us to compute rainfall interpolation for whole Germany quickly!&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;aoi &amp;lt;- raster::getData(country = &amp;quot;Germany&amp;quot;, level = 1) %&amp;gt;%
+  st_as_sf() %&amp;gt;% 
+  st_transform(3035) %&amp;gt;%
+  st_union() %&amp;gt;% 
+  st_as_sf()
+
+dwd.sf &amp;lt;- st_as_sf(dwd, coords = c(&amp;quot;LON&amp;quot;,&amp;quot;LAT&amp;quot;), crs = 4326) %&amp;gt;% 
+  st_transform(3035) %&amp;gt;% 
+  st_intersection(aoi) %&amp;gt;% 
+  rename(Rainfall = rain)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Rcpp:&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;time_start &amp;lt;- Sys.time()
+germany_rcpp &amp;lt;- dwd_rcpp(aoi = aoi, data = dwd.sf,
+                         resolution = 500, ncores = 24)
+round(difftime(Sys.time(), time_start),1)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## Time difference of 3.4 secs&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;gstat:&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;time_start &amp;lt;- Sys.time()
+germany_gstat &amp;lt;- dwd_gstat(aoi = aoi, data = dwd.sf,
+                           resolution = 500)
+round(difftime(Sys.time(), time_start),1)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## Time difference of 43.1 secs&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id=&#34;conclusion&#34; class=&#34;section level1&#34;&gt;
+&lt;h1&gt;Conclusion&lt;/h1&gt;
+&lt;p&gt;In this post I’ve demonstrated how the IDW algorithm can be implemented in C++ using Rcpp. The results match the output of the well established &lt;code&gt;gstat&lt;/code&gt; R package. Single core computation time is lower using the Rcpp version, especially for more complex tasks (large number of observations; low raster resolution). But where the Rcpp function really stands out is the capability of multithreading. In my research of &lt;a href=&#34;https://geobrinkmann.com/post/visible-greenness-exposure/&#34;&gt;Greenspace Visibility&lt;/a&gt; I analyse millions of observer locations over a very large area of interest. Using the &lt;code&gt;gstat&lt;/code&gt; function would take a long time, but utilizing all of my cores reduces computation time significantly. However, &lt;code&gt;gstat&lt;/code&gt; also supports more complex interpolation methods (e.g. kriging).&lt;br /&gt;
+As a next step I will try to include barriers as demonstrated by &lt;span class=&#34;citation&#34;&gt;&lt;a href=&#34;#ref-gisgeography&#34; role=&#34;doc-biblioref&#34;&gt;GISGeography&lt;/a&gt; (&lt;a href=&#34;#ref-gisgeography&#34; role=&#34;doc-biblioref&#34;&gt;2016&lt;/a&gt;)&lt;/span&gt; to simulate the effect of noise barriers or visible obstacles.&lt;/p&gt;
+&lt;p&gt;I have included the IDW interpolation algorithm in the &lt;a href=&#34;https://github.com/STBrinkmann/GVI&#34;&gt;GVI&lt;/a&gt; R package that also supports &lt;em&gt;LINE&lt;/em&gt; and &lt;em&gt;POLYGON&lt;/em&gt; features as the observer input:&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;library(GVI)
+germany_rcpp &amp;lt;- sf_to_rast(observer = dwd.sf, v = &amp;quot;Rainfall&amp;quot;, aoi = aoi,
+                           beta = 1.5, raster_res = 1000, cores = 22)&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;div id=&#34;references&#34; class=&#34;section level1 unnumbered&#34;&gt;
+&lt;h1&gt;References&lt;/h1&gt;
+&lt;div id=&#34;refs&#34; class=&#34;references csl-bib-body hanging-indent&#34;&gt;
+&lt;div id=&#34;ref-dunnington&#34; class=&#34;csl-entry&#34;&gt;
+Dunnington, Dewey. 2019. &lt;span&gt;“Bathymetry &amp;amp; Lake Volume Estimation Using r.”&lt;/span&gt; &lt;a href=&#34;https://fishandwhistle.net/post/2019/bathymetry-lake-volume-estimation-using-r/&#34;&gt;https://fishandwhistle.net/post/2019/bathymetry-lake-volume-estimation-using-r/&lt;/a&gt;.
+&lt;/div&gt;
+&lt;div id=&#34;ref-gisgeography&#34; class=&#34;csl-entry&#34;&gt;
+GISGeography. 2016. &lt;span&gt;“Inverse Distance Weighting (IDW) Interpolation.”&lt;/span&gt; &lt;a href=&#34;https://gisgeography.com/inverse-distance-weighting-idw-interpolation/&#34;&gt;https://gisgeography.com/inverse-distance-weighting-idw-interpolation/&lt;/a&gt;.
+&lt;/div&gt;
+&lt;div id=&#34;ref-berlin&#34; class=&#34;csl-entry&#34;&gt;
+Hartmann, K., J. Krois, and B. Waske. 2018. &lt;span&gt;“E-Learning Project SOGA: Statistics and Geospatial Data Analysis. Department of Earth Sciences, Freie Universitaet Berlin.”&lt;/span&gt; &lt;a href=&#34;https://www.geo.fu-berlin.de/en/v/soga/Geodata-analysis/geostatistics/index.html&#34;&gt;https://www.geo.fu-berlin.de/en/v/soga/Geodata-analysis/geostatistics/index.html&lt;/a&gt;.
+&lt;/div&gt;
+&lt;div id=&#34;ref-tobler1970&#34; class=&#34;csl-entry&#34;&gt;
+Tobler, W. R. 1970. &lt;span&gt;“A Computer Movie Simulating Urban Growth in the Detroit Region.”&lt;/span&gt; &lt;em&gt;Economic Geography&lt;/em&gt; 46 (June): 234. &lt;a href=&#34;https://doi.org/10.2307/143141&#34;&gt;https://doi.org/10.2307/143141&lt;/a&gt;.
+&lt;/div&gt;
+&lt;div id=&#34;ref-wilke&#34; class=&#34;csl-entry&#34;&gt;
+Wilke, Sören. 2020. &lt;span&gt;“A Practical Guide to Geospatial Interpolation with r.”&lt;/span&gt; &lt;a href=&#34;https://swilke-geoscience.net/post/spatial_interpolation/&#34;&gt;https://swilke-geoscience.net/post/spatial_interpolation/&lt;/a&gt;.
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+</description>
+    </item>
     
     <item>
       <title>GVI: Greenness Visibility Index R package</title>
@@ -62,7 +378,7 @@ rcl_mat &amp;lt;- matrix(c(1, 6, 0,    # no vegetation
 greenspace &amp;lt;- classify(lulc, rcl = rcl_mat, include.lowest = TRUE)
 writeRaster(greenspace, file.path(workdir, &amp;quot;Vancouver_GS_2m.tif&amp;quot;))&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Below I have provided a interactive map of a smaller region, to compare the DTM, DSM and Landuse. In &lt;a href=&#34;https://geobrinkmann.com/post/visible-greenness-exposure/#section-greenspace-mask&#34;&gt;my other post&lt;/a&gt; I have also listed all classes of the Landuse map in detail.&lt;/p&gt;
-&lt;iframe frameborder=&#34;0&#34; scrolling=&#34;no&#34; seamless=&#34;seamless&#34; style=&#34;display:block; width:95%; height:85vh;&#34; src=&#34;https://datageobrinkmann.be/VGVI_input.html&#34;&gt;
+&lt;iframe frameborder=&#34;0&#34; scrolling=&#34;no&#34; seamless=&#34;seamless&#34; style=&#34;display:block; width:95%; height:85vh;&#34; src=&#34;https://h2961284.stratoserver.net/VGVI_input.html&#34;&gt;
 &lt;/iframe&gt;
 &lt;p&gt;&lt;/br&gt;&lt;/p&gt;
 &lt;p&gt;We also need the observer locations where the VGVI should be computed. In our example we could simply use all coordinates of the whole DSM. However, we can’t compute the VGVI from inside buildings, and it wouldn’t make sense to compute VGVI on water (unless you are interested in the view of stand-up paddlers). Therefore, in the next step, we only use the coordinates of useful cells from the Land Cover Classification map and convert it to a sf-point feature.&lt;/p&gt;
@@ -195,7 +511,7 @@ big_rast %&amp;gt;%
 
 tree_cover &amp;lt;- classify(lulc, rcl = rcl_mat, include.lowest = TRUE)&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Based on this new binary tree-cover mask, the Viewshed Tree-Cover Visibility Index (VTVI) can be calculated using the scripts from above. I have excluded observer locations that are underneath trees. Below you can see the result of the VGVI and VTVI. As you can see, they have not been computed for areas with buildings or water. In the VGVI layer you can also see, that cells which are located underneath trees have an extremely high VGVI value. This is because the viewshed algorithm can’t “see” beyond those trees and returns only one single visible cell, which is green. We are currently working on ways for solving this limitation.&lt;/p&gt;
-&lt;iframe frameborder=&#34;0&#34; scrolling=&#34;no&#34; seamless=&#34;seamless&#34; style=&#34;display:block; width:95%; height:85vh;&#34; src=&#34;https://datageobrinkmann.be/VGVI_out.html&#34;&gt;
+&lt;iframe frameborder=&#34;0&#34; scrolling=&#34;no&#34; seamless=&#34;seamless&#34; style=&#34;display:block; width:95%; height:85vh;&#34; src=&#34;https://h2961284.stratoserver.net/VGVI_out.html&#34;&gt;
 &lt;/iframe&gt;
 &lt;p&gt;&lt;/br&gt;&lt;/p&gt;
 &lt;p&gt;When looking at the VTVI layer, higher values are rarely achieved because it is generally harder to view trees compared to overall vegetation. The Langara Golf Course in the south and the Little Mountain park in the north are the two areas with the highest VTVI values. The residential area in the east also achieved relatively high values. This might be explained by the very large London plane trees (&lt;em&gt;Platanus × acerifolia&lt;/em&gt;), European beech trees (&lt;em&gt;Fagus sylvatica&lt;/em&gt;) and horse chestnut trees (&lt;em&gt;Aesculus hippocastanum&lt;/em&gt;) that have been planted in the side alleys.&lt;/p&gt;
