@@ -2,13 +2,14 @@
 title: 'GVI: Greenness Visibility Index R package'
 authors:
 - admin
-- S.M. Labib
+- S M Labib
 date: '2021-07-05'
 slug: gvi-greenness-visibility-index-r-package
 tags:
   - R
-  - Greenspace
+  - Greenness visibility
   - Health Geography
+  - Viewshed computation
 summary: 'The GVI R package provides tools for computing a Greenness Visibility Index (GVI) surface from a DSM, DTM and Greenness Surface.'
 lastmod: '2021-07-05T11:14:11+02:00'
 featured: true
