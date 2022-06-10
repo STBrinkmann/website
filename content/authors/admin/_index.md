@@ -30,17 +30,17 @@ social:
 - icon: envelope
   icon_pack: fas
   link: /#contact
-#- icon: twitter
-#  icon_pack: fab
-#  link: https://twitter.com/GeorgeCushen
+- icon: twitter
+  icon_pack: fab
+  link: https://twitter.com/ST_Brinkmann
 - icon: github
   icon_pack: fab
   link: https://github.com/STBrinkmann
-#- icon: linkedin
-#  icon_pack: fab
-#  link: https://www.linkedin.com/
+- icon: linkedin
+  icon_pack: fab
+  link: https://www.linkedin.com/in/sebastian-t-brinkmann/
 superuser: true
-title: Sebastian Brinkmann
+title: Sebastian Tobias Brinkmann
 ---
 
 I am a Physical Geographer at [FAU Nürnberg-Erlangen](https://www.geographie.nat.fau.de/). In our [research group](https://www.geography.nat.fau.eu/research/cultural-geography/wg-digital-health/) I work as an Data Analyst and focus on machine learning, and the intersection of natural environment and human behaviour by developing novel algorithms.\
