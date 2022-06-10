@@ -54,7 +54,7 @@ rcl_mat &lt;- matrix(c(1, 6, 0,    # no vegetation
 greenspace &lt;- classify(lulc, rcl = rcl_mat, include.lowest = TRUE)
 writeRaster(greenspace, file.path(workdir, &quot;Vancouver_GS_2m.tif&quot;))</code></pre>
 <p>Below I have provided a interactive map of a smaller region, to compare the DTM, DSM and Landuse. In <a href="https://geobrinkmann.com/post/visible-greenness-exposure/#section-greenspace-mask">my other post</a> I have also listed all classes of the Landuse map in detail.</p>
-<iframe frameborder="0" scrolling="no" seamless="seamless" style="display:block; width:95%; height:85vh;" src="https://h2961284.stratoserver.net/VGVI_input.html">
+<iframe frameborder="0" scrolling="no" seamless="seamless" style="display:block; width:95%; height:85vh;" src="https://h2961284.stratoserver.net/content/leaflets/VGVI%20Input/index.html">
 </iframe>
 <p></br></p>
 <p>We also need the observer locations where the VGVI should be computed. In our example we could simply use all coordinates of the whole DSM. However, we can’t compute the VGVI from inside buildings, and it wouldn’t make sense to compute VGVI on water (unless you are interested in the view of stand-up paddlers). Therefore, in the next step, we only use the coordinates of useful cells from the Land Cover Classification map and convert it to a sf-point feature.</p>
@@ -187,7 +187,7 @@ big_rast %&gt;%
 
 tree_cover &lt;- classify(lulc, rcl = rcl_mat, include.lowest = TRUE)</code></pre>
 <p>Based on this new binary tree-cover mask, the Viewshed Tree-Cover Visibility Index (VTVI) can be calculated using the scripts from above. I have excluded observer locations that are underneath trees. Below you can see the result of the VGVI and VTVI. As you can see, they have not been computed for areas with buildings or water. In the VGVI layer you can also see, that cells which are located underneath trees have an extremely high VGVI value. This is because the viewshed algorithm can’t “see” beyond those trees and returns only one single visible cell, which is green. We are currently working on ways for solving this limitation.</p>
-<iframe frameborder="0" scrolling="no" seamless="seamless" style="display:block; width:95%; height:85vh;" src="https://h2961284.stratoserver.net/VGVI_out.html">
+<iframe frameborder="0" scrolling="no" seamless="seamless" style="display:block; width:95%; height:85vh;" src="https://h2961284.stratoserver.net/content/leaflets/VGVI%20Output/index.html">
 </iframe>
 <p></br></p>
 <p>When looking at the VTVI layer, higher values are rarely achieved because it is generally harder to view trees compared to overall vegetation. The Langara Golf Course in the south and the Little Mountain park in the north are the two areas with the highest VTVI values. The residential area in the east also achieved relatively high values. This might be explained by the very large London plane trees (<em>Platanus × acerifolia</em>), European beech trees (<em>Fagus sylvatica</em>) and horse chestnut trees (<em>Aesculus hippocastanum</em>) that have been planted in the side alleys.</p>

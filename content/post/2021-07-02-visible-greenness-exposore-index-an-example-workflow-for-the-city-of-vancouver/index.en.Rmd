@@ -59,7 +59,7 @@ writeRaster(greenspace, file.path(workdir, "Vancouver_GS_2m.tif"))
 
 Below I have provided a interactive map of a smaller region, to compare the DTM, DSM and Landuse. In [my other post](https://geobrinkmann.com/post/visible-greenness-exposure/#section-greenspace-mask) I have also listed all classes of the Landuse map in detail.
 
-<iframe frameborder="0" scrolling="no" seamless="seamless" style="display:block; width:95%; height:85vh;" src="https://h2961284.stratoserver.net/VGVI_input.html">
+<iframe frameborder="0" scrolling="no" seamless="seamless" style="display:block; width:95%; height:85vh;" src="https://h2961284.stratoserver.net/content/leaflets/VGVI%20Input/index.html">
 
 </iframe>
 
@@ -214,7 +214,7 @@ tree_cover <- classify(lulc, rcl = rcl_mat, include.lowest = TRUE)
 
 Based on this new binary tree-cover mask, the Viewshed Tree-Cover Visibility Index (VTVI) can be calculated using the scripts from above. I have excluded observer locations that are underneath trees. Below you can see the result of the VGVI and VTVI. As you can see, they have not been computed for areas with buildings or water. In the VGVI layer you can also see, that cells which are located underneath trees have an extremely high VGVI value. This is because the viewshed algorithm can't "see" beyond those trees and returns only one single visible cell, which is green. We are currently working on ways for solving this limitation.
 
-<iframe frameborder="0" scrolling="no" seamless="seamless" style="display:block; width:95%; height:85vh;" src="https://h2961284.stratoserver.net/VGVI_out.html">
+<iframe frameborder="0" scrolling="no" seamless="seamless" style="display:block; width:95%; height:85vh;" src="https://h2961284.stratoserver.net/content/leaflets/VGVI%20Output/index.html">
 
 </iframe>
 
