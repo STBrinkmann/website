@@ -3,17 +3,142 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>/post/iwd/</loc>
-    <lastmod>2022-02-03T15:51:44+01:00</lastmod>
+    <loc>/publication-type/2/</loc>
+    <lastmod>2022-06-10T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/authors/</loc>
+    <lastmod>2022-06-10T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/author/blake-byron-walker/</loc>
+    <lastmod>2022-06-10T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/author/dominik-kremer/</loc>
+    <lastmod>2022-06-10T00:00:00+00:00</lastmod>
   </url>
   
   <url>
     <loc>/</loc>
-    <lastmod>2022-02-03T15:51:44+01:00</lastmod>
+    <lastmod>2022-06-10T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/tag/greenness-visibility/</loc>
+    <lastmod>2022-06-10T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/publication/brinkmann_2022/</loc>
+    <lastmod>2022-06-10T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/tag/optimisation/</loc>
+    <lastmod>2022-06-10T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/publication_types/</loc>
+    <lastmod>2022-06-10T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/publication/</loc>
+    <lastmod>2022-06-10T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/author/sebastian-t.-brinkmann/</loc>
+    <lastmod>2022-06-10T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/tags/</loc>
+    <lastmod>2022-06-10T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/tag/urban-health/</loc>
+    <lastmod>2022-06-10T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/tag/viewshed-computation/</loc>
+    <lastmod>2022-06-10T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/tag/diabetes/</loc>
+    <lastmod>2022-05-12T00:00:00+00:00</lastmod>
   </url>
   
   <url>
     <loc>/tag/gis/</loc>
+    <lastmod>2022-05-12T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/tag/greenspace/</loc>
+    <lastmod>2022-05-12T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/author/gro%C3%9Fe-tim/</loc>
+    <lastmod>2022-05-12T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/author/hystad-perry/</loc>
+    <lastmod>2022-05-12T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/tag/indices/</loc>
+    <lastmod>2022-05-12T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/author/lear-scott-a/</loc>
+    <lastmod>2022-05-12T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/publication/walker_2022/</loc>
+    <lastmod>2022-05-12T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/author/rangarajan-sumathy/</loc>
+    <lastmod>2022-05-12T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/author/schuurman-nadine/</loc>
+    <lastmod>2022-05-12T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/tag/socioeconomic-status/</loc>
+    <lastmod>2022-05-12T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/author/teo-koon/</loc>
+    <lastmod>2022-05-12T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/author/yusuf-salim/</loc>
+    <lastmod>2022-05-12T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/iwd/</loc>
     <lastmod>2022-02-03T15:51:44+01:00</lastmod>
   </url>
   
@@ -33,18 +158,13 @@
   </url>
   
   <url>
-    <loc>/tags/</loc>
-    <lastmod>2022-02-03T15:51:44+01:00</lastmod>
+    <loc>/author/s.m.-labib/</loc>
+    <lastmod>2021-12-16T11:14:11+02:00</lastmod>
   </url>
   
   <url>
-    <loc>/authors/</loc>
-    <lastmod>2021-07-05T11:14:11+02:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>/tag/greenspace/</loc>
-    <lastmod>2021-07-05T11:14:11+02:00</lastmod>
+    <loc>/publication/spatlac-index-r-package/</loc>
+    <lastmod>2021-12-16T11:14:11+02:00</lastmod>
   </url>
   
   <url>
@@ -58,17 +178,7 @@
   </url>
   
   <url>
-    <loc>/publication/</loc>
-    <lastmod>2021-07-05T11:14:11+02:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>/author/s.m.-labib/</loc>
-    <lastmod>2021-07-05T11:14:11+02:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>/author/sebastian-brinkmann/</loc>
+    <loc>/author/s-m-labib/</loc>
     <lastmod>2021-07-05T11:14:11+02:00</lastmod>
   </url>
   
@@ -128,17 +238,7 @@
   </url>
   
   <url>
-    <loc>/publication-type/2/</loc>
-    <lastmod>2020-08-13T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
     <loc>/publication/scarpone2020/</loc>
-    <lastmod>2020-08-13T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>/author/blake-byron-walker/</loc>
     <lastmod>2020-08-13T00:00:00+00:00</lastmod>
   </url>
   
@@ -168,17 +268,7 @@
   </url>
   
   <url>
-    <loc>/publication_types/</loc>
-    <lastmod>2020-08-13T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
     <loc>/tag/sars-cov-2/</loc>
-    <lastmod>2020-08-13T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>/tag/socioeconomic-status/</loc>
     <lastmod>2020-08-13T00:00:00+00:00</lastmod>
   </url>
   

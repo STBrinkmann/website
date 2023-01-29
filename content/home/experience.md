@@ -22,12 +22,27 @@ date_format: Jan 2006
 #   Leave `date_end` empty if it's your current employer.
 #   Begin multi-line descriptions with YAML's `|2-` multi-line prefix.
 experience:
+  - title: Junior Research Specialist
+    company: Geomarketing/Geodata (GfK)
+    company_url: 'http://www.gfk.com/'
+    location: GfK Nürnberg
+    date_start: '2022-12-01'
+    description: Calculation of international purchasing power indicators - Solving client specific problems with geospatial data analysis - Tidymodels - R Package Maintenance
+    
+  - title: Student assistant
+    company: Digital Health Geography
+    company_url: 'https://www.geography.nat.fau.eu/research/cultural-geography/wg-digital-health/'
+    location: FAU Erlangen-Nürnberg
+    date_start: '2022-08-01'
+    date_end: '2022-11-30'
+    description: Analysing the effects of urban greenspace (e.g. visibility of nature or access to parks) on mental health as part of the PURE SPACE project. Road-Network analysis and spatial modeling as part of the [digiDEM Bayern](https://digidem-bayern.de/) project.  
+  
   - title: Internship
     company: Geomarketing/Geodata (GfK)
     company_url: 'http://www.gfk.com/'
     location: GfK Nürnberg
     date_start: '2022-05-01'
-    date_end: '2022-08-01'
+    date_end: '2022-07-31'
     description: Calculation of international purchasing power indicators - Data Research - Data Warehouse - R Package Maintenance - Creating reports in Shiny & Leaflet
     
   - title: Student assistant

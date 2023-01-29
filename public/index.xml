@@ -5,12 +5,32 @@
     <link>/</link>
       <atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     <description>GeoBrinkmann</description>
-    <generator>Wowchemy (https://wowchemy.com)</generator><language>en-us</language><lastBuildDate>Thu, 03 Feb 2022 00:00:00 +0000</lastBuildDate>
+    <generator>Wowchemy (https://wowchemy.com)</generator><language>en-us</language><lastBuildDate>Fri, 10 Jun 2022 00:00:00 +0000</lastBuildDate>
     <image>
       <url>/images/icon_hub8298344815fb61130442b7c2888b4e0_27889_512x512_fill_lanczos_center_2.png</url>
       <title>GeoBrinkmann</title>
       <link>/</link>
     </image>
+    
+    <item>
+      <title>Modelling eye-level visibility of urban green space: Optimising city-wide point-based viewshed computations through prototyping</title>
+      <link>/publication/brinkmann_2022/</link>
+      <pubDate>Fri, 10 Jun 2022 00:00:00 +0000</pubDate>
+      <guid>/publication/brinkmann_2022/</guid>
+      <description>&lt;h1 id=&#34;abstract&#34;&gt;Abstract&lt;/h1&gt;
+&lt;p&gt;Studies from public and environmental health show strong indication of the importance of visible urban green space. However, current approaches for modelling viewshed based greenness visibility still have high computation costs. As a consequence, comparative studies of city-wide visible greenness, everyday mobility, and individual attention are still at the edge of feasibility. Known optimisations focus on reducing the computation time of single viewsheds. As point-based viewsheds are computed using geospatial data, current approaches seek to accelerate calculation using intelligent data structures or spatial indexes (at the cost of additional memory) or develop approximative heuristic solutions. In contrast, as we aim to process large numbers of viewsheds with fixed parameterisations, we use a prototyping approach preprocessing a single viewshed template to store common prefixes of consecutive lines of sight that can be applied to followup viewsheds by a simple offset operation. Our evaluation shows an average improvement of 34% over the benchmark algorithm (RFVS), with even stronger improvements for large viewsheds. We anticipate that these findings lay the groundwork for further optimisation of point-based viewshed computation, improving the feasibility of subsequent comparative studies in the field of public and environmental health.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Neighborhood Greenspace and Socioeconomic Risk are Associated with Diabetes Risk at the Sub-neighborhood Scale: Results from the Prospective Urban and Rural Epidemiology (PURE) Study</title>
+      <link>/publication/walker_2022/</link>
+      <pubDate>Thu, 12 May 2022 00:00:00 +0000</pubDate>
+      <guid>/publication/walker_2022/</guid>
+      <description>&lt;h1 id=&#34;abstract&#34;&gt;Abstract&lt;/h1&gt;
+&lt;p&gt;Greenspace and socioeconomic status are known correlates of diabetes prevalence, but their combined effects at the sub-neighborhood scale are not yet known. This study derives, maps, and validates a combined socioeconomic/greenspace index of individual-level diabetes risk at the sub-neighborhood scale, without the need for clinical measurements. In two Canadian cities (Vancouver and Hamilton), we computed 4 greenspace variables from satellite imagery and extracted 11 socioeconomic variables from the Canadian census. We mapped 5125 participants from the Prospective Urban and Rural Epidemiology Study by their residential address and used age- and sex-dependent walking speeds to estimate individual exposure zones to local greenspace and socioeconomic characteristics, which were then entered into a principal component analysis to derive a novel diabetes risk index (DRI-GLUCoSE). We mapped index scores in both study areas and validated the index using fully adjusted logistic regression models to predict individual diabetes status. Model performance was then compared to other non-clinical diabetes risk indices from the literature. Diabetes prevalence among participants was 9.9%. The DRI-GLUCoSE index was a significant predictor of diabetes status, exhibiting a small non-significant attenuation with the inclusion of dietary and physical activity variables. The final models achieved a predictive accuracy of 75%, the highest among environmental risk models to date. Our combined index of local greenspace and socioeconomic factors demonstrates that the environmental component of diabetes risk is not sufficiently explained by diet and physical activity, and that increasing urban greenspace may be a suitable means of reducing the burden of diabetes at the community scale.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Fast Inverse Distance Weighting (IDW) Interpolation with Rcpp</title>
@@ -329,6 +349,16 @@ Wilke, Sören. 2020. &lt;span&gt;“A Practical Guide to Geospatial Interpolatio
     </item>
     
     <item>
+      <title>spatLac: Spatial Lacunarity</title>
+      <link>/publication/spatlac-index-r-package/</link>
+      <pubDate>Thu, 16 Dec 2021 00:00:00 +0000</pubDate>
+      <guid>/publication/spatlac-index-r-package/</guid>
+      <description>&lt;p&gt;The &lt;code&gt;spatLac&lt;/code&gt; R package helps researchers compute Lacunarity for binary and continuous Spatial Raster objects. &lt;code&gt;spatLac&lt;/code&gt; uses fast C++ code, allowing for low memory usage and multithreading.&lt;/p&gt;
+&lt;p&gt;Go on &lt;a href=&#34;https://github.com/STBrinkmann/spatLac&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;GitHub&lt;/a&gt; for more information.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
       <title>GVI: Greenness Visibility Index R package</title>
       <link>/publication/gvi-greenness-visibility-index-r-package/</link>
       <pubDate>Mon, 05 Jul 2021 00:00:00 +0000</pubDate>
@@ -378,7 +408,7 @@ rcl_mat &amp;lt;- matrix(c(1, 6, 0,    # no vegetation
 greenspace &amp;lt;- classify(lulc, rcl = rcl_mat, include.lowest = TRUE)
 writeRaster(greenspace, file.path(workdir, &amp;quot;Vancouver_GS_2m.tif&amp;quot;))&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Below I have provided a interactive map of a smaller region, to compare the DTM, DSM and Landuse. In &lt;a href=&#34;https://geobrinkmann.com/post/visible-greenness-exposure/#section-greenspace-mask&#34;&gt;my other post&lt;/a&gt; I have also listed all classes of the Landuse map in detail.&lt;/p&gt;
-&lt;iframe frameborder=&#34;0&#34; scrolling=&#34;no&#34; seamless=&#34;seamless&#34; style=&#34;display:block; width:95%; height:85vh;&#34; src=&#34;https://h2961284.stratoserver.net/VGVI_input.html&#34;&gt;
+&lt;iframe frameborder=&#34;0&#34; scrolling=&#34;no&#34; seamless=&#34;seamless&#34; style=&#34;display:block; width:95%; height:85vh;&#34; src=&#34;https://h2961284.stratoserver.net/content/leaflets/VGVI%20Input/index.html&#34;&gt;
 &lt;/iframe&gt;
 &lt;p&gt;&lt;/br&gt;&lt;/p&gt;
 &lt;p&gt;We also need the observer locations where the VGVI should be computed. In our example we could simply use all coordinates of the whole DSM. However, we can’t compute the VGVI from inside buildings, and it wouldn’t make sense to compute VGVI on water (unless you are interested in the view of stand-up paddlers). Therefore, in the next step, we only use the coordinates of useful cells from the Land Cover Classification map and convert it to a sf-point feature.&lt;/p&gt;
@@ -511,7 +541,7 @@ big_rast %&amp;gt;%
 
 tree_cover &amp;lt;- classify(lulc, rcl = rcl_mat, include.lowest = TRUE)&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Based on this new binary tree-cover mask, the Viewshed Tree-Cover Visibility Index (VTVI) can be calculated using the scripts from above. I have excluded observer locations that are underneath trees. Below you can see the result of the VGVI and VTVI. As you can see, they have not been computed for areas with buildings or water. In the VGVI layer you can also see, that cells which are located underneath trees have an extremely high VGVI value. This is because the viewshed algorithm can’t “see” beyond those trees and returns only one single visible cell, which is green. We are currently working on ways for solving this limitation.&lt;/p&gt;
-&lt;iframe frameborder=&#34;0&#34; scrolling=&#34;no&#34; seamless=&#34;seamless&#34; style=&#34;display:block; width:95%; height:85vh;&#34; src=&#34;https://h2961284.stratoserver.net/VGVI_out.html&#34;&gt;
+&lt;iframe frameborder=&#34;0&#34; scrolling=&#34;no&#34; seamless=&#34;seamless&#34; style=&#34;display:block; width:95%; height:85vh;&#34; src=&#34;https://h2961284.stratoserver.net/content/leaflets/VGVI%20Output/index.html&#34;&gt;
 &lt;/iframe&gt;
 &lt;p&gt;&lt;/br&gt;&lt;/p&gt;
 &lt;p&gt;When looking at the VTVI layer, higher values are rarely achieved because it is generally harder to view trees compared to overall vegetation. The Langara Golf Course in the south and the Little Mountain park in the north are the two areas with the highest VTVI values. The residential area in the east also achieved relatively high values. This might be explained by the very large London plane trees (&lt;em&gt;Platanus × acerifolia&lt;/em&gt;), European beech trees (&lt;em&gt;Fagus sylvatica&lt;/em&gt;) and horse chestnut trees (&lt;em&gt;Aesculus hippocastanum&lt;/em&gt;) that have been planted in the side alleys.&lt;/p&gt;
@@ -8647,7 +8677,16 @@ keinerlei personenbezogener Daten gespeichert.&lt;/p&gt;
       <link>/publication/scarpone2020/</link>
       <pubDate>Thu, 13 Aug 2020 00:00:00 +0000</pubDate>
       <guid>/publication/scarpone2020/</guid>
-      <description></description>
+      <description>&lt;h1 id=&#34;abstract&#34;&gt;Abstract&lt;/h1&gt;
+&lt;h2 id=&#34;background&#34;&gt;Background&lt;/h2&gt;
+&lt;p&gt;As of 13 July 2020, 12.9 million COVID-19 cases have been reported worldwide. Prior studies have demonstrated that local socioeconomic and built environment characteristics may significantly contribute to viral transmission and incidence rates, thereby accounting for some of the spatial variation observed. Due to uncertainties, non-linearities, and multiple interaction effects observed in the associations between COVID-19 incidence and socioeconomic, infrastructural, and built environment characteristics, we present a structured multimethod approach for analysing cross-sectional incidence data within in an Exploratory Spatial Data Analysis (ESDA) framework at the NUTS3 (county) scale.&lt;/p&gt;
+&lt;h2 id=&#34;methods&#34;&gt;Methods&lt;/h2&gt;
+&lt;p&gt;By sequentially conducting a geospatial analysis, an heuristic geographical interpretation, a Bayesian machine learning analysis, and parameterising a Generalised Additive Model (GAM), we assessed associations between incidence rates and 368 independent variables describing geographical patterns, socioeconomic risk factors, infrastructure, and features of the build environment. A spatial trend analysis and Local Indicators of Spatial Autocorrelation were used to characterise the geography of age-adjusted COVID-19 incidence rates across Germany, followed by iterative modelling using Bayesian Additive Regression Trees (BART) to identify and measure candidate explanatory variables. Partial dependence plots were derived to quantify and contextualise BART model results, followed by the parameterisation of a GAM to assess correlations.&lt;/p&gt;
+&lt;h2 id=&#34;results&#34;&gt;Results&lt;/h2&gt;
+&lt;p&gt;A strong south-to-north gradient of COVID-19 incidence was identified, facilitating an empirical classification of the study area into two epidemic subregions. All preliminary and final models indicated that location, densities of the built environment, and socioeconomic variables were important predictors of incidence rates in Germany. The top ten predictor variables’ partial dependence exhibited multiple non-linearities in the relationships between key predictor variables and COVID-19 incidence rates. The BART, partial dependence, and GAM results indicate that the strongest predictors of COVID-19 incidence at the county scale were related to community interconnectedness, geographical location, transportation infrastructure, and labour market structure.&lt;/p&gt;
+&lt;h2 id=&#34;conclusions&#34;&gt;Conclusions&lt;/h2&gt;
+&lt;p&gt;The multimethod ESDA approach provided unique insights into spatial and aspatial non-stationarities of COVID-19 incidence in Germany. BART and GAM modelling indicated that geographical configuration, built environment densities, socioeconomic characteristics, and infrastructure all exhibit associations with COVID-19 incidence in Germany when assessed at the county scale. The results suggest that measures to implement social distancing and reduce unnecessary travel may be important methods for reducing contagion, and the authors call for further research to investigate the observed associations to inform prevention and control policy.&lt;/p&gt;
+</description>
     </item>
     
     <item>

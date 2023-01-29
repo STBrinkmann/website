@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Urban health | GeoBrinkmann</title>
+    <link>/tag/urban-health/</link>
+      <atom:link href="/tag/urban-health/index.xml" rel="self" type="application/rss+xml" />
+    <description>Urban health</description>
+    <generator>Wowchemy (https://wowchemy.com)</generator><language>en-us</language><lastBuildDate>Fri, 10 Jun 2022 00:00:00 +0000</lastBuildDate>
+    <image>
+      <url>/images/icon_hub8298344815fb61130442b7c2888b4e0_27889_512x512_fill_lanczos_center_2.png</url>
+      <title>Urban health</title>
+      <link>/tag/urban-health/</link>
+    </image>
+    
+    <item>
+      <title>Modelling eye-level visibility of urban green space: Optimising city-wide point-based viewshed computations through prototyping</title>
+      <link>/publication/brinkmann_2022/</link>
+      <pubDate>Fri, 10 Jun 2022 00:00:00 +0000</pubDate>
+      <guid>/publication/brinkmann_2022/</guid>
+      <description>&lt;h1 id=&#34;abstract&#34;&gt;Abstract&lt;/h1&gt;
+&lt;p&gt;Studies from public and environmental health show strong indication of the importance of visible urban green space. However, current approaches for modelling viewshed based greenness visibility still have high computation costs. As a consequence, comparative studies of city-wide visible greenness, everyday mobility, and individual attention are still at the edge of feasibility. Known optimisations focus on reducing the computation time of single viewsheds. As point-based viewsheds are computed using geospatial data, current approaches seek to accelerate calculation using intelligent data structures or spatial indexes (at the cost of additional memory) or develop approximative heuristic solutions. In contrast, as we aim to process large numbers of viewsheds with fixed parameterisations, we use a prototyping approach preprocessing a single viewshed template to store common prefixes of consecutive lines of sight that can be applied to followup viewsheds by a simple offset operation. Our evaluation shows an average improvement of 34% over the benchmark algorithm (RFVS), with even stronger improvements for large viewsheds. We anticipate that these findings lay the groundwork for further optimisation of point-based viewshed computation, improving the feasibility of subsequent comparative studies in the field of public and environmental health.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

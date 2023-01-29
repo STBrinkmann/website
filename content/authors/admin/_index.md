@@ -2,10 +2,10 @@
 bio: My research interests include spatial analysis, remote sensing, data science, urban forestry and epidemiology.
 education:
   courses:
-  - course: B.Sc. in Physical Geography
+  - course: B.Sc. in Physical Geography (final grade 1.5)
     institution: FAU Erlangen-Nürnberg
-    year: 2017 - today
-  - course: B.Sc. in Applied mathematics and physics (incomplete)
+    year: 2017 - 2022
+  - course: B.Sc. in Applied mathematics and physics
     institution: TH Ohm Nürnberg
     year: 2016 - 2017
   - course: Subject-specific university admission for social work (Fachgebundene Hochschulreife im sozialen Zweig)
@@ -43,5 +43,5 @@ superuser: true
 title: Sebastian T. Brinkmann
 ---
 
-I am a Physical Geographer at [FAU Nürnberg-Erlangen](https://www.geographie.nat.fau.de/). In our [research group](https://www.geography.nat.fau.eu/research/cultural-geography/wg-digital-health/) I work as an Data Analyst and focus on machine learning, and the intersection of natural environment and human behaviour by developing novel algorithms.\
-In my spare time, I practise Aikido and enjoy working on private coding projects and traveling the world with my backpack. 
+I am a Research Specialist at [GfK Geomarketing](https://www.gfk.com/home) where I develope new methodology for calculating international market data. Before, I was working as part of the [Digital Health Geography research group](https://www.geography.nat.fau.eu/research/cultural-geography/wg-digital-health/) as a Data Analyst with focus on machine learning, and the intersection of natural environment and human behaviour by developing novel algorithms.\
+On this website I would like to share some of my private projects where I solve geo-spatial prolems with R.

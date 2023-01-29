@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Lear Scott A | GeoBrinkmann</title>
+    <link>/author/lear-scott-a/</link>
+      <atom:link href="/author/lear-scott-a/index.xml" rel="self" type="application/rss+xml" />
+    <description>Lear Scott A</description>
+    <generator>Wowchemy (https://wowchemy.com)</generator><language>en-us</language><lastBuildDate>Thu, 12 May 2022 00:00:00 +0000</lastBuildDate>
+    <image>
+      <url>/images/icon_hub8298344815fb61130442b7c2888b4e0_27889_512x512_fill_lanczos_center_2.png</url>
+      <title>Lear Scott A</title>
+      <link>/author/lear-scott-a/</link>
+    </image>
+    
+    <item>
+      <title>Neighborhood Greenspace and Socioeconomic Risk are Associated with Diabetes Risk at the Sub-neighborhood Scale: Results from the Prospective Urban and Rural Epidemiology (PURE) Study</title>
+      <link>/publication/walker_2022/</link>
+      <pubDate>Thu, 12 May 2022 00:00:00 +0000</pubDate>
+      <guid>/publication/walker_2022/</guid>
+      <description>&lt;h1 id=&#34;abstract&#34;&gt;Abstract&lt;/h1&gt;
+&lt;p&gt;Greenspace and socioeconomic status are known correlates of diabetes prevalence, but their combined effects at the sub-neighborhood scale are not yet known. This study derives, maps, and validates a combined socioeconomic/greenspace index of individual-level diabetes risk at the sub-neighborhood scale, without the need for clinical measurements. In two Canadian cities (Vancouver and Hamilton), we computed 4 greenspace variables from satellite imagery and extracted 11 socioeconomic variables from the Canadian census. We mapped 5125 participants from the Prospective Urban and Rural Epidemiology Study by their residential address and used age- and sex-dependent walking speeds to estimate individual exposure zones to local greenspace and socioeconomic characteristics, which were then entered into a principal component analysis to derive a novel diabetes risk index (DRI-GLUCoSE). We mapped index scores in both study areas and validated the index using fully adjusted logistic regression models to predict individual diabetes status. Model performance was then compared to other non-clinical diabetes risk indices from the literature. Diabetes prevalence among participants was 9.9%. The DRI-GLUCoSE index was a significant predictor of diabetes status, exhibiting a small non-significant attenuation with the inclusion of dietary and physical activity variables. The final models achieved a predictive accuracy of 75%, the highest among environmental risk models to date. Our combined index of local greenspace and socioeconomic factors demonstrates that the environmental component of diabetes risk is not sufficiently explained by diet and physical activity, and that increasing urban greenspace may be a suitable means of reducing the burden of diabetes at the community scale.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Dominik Kremer | GeoBrinkmann</title>
+    <link>/author/dominik-kremer/</link>
+      <atom:link href="/author/dominik-kremer/index.xml" rel="self" type="application/rss+xml" />
+    <description>Dominik Kremer</description>
+    <generator>Wowchemy (https://wowchemy.com)</generator><language>en-us</language><lastBuildDate>Fri, 10 Jun 2022 00:00:00 +0000</lastBuildDate>
+    <image>
+      <url>/images/icon_hub8298344815fb61130442b7c2888b4e0_27889_512x512_fill_lanczos_center_2.png</url>
+      <title>Dominik Kremer</title>
+      <link>/author/dominik-kremer/</link>
+    </image>
+    
+    <item>
+      <title>Modelling eye-level visibility of urban green space: Optimising city-wide point-based viewshed computations through prototyping</title>
+      <link>/publication/brinkmann_2022/</link>
+      <pubDate>Fri, 10 Jun 2022 00:00:00 +0000</pubDate>
+      <guid>/publication/brinkmann_2022/</guid>
+      <description>&lt;h1 id=&#34;abstract&#34;&gt;Abstract&lt;/h1&gt;
+&lt;p&gt;Studies from public and environmental health show strong indication of the importance of visible urban green space. However, current approaches for modelling viewshed based greenness visibility still have high computation costs. As a consequence, comparative studies of city-wide visible greenness, everyday mobility, and individual attention are still at the edge of feasibility. Known optimisations focus on reducing the computation time of single viewsheds. As point-based viewsheds are computed using geospatial data, current approaches seek to accelerate calculation using intelligent data structures or spatial indexes (at the cost of additional memory) or develop approximative heuristic solutions. In contrast, as we aim to process large numbers of viewsheds with fixed parameterisations, we use a prototyping approach preprocessing a single viewshed template to store common prefixes of consecutive lines of sight that can be applied to followup viewsheds by a simple offset operation. Our evaluation shows an average improvement of 34% over the benchmark algorithm (RFVS), with even stronger improvements for large viewsheds. We anticipate that these findings lay the groundwork for further optimisation of point-based viewshed computation, improving the feasibility of subsequent comparative studies in the field of public and environmental health.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Neighborhood Greenspace and Socioeconomic Risk are Associated with Diabetes Risk at the Sub-neighborhood Scale: Results from the Prospective Urban and Rural Epidemiology (PURE) Study</title>
+      <link>/publication/walker_2022/</link>
+      <pubDate>Thu, 12 May 2022 00:00:00 +0000</pubDate>
+      <guid>/publication/walker_2022/</guid>
+      <description>&lt;h1 id=&#34;abstract&#34;&gt;Abstract&lt;/h1&gt;
+&lt;p&gt;Greenspace and socioeconomic status are known correlates of diabetes prevalence, but their combined effects at the sub-neighborhood scale are not yet known. This study derives, maps, and validates a combined socioeconomic/greenspace index of individual-level diabetes risk at the sub-neighborhood scale, without the need for clinical measurements. In two Canadian cities (Vancouver and Hamilton), we computed 4 greenspace variables from satellite imagery and extracted 11 socioeconomic variables from the Canadian census. We mapped 5125 participants from the Prospective Urban and Rural Epidemiology Study by their residential address and used age- and sex-dependent walking speeds to estimate individual exposure zones to local greenspace and socioeconomic characteristics, which were then entered into a principal component analysis to derive a novel diabetes risk index (DRI-GLUCoSE). We mapped index scores in both study areas and validated the index using fully adjusted logistic regression models to predict individual diabetes status. Model performance was then compared to other non-clinical diabetes risk indices from the literature. Diabetes prevalence among participants was 9.9%. The DRI-GLUCoSE index was a significant predictor of diabetes status, exhibiting a small non-significant attenuation with the inclusion of dietary and physical activity variables. The final models achieved a predictive accuracy of 75%, the highest among environmental risk models to date. Our combined index of local greenspace and socioeconomic factors demonstrates that the environmental component of diabetes risk is not sufficiently explained by diet and physical activity, and that increasing urban greenspace may be a suitable means of reducing the burden of diabetes at the community scale.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
