@@ -354,15 +354,14 @@ Wilke, Sören. 2020. &lt;span&gt;“A Practical Guide to Geospatial Interpolatio
       <pubDate>Fri, 02 Jul 2021 00:00:00 +0000</pubDate>
       <guid>/post/visible-greenness-exposure-index-an-example-workflow-for-the-city-of-vancouver/</guid>
       <description>
-&lt;script src=&#34;/post/visible-greenness-exposure-index-an-example-workflow-for-the-city-of-vancouver/index.en_files/header-attrs/header-attrs.js&#34;&gt;&lt;/script&gt;
 
 
-&lt;p&gt;In a previous posts I have &lt;a href=&#34;https://geobrinkmann.com/post/visible-greenness-exposure/&#34;&gt;introduced the Viewshed Greenness Visibility Index (VGVI)&lt;/a&gt; and demonstrated, &lt;a href=&#34;https://geobrinkmann.com/post/visibility-sensitivity-analysis/&#34;&gt;how to fine tune the parameters for calculateing the viewsheds&lt;/a&gt;. In cooperation with &lt;a href=&#34;https://www.smlabib.com/&#34;&gt;Dr. S.M. Labib&lt;/a&gt; we have build the R package &lt;a href=&#34;https://github.com/STBrinkmann/GVI&#34;&gt;GVI&lt;/a&gt;, for easily calculating VGVI’s. The VGVI expresses the proportion of visible greenness to the total visible area and is calculated using a viewshed based on a Digital Surface Model (DSM). There are other methods to compute visible greenness, for example using Google Street View panorama images instead of a DSM (&lt;a href=&#34;https://doi.org/10.1016/j.ufug.2015.06.006&#34;&gt;Li &lt;em&gt;et al.&lt;/em&gt; 2015&lt;/a&gt;). Though the method we present has some advantages, as DSM and Landuse data is already being provided for public use for many regions worldwide. Furthermore, it is very easy to not only compute the overall visible greenness, but - for example - compute visible tree-coverage or visible blue-space. Such information is important to understand how specific build environment features affect health. I will demonstrate how to calculate visible tree-coverage in the end of this post.&lt;/p&gt;
+&lt;p&gt;In a previous posts I have &lt;a href=&#34;https://geobrinkmann.com/post/visible-greenness-exposure/&#34;&gt;introduced the Viewshed Greenness Visibility Index (VGVI)&lt;/a&gt; and demonstrated, &lt;a href=&#34;https://geobrinkmann.com/post/visibility-sensitivity-analysis/&#34;&gt;how to fine tune the parameters for calculateing the viewsheds&lt;/a&gt;. In cooperation with &lt;a href=&#34;https://www.smlabib.com/&#34;&gt;Dr. S.M. Labib&lt;/a&gt; we have build the R package &lt;a href=&#34;https://github.com/STBrinkmann/GVI&#34;&gt;GVI&lt;/a&gt;, to easily calculating VGVI’s. The VGVI expresses the proportion of visible greenness to the total visible area and is calculated using a viewshed based on a Digital Surface Model (DSM). There are other methods to compute visible greenness, for example using Google Street View panorama images instead of a DSM (&lt;a href=&#34;https://doi.org/10.1016/j.ufug.2015.06.006&#34;&gt;Li &lt;em&gt;et al.&lt;/em&gt; 2015&lt;/a&gt;). Though the method we present has some advantages, as DSM and Landuse data is already being provided for public use for many regions worldwide. Furthermore, it is very easy to not only compute the overall visible greenness, but - for example - compute visible tree-coverage or visible blue-space. Such information is important to understand how specific build environment features affect health. I will demonstrate how to calculate visible tree-coverage in the end of this post.&lt;/p&gt;
 &lt;p&gt;On the &lt;a href=&#34;https://github.com/STBrinkmann/GVI&#34;&gt;GitHub website&lt;/a&gt; we have already provided examples on how to use the functions. However, a use case of this R package for researchers is to compute the VGVI for a large study area.&lt;br /&gt;
-Therefore, in this post, I’d like to provide a workflow for a large area of interest, using the City of Vancouver as my study area.&lt;/p&gt;
+Therefore, in this post, I’d like to provide a workflow for a large area of interest, using the City of Vancouver as my study area. GVI uses a fast viewshed implementation that is most efficient for larger areas. In our recent &lt;a href=&#34;https://geobrinkmann.com/publication/brinkmann_2022/&#34;&gt;paper&lt;/a&gt; we describe this novel algorithm in detail.&lt;/p&gt;
 &lt;div id=&#34;input&#34; class=&#34;section level2&#34;&gt;
 &lt;h2&gt;Input&lt;/h2&gt;
-&lt;p&gt;For computing the VGVI, we need three raster layers: the Digital Terrain Model (DEM) and Digital Surface Model (DSM) and a Greenspace Mask. The Greenspace Mask is a binary raster based on a Land Cover Classification map, where 1 = vegetation and 0 = no vegetation. I have also included bluespaces (e.g. lakes and rivers) to the greenspace mask with the value 1, since these features also seem to provide mental health benefits (&lt;a href=&#34;https://doi.org/10.1038/s41598-021-87675-0&#34;&gt;White &lt;em&gt;et al.&lt;/em&gt; 2021&lt;/a&gt;).&lt;/p&gt;
+&lt;p&gt;To compute the VGVI we need three raster layers: (1) the Digital Terrain Model (DEM) and (2) Digital Surface Model (DSM) and (3) a Greenspace Mask. The Greenspace Mask is a binary raster based on a Land Cover Classification map, where 1 = vegetation and 0 = no vegetation. I have also included bluespaces (e.g. lakes and rivers) to the greenspace mask with the value 1, since these features also seem to provide mental health benefits (&lt;a href=&#34;https://doi.org/10.1038/s41598-021-87675-0&#34;&gt;White &lt;em&gt;et al.&lt;/em&gt; 2021&lt;/a&gt;).&lt;/p&gt;
 &lt;p&gt;The data can be downloaded from &lt;a href=&#34;https://doi.org/10.5281/zenodo.5061256&#34;&gt;Zenodo&lt;/a&gt; and read in R like this.&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;### Load libraries
 library(terra) # handling raster data
@@ -391,7 +390,7 @@ writeRaster(greenspace, file.path(workdir, &amp;quot;Vancouver_GS_2m.tif&amp;quo
 &lt;iframe frameborder=&#34;0&#34; scrolling=&#34;no&#34; seamless=&#34;seamless&#34; style=&#34;display:block; width:95%; height:85vh;&#34; src=&#34;https://h2961284.stratoserver.net/content/leaflets/VGVI%20Input/index.html&#34;&gt;
 &lt;/iframe&gt;
 &lt;p&gt;&lt;/br&gt;&lt;/p&gt;
-&lt;p&gt;We also need the observer locations where the VGVI should be computed. In our example we could simply use all coordinates of the whole DSM. However, we can’t compute the VGVI from inside buildings, and it wouldn’t make sense to compute VGVI on water (unless you are interested in the view of stand-up paddlers). Therefore, in the next step, we only use the coordinates of useful cells from the Land Cover Classification map and convert it to a sf-point feature.&lt;/p&gt;
+&lt;p&gt;We also need the observer locations where the VGVI should be computed. In our example we could simply use all coordinates of the whole DSM. However, we can’t compute the VGVI from inside buildings, and it wouldn’t make sense to compute VGVI on water (unless you are interested in the view of stand-up paddlers). Therefore, in the next step we only use the coordinates of useful cells from the Land Cover Classification map and convert it to a sf-POINT feature.&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Useful Landcover Classification codes
 useful_codes &amp;lt;- c(2:11, 13)
 
@@ -400,24 +399,14 @@ xy_coords &amp;lt;- xyFromCell(lulc, which(values(lulc) %in% useful_codes)) %&am
   as_tibble()
 
 # Convert to shapefile
-vancouver_2m_sf &amp;lt;- st_as_sf(xy_coords, coords = c(&amp;quot;x&amp;quot;, &amp;quot;y&amp;quot;), crs = 26910)
-
-# Save sf
-write_sf(vancouver_2m_sf, file.path(workdir, &amp;quot;Vancouver_2m_xy.gpkg&amp;quot;))&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Creating and writing the shapefile might take some time, as it contains 16.741.566 features. At this point I would recommend to restart the R session and clean the environment to free the RAM.&lt;/p&gt;
+vancouver_2m_sf &amp;lt;- st_as_sf(xy_coords, coords = c(&amp;quot;x&amp;quot;, &amp;quot;y&amp;quot;), crs = 26910)&lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 &lt;div id=&#34;vgvi&#34; class=&#34;section level2&#34;&gt;
 &lt;h2&gt;VGVI&lt;/h2&gt;
 &lt;p&gt;Before computing the VGVI using the &lt;code&gt;vgvi_from_sf&lt;/code&gt; function from our GVI R package, I would recommend to think about some important parameters. I have partially covered this in my last &lt;a href=&#34;https://geobrinkmann.com/post/visibility-sensitivity-analysis/&#34;&gt;post&lt;/a&gt;, where I talked about the parameters &lt;em&gt;raster_res&lt;/em&gt; and &lt;em&gt;max_distance&lt;/em&gt;. So far, we have not provided recommendations for fitting the weights parameters &lt;em&gt;m&lt;/em&gt;, &lt;em&gt;b&lt;/em&gt;, and &lt;em&gt;mode&lt;/em&gt;, because we need to conduct more research in this area. However, in our study area, m = 1 and b = 3, using the exponential function (see plot below) for calculating the distance decay weights seems sufficient.&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;weights_example.svg&#34; width=&#34;351&#34; /&gt;&lt;/p&gt;
-&lt;p&gt;Computing VGVI for a large area using multiple CPU cores can be RAM expensive. In addition to that, loading the complete &lt;em&gt;Vancouver_2m_xy.gpkg&lt;/em&gt; shapefile into the R session is very RAM expensive, too. Therefore, I’ll make use of a SQL statement, to load the shapefile step by step. This way, the computation is more efficient and faster. Furthermore, by saving after every step, it is very easy to continue the script at the latest position in case of an unexpected system failure.&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;library(magrittr)
-library(sf)
-library(terra)
-library(GVI)
-options(show.error.messages = T)
-
-# Set your cores here!
+&lt;p&gt;Computing VGVI for a large area using multiple CPU cores can be RAM expensive. In addition to that, loading the complete &lt;em&gt;Vancouver_2m_xy.gpkg&lt;/em&gt; shapefile into the R session is very RAM expensive, too. GVI is programmed using OpenMP under the hood for parallel C++ computation. This way, the computation is more efficient and faster. On my system computation time for all 16,741,566 points took 2 hours using 22 cores with a RAM usage of ~ 20GB.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Set your cores here!
 cores &amp;lt;- 22
 
 # Set workdir
@@ -431,85 +420,30 @@ dtm &amp;lt;- rast(file.path(workdir, &amp;quot;Vancouver_DTM_1m.tif&amp;quot;))
 dsm &amp;lt;- rast(file.path(workdir, &amp;quot;Vancouver_DSM_1m.tif&amp;quot;))
 greenspace &amp;lt;- rast(file.path(workdir, &amp;quot;Vancouver_GS_2m.tif&amp;quot;))
 
-# Sequence for the SQL statement
-sql_seq &amp;lt;- as.integer(seq(1, 16741566, length.out = 201))
-
-
-for(i in 2:max(seq_along(sql_seq))) {
-  cat(paste0(&amp;quot;Iteration &amp;quot;, i-1, &amp;quot;/&amp;quot;, length(sql_seq)-1, &amp;quot;:\n&amp;quot;))
-  
-  # Load shapefile with SQL statement
-  vancouver_sf &amp;lt;- st_read(
-    file.path(workdir, &amp;quot;Vancouver_2m_xy.gpkg&amp;quot;),
-    query = paste(&amp;quot;SELECT * FROM \&amp;quot;Vancouver_2m_xy\&amp;quot; WHERE fid BETWEEN&amp;quot;, 
-                  sql_seq[i-1], &amp;quot;AND&amp;quot;, sql_seq[i]),
-    quiet = TRUE)
-  
-  # Compute VGVI
-  vancouver_vgvi &amp;lt;- vgvi_from_sf(observer = vancouver_sf,
+vancouver_vgvi &amp;lt;- vgvi_from_sf(observer = vancouver_2m_sf,
                                  dsm_rast = dsm, 
                                  dtm_rast = dtm, 
                                  greenspace_rast = greenspace,
                                  max_distance = 550, observer_height = 1.7,
                                  raster_res = 2,
                                  m = 1, b = 3, mode = &amp;quot;exponential&amp;quot;,
-                                 cores = cores, chunk_size = 10000, 
+                                 cores = cores, 
                                  folder_path = file.path(workdir, &amp;quot;out&amp;quot;),
-                                 progress = TRUE)
-  cat(&amp;quot;\n&amp;quot;)
-}&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;I recommend to save the code from above in a separate R script (e.g. vgvi_Vancouver_2m.R) and call this script from the console. On Linux you can do this with the command:&lt;br /&gt;
-&lt;code&gt;sudo R CMD BATCH vgvi_Vancouver_2m.R &amp;amp;&lt;/code&gt;&lt;/p&gt;
-&lt;p&gt;This will run the R script in background and saves the output in a new file vgvi_Vancouver_2m&lt;strong&gt;.Rout&lt;/strong&gt;. You can check the progress by calling &lt;code&gt;cat vgvi_Vancouver_2m.Rout&lt;/code&gt;. In addition, I would recommend checking your CPU and RAM usage. I really like the &lt;a href=&#34;https://htop.dev/&#34;&gt;htop&lt;/a&gt; tool for this!&lt;/p&gt;
+                                 progress = TRUE)&lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 &lt;div id=&#34;vgvi-to-raster&#34; class=&#34;section level2&#34;&gt;
 &lt;h2&gt;VGVI to Raster&lt;/h2&gt;
-&lt;p&gt;In most cases we prefer working with raster layers instead of millions of point features. Therefore, we will combine all the VGVI shapefiles from the previous step and convert them to a single raster (we will include this functionality in our package in the future). Also, I found it useful to smooth the final product by applying a moving window (focal) smoothing function.&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;library(magrittr)
-library(sf)
-library(terra)
-library(raster)
+&lt;p&gt;In most cases we prefer working with raster layers instead of millions of point features. Therefore, we will combine all the VGVI points from the previous step and convert them to a single raster. We will do so using &lt;a href=&#34;https://geobrinkmann.com/post/iwd/&#34;&gt;Inverse Distance Weighting interpolation&lt;/a&gt;. Computation time was ~ 2.5 hours, so total computation time was 3.5 hours using 22 cores.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# We need an AOI shapefile first
+aoi &amp;lt;- greenspace &amp;gt;= 0
+aoi &amp;lt;- sf::st_as_sf(terra::as.polygons(aoi))
 
-workdir &amp;lt;- &amp;quot;H:/Vancouver/Vancouver_Sample_Data/&amp;quot;
-
-# List all shapefiles in the out-folder
-vgvi_paths &amp;lt;- list.files(file.path(workdir, &amp;quot;out&amp;quot;), 
-                         full.names = TRUE, pattern = &amp;quot;.gpkg&amp;quot;)
-
-# Load the Greenspace Mask
-greenspace &amp;lt;- rast(file.path(workdir, &amp;quot;Vancouver_GS_2m.tif&amp;quot;))
-
-pb = txtProgressBar(min = 0, max = length(vgvi_paths), initial = 0, style = 3)
-for (i in seq_along(vgvi_paths)) {
-  # Convert shapefile to raster, the Greenspace raster  will be 
-  # used as a template for CRS and extent
-  this_rast &amp;lt;- terra::rasterize(terra::vect(vgvi_paths[i]), greenspace, &amp;quot;VGVI&amp;quot;)
-  names(this_rast) &amp;lt;- &amp;quot;VGVI&amp;quot;
-
-  if (i == 1) {
-    terra::writeRaster(x = this_rast, 
-                       filename = file.path(workdir, &amp;quot;big_rast.tif&amp;quot;),
-                       overwrite = TRUE)
-  } else {
-    terra::writeRaster(terra::merge(x = this_rast, 
-                                    y = rast(file.path(workdir, &amp;quot;big_rast.tif&amp;quot;))),
-                       filename = file.path(workdir, &amp;quot;big_rast.tif&amp;quot;),
-                       overwrite = TRUE)
-  }
-  setTxtProgressBar(pb,i)
-}
-
-# Clean data
-big_rast &amp;lt;- terra::rast(file.path(workdir, &amp;quot;big_rast.tif&amp;quot;)) %&amp;gt;%
-  terra::classify(rcl = matrix(c(-Inf, 0, 0),
-                               ncol = 3,
-                               byrow = TRUE))
-
-# Apply smoothing and write raster
-big_rast %&amp;gt;%
-  terra::focal(3, fun = median, na.rm = TRUE) %&amp;gt;%
-  terra::mask(big_rast) %&amp;gt;%
-  terra::writeRaster(file.path(workdir, &amp;quot;big_rast_smooth.tif&amp;quot;))&lt;/code&gt;&lt;/pre&gt;
+vgvi_idw &amp;lt;- GVI::sf_to_rast(observer = vancouver_vgvi, v = &amp;quot;VGVI&amp;quot;,
+                            aoi = aoi,
+                            max_distance = 400, n = 10,
+                            raster_res = 10, beta = 2,
+                            cores = 22, progress = TRUE)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;/post/visible-greenness-exposure-index-an-example-workflow-for-the-city-of-vancouver/index.en_files/figure-html/unnamed-chunk-5-1.png&#34; width=&#34;960&#34; /&gt;&lt;/p&gt;
 &lt;/div&gt;
 &lt;div id=&#34;tree-coverage-visibility&#34; class=&#34;section level2&#34;&gt;
 &lt;h2&gt;Tree-Coverage Visibility&lt;/h2&gt;
