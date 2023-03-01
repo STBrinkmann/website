@@ -75,17 +75,7 @@ vancouver_2m_sf &lt;- st_as_sf(xy_coords, coords = c(&quot;x&quot;, &quot;y&quot
 <pre class="r"><code># Set your cores here!
 cores &lt;- 22
 
-# Set workdir
-workdir &lt;- &quot;H:/Vancouver/Vancouver_Sample_Data/&quot;
-
-# Make dir for saving the VGVI output continuously
-dir.create(file.path(workdir, &quot;out&quot;))
-
-# Load raster data
-dtm &lt;- rast(file.path(workdir, &quot;Vancouver_DTM_1m.tif&quot;))
-dsm &lt;- rast(file.path(workdir, &quot;Vancouver_DSM_1m.tif&quot;))
-greenspace &lt;- rast(file.path(workdir, &quot;Vancouver_GS_2m.tif&quot;))
-
+# Calculate VGVI for all 16,741,566 points
 vancouver_vgvi &lt;- vgvi_from_sf(observer = vancouver_2m_sf,
                                  dsm_rast = dsm, 
                                  dtm_rast = dtm, 
@@ -94,7 +84,6 @@ vancouver_vgvi &lt;- vgvi_from_sf(observer = vancouver_2m_sf,
                                  raster_res = 2,
                                  m = 1, b = 3, mode = &quot;exponential&quot;,
                                  cores = cores, 
-                                 folder_path = file.path(workdir, &quot;out&quot;),
                                  progress = TRUE)</code></pre>
 </div>
 <div id="vgvi-to-raster" class="section level2">

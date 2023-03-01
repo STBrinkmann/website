@@ -91,17 +91,7 @@ Computing VGVI for a large area using multiple CPU cores can be RAM expensive. I
 # Set your cores here!
 cores <- 22
 
-# Set workdir
-workdir <- "H:/Vancouver/Vancouver_Sample_Data/"
-
-# Make dir for saving the VGVI output continuously
-dir.create(file.path(workdir, "out"))
-
-# Load raster data
-dtm <- rast(file.path(workdir, "Vancouver_DTM_1m.tif"))
-dsm <- rast(file.path(workdir, "Vancouver_DSM_1m.tif"))
-greenspace <- rast(file.path(workdir, "Vancouver_GS_2m.tif"))
-
+# Calculate VGVI for all 16,741,566 points
 vancouver_vgvi <- vgvi_from_sf(observer = vancouver_2m_sf,
                                  dsm_rast = dsm, 
                                  dtm_rast = dtm, 
@@ -110,7 +100,6 @@ vancouver_vgvi <- vgvi_from_sf(observer = vancouver_2m_sf,
                                  raster_res = 2,
                                  m = 1, b = 3, mode = "exponential",
                                  cores = cores, 
-                                 folder_path = file.path(workdir, "out"),
                                  progress = TRUE)
 ```
 
