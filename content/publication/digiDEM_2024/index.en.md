@@ -1,5 +1,5 @@
-title: "Räumliche Erreichbarkeit von Gedächtnisambulanzen – Eine geographische Analyse im Rahmen von digiDEM Bayern"
 ---
+title: "Räumliche Erreichbarkeit von Gedächtnisambulanzen – Eine geographische Analyse im Rahmen von digiDEM Bayern"
 summary: "Memory clinics play a crucial role in the qualified diagnosis of dementia. This study aimed to assess the accessibility of memory clinics for people with dementia in Bavaria by utilizing a Geographic Information System (GIS) to calculate travel times from all Bavarian municipalities to the nearest memory clinic using OpenStreetMap data. It was found that the majority (40%; n = 93,950) of modeled individuals with dementia live in communities with an average travel time of 20 to 40 minutes to the nearest clinic, while approximately 7,000 (3%) face a travel time of more than one hour, particularly in rural areas. In light of demographic trends, improving accessibility to memory clinics across all locations is imperative. The expansion of memory clinics in areas with lengthy travel times or the introduction of mobile diagnostic services could enhance care for people with dementia."
 authors:
 - admin
